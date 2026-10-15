@@ -1,0 +1,118 @@
+Wildshift Knight - Prompt 3 base body verification
+============================================================
+
+[PASS] units metric, 1 unit = 1 m  -> METRIC 1.0
+[PASS] all Prompt 1 collections still present  -> 10/10
+[PASS] Prompt 1 object intact: WSK_Origin_Centerline
+[PASS] Prompt 1 object intact: WSK_HeightRef_2m
+[PASS] Prompt 1 object intact: WSK_Studio_Ground_01
+[PASS] Prompt 1 object intact: WSK_Cam_Front_Ortho
+[PASS] Prompt 1 object intact: WSK_Cam_Side_Ortho
+[PASS] Prompt 1 object intact: WSK_Cam_Rear_Ortho
+[PASS] Prompt 1 object intact: WSK_Light_Key
+[PASS] 'Body' collection holds exactly one mesh object  -> WSK_Body_Base_01
+[PASS] body object named WSK_Body_Base_01
+[PASS] collection 'Helmet' still empty (no armour/helmet/cape/weapon/rig)  -> 0 objects
+[PASS] collection 'Armor' still empty (no armour/helmet/cape/weapon/rig)  -> 0 objects
+[PASS] collection 'Cape' still empty (no armour/helmet/cape/weapon/rig)  -> 0 objects
+[PASS] collection 'Accessories' still empty (no armour/helmet/cape/weapon/rig)  -> 0 objects
+[PASS] collection 'Weapon' still empty (no armour/helmet/cape/weapon/rig)  -> 0 objects
+[PASS] collection 'Rig' still empty (no armour/helmet/cape/weapon/rig)  -> 0 objects
+[PASS] Prompt 2 blockout retained (19 parts + root, not deleted)  -> 20 objects
+[PASS] blockout collection disabled in viewport and render
+[PASS] every blockout object also disabled
+[PASS] proportion guide joint markers retained (4 centre + 12 limb)  -> 16 markers
+[PASS] proportion guide meshes retained (centreline/ruler/silhouette/envelopes)
+[PASS] proportion guide is a separate collection from the body
+[PASS] reference backdrops retained
+[PASS] Prompt 2 proportion sheet text block retained
+[PASS] Prompt 3 topology notes text block saved
+[PASS] body has an identity transform (vertex = world coordinate)
+[PASS] body object scale is applied (1,1,1) - no object-level scaling  -> (1.0, 1.0, 1.0)
+[PASS] no modifiers left on the body (mirror applied)  -> 0 modifiers
+[PASS] modifier history recorded in an object property
+[PASS] no armature / rigging anywhere in the file
+[PASS] exactly one neutral material  -> MAT_Body_NeutralGrey_01
+[PASS] material is untextured (no image texture node)
+[PASS] material is neutral grey, non-metallic
+[PASS] mesh is closed: no boundary edges  -> 0
+[PASS] mesh is manifold: no edge with more than two faces  -> 0
+[PASS] no loose vertices  -> 0
+[PASS] Euler characteristic V-E+F = 2 (closed surface, genus 0)  -> 1832-3668+1838 = 2
+[PASS] quad-dominant topology  -> 1768 quads, 64 tris, 6 quads-as-ngons = 96.2 % quads
+[PASS] the only non-quad faces are the six tube-root caps (2 arms, 2 thumbs, 2 soles)  -> 6 n-gons, sizes [6, 6, 14, 14, 16, 16]
+[PASS] triangle caps only where a tube ends  -> 64 tris
+[PASS] no zero-area faces  -> 0
+[PASS] no duplicate/coincident vertices  -> 0 duplicates
+[PASS] face normals point outward (positive enclosed volume)  -> signed volume +0.0536 m^3
+[PASS] no self-intersecting faces (no overlapping body shells)  -> 0 intersecting pairs
+[PASS] no geometry below the ground plane  -> min Z +0.000000
+[PASS] feet exactly on the ground plane Z = 0  -> +0.000000
+[PASS] exact left/right mirror symmetry  -> worst mirrored-vertex error 0.0500 mm
+[PASS] centred on the character origin in X  -> X span [-0.3759, +0.3759]
+[PASS] body height (bare crown, no helmet) is 1.910 m  -> 1.9100 m
+[PASS] bare crown keeps the helmet envelope of the guide clear  -> 2.000 - 1.910 = 0.090 m of shell room
+[PASS] arm span inside the cape envelope  -> 0.752 m (cape 1.10 m)
+[PASS] body fits the guide's front-view Y extents (-0.20 .. +0.30)  -> Y [-0.141, +0.189]
+[PASS] guide joint marker Center_Hips still matches the sheet  -> (+0.0000, +0.0000, +1.0000) vs sheet (0.0, 0.0, 1.0)
+[PASS] guide joint marker Center_Waist still matches the sheet  -> (+0.0000, +0.0000, +1.2200) vs sheet (0.0, 0.0, 1.22)
+[PASS] guide joint marker Center_Chest still matches the sheet  -> (+0.0000, +0.0000, +1.6300) vs sheet (0.0, 0.0, 1.63)
+[PASS] guide joint marker Neck still matches the sheet  -> (+0.0000, +0.0000, +1.7800) vs sheet (0.0, 0.0, 1.78)
+[PASS] guide joint marker Shoulder_R still matches the sheet  -> (+0.2000, +0.0000, +1.6300) vs sheet (0.2, 0.0, 1.63)
+[PASS] guide joint marker Shoulder_L still matches the sheet  -> (-0.2000, +0.0000, +1.6300) vs sheet (-0.2, 0.0, 1.63)
+[PASS] guide joint marker Elbow_R still matches the sheet  -> (+0.3163, -0.0200, +1.2805) vs sheet (0.316, -0.02, 1.281)
+[PASS] guide joint marker Elbow_L still matches the sheet  -> (-0.3163, -0.0200, +1.2805) vs sheet (-0.316, -0.02, 1.281)
+[PASS] guide joint marker Wrist_R still matches the sheet  -> (+0.2954, +0.0218, +0.9834) vs sheet (0.295, 0.022, 0.983)
+[PASS] guide joint marker Wrist_L still matches the sheet  -> (-0.2954, +0.0218, +0.9834) vs sheet (-0.295, 0.022, 0.983)
+[PASS] guide joint marker Hip_R still matches the sheet  -> (+0.1000, +0.0000, +1.0000) vs sheet (0.1, 0.0, 1.0)
+[PASS] guide joint marker Hip_L still matches the sheet  -> (-0.1000, +0.0000, +1.0000) vs sheet (-0.1, 0.0, 1.0)
+[PASS] guide joint marker Knee_R still matches the sheet  -> (+0.1550, +0.0100, +0.5500) vs sheet (0.155, 0.01, 0.55)
+[PASS] guide joint marker Knee_L still matches the sheet  -> (-0.1550, +0.0100, +0.5500) vs sheet (-0.155, 0.01, 0.55)
+[PASS] guide joint marker Ankle_R still matches the sheet  -> (+0.2150, -0.0100, +0.1150) vs sheet (0.215, -0.01, 0.115)
+[PASS] guide joint marker Ankle_L still matches the sheet  -> (-0.2150, -0.0100, +0.1150) vs sheet (-0.215, -0.01, 0.115)
+[PASS] joint Center_Hips lies inside the body volume (usable for a rig)
+[PASS] joint Center_Waist lies inside the body volume (usable for a rig)
+[PASS] joint Center_Chest lies inside the body volume (usable for a rig)
+[PASS] joint Neck lies inside the body volume (usable for a rig)
+[PASS] joint Shoulder_R lies inside the body volume (usable for a rig)
+[PASS] joint Shoulder_L lies inside the body volume (usable for a rig)
+[PASS] joint Elbow_R lies inside the body volume (usable for a rig)
+[PASS] joint Elbow_L lies inside the body volume (usable for a rig)
+[PASS] joint Wrist_R lies inside the body volume (usable for a rig)
+[PASS] joint Wrist_L lies inside the body volume (usable for a rig)
+[PASS] joint Hip_R lies inside the body volume (usable for a rig)
+[PASS] joint Hip_L lies inside the body volume (usable for a rig)
+[PASS] joint Knee_R lies inside the body volume (usable for a rig)
+[PASS] joint Knee_L lies inside the body volume (usable for a rig)
+[PASS] joint Ankle_R lies inside the body volume (usable for a rig)
+[PASS] joint Ankle_L lies inside the body volume (usable for a rig)
+[PASS] Elbow_R: limb ring passes through the guide marker  -> in-plane offset 10.9 mm, ring Z 1.282 vs marker 1.281
+[PASS] Elbow_L: limb ring passes through the guide marker  -> in-plane offset 10.9 mm, ring Z 1.282 vs marker 1.281
+[PASS] Wrist_R: limb ring passes through the guide marker  -> in-plane offset 0.0 mm, ring Z 0.983 vs marker 0.983
+[PASS] Wrist_L: limb ring passes through the guide marker  -> in-plane offset 0.0 mm, ring Z 0.983 vs marker 0.983
+[PASS] Knee_R: limb ring passes through the guide marker  -> in-plane offset 2.0 mm, ring Z 0.550 vs marker 0.550
+[PASS] Knee_L: limb ring passes through the guide marker  -> in-plane offset 2.0 mm, ring Z 0.550 vs marker 0.550
+[PASS] Ankle_R: limb ring passes through the guide marker  -> in-plane offset 0.0 mm, ring Z 0.115 vs marker 0.115
+[PASS] Ankle_L: limb ring passes through the guide marker  -> in-plane offset 0.0 mm, ring Z 0.115 vs marker 0.115
+[PASS] Shoulder_R: limb geometry wraps the shoulder joint  -> 19 arm vertices within 90 mm of the marker
+[PASS] Shoulder_L: limb geometry wraps the shoulder joint  -> 19 arm vertices within 90 mm of the marker
+[PASS] chest width at the armpit line (guide chest_w_bot 0.32): 0.326 m  -> delta -0.008 m
+[PASS] upper chest width (guide chest_w_top 0.40): 0.348 m  -> delta -0.024 m
+[PASS] acromion width at the shoulder joint line (0.41 - the guide's 0.46 pauldron plate sits just outside it): 0.410 m  -> delta -0.000 m
+[PASS] waist width (guide 0.30): 0.300 m  -> delta +0.000 m
+[PASS] pelvis width (guide 0.34): 0.344 m  -> delta +0.000 m
+[PASS] chest depth (guide 0.30 at the top): 0.288 m  -> delta +0.005 m
+[PASS] head width inside the measured 0.19 m helmet envelope  -> 0.172 m
+[PASS] foot length ~0.30 m (guide, assumed)  -> 0.289 m
+[PASS] right foot splays outward by ~15 deg (guide)  -> 15.0 deg from the Y axis
+[PASS] foot width across its own axis ~0.13 m (guide 0.135)  -> 0.128 m
+[PASS] foot centres match the guide's sabaton centres (0.43 m apart)  -> 0.459 m
+[PASS] hand block present below the wrist with a forward thumb  -> 77 verts, max Z 0.948
+[PASS] arm chain continuous from deltoid to fingertips  -> 297 verts on the right arm
+[PASS] rendered front silhouette height matches the mesh (1.910 m)  -> 1.9153 m
+[PASS] rendered silhouette rests on Z = 0  -> lowest row 1085 vs ground row 1085
+[PASS] rendered silhouette width is a plausible arm span  -> 0.754 m
+[PASS] rendered silhouette is left/right symmetric  -> worst row asymmetry 2.17 mm
+[PASS] both feet touch the ground separately  -> 2 contact patches
+
+113/113 checks passed
