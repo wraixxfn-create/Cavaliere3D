@@ -58,7 +58,7 @@ extra = json.load(open(EXTRA)) if os.path.exists(EXTRA) else {"egl": [], "gles":
 if not build(extra["egl"], extra["gles"]): raise SystemExit(1)
 env = dict(os.environ, LD_LIBRARY_PATH=OUT)
 for i in range(80):
-    r = subprocess.run(["/home/user/Cavaliere3D/.venv/bin/python","/home/user/Cavaliere3D/tools/check_env.py"],
+    r = subprocess.run(["/home/user/Cavaliere3D/.venv/bin/python","/home/user/Cavaliere3D/tools/check_cycles.py"],
                        capture_output=True, text=True, env=env, cwd="/home/user/Cavaliere3D")
     out = r.stdout + r.stderr
     if "RENDER OK" in out or "RENDER FAILED" in out or "OPENED OK" in out and "not found" not in out:

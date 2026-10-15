@@ -44,8 +44,12 @@ def build(syms, extra):
             name, _, ver = s.partition("@")
             ver = ver.split("@@")[0].strip()
             picked[ver or None].append(name)
-        if not picked: continue
         csrc, maps = [], []
+        if not picked:
+            # The soname can be a DT_NEEDED dependency even when no symbol from
+            # it is referenced (libXrender/libSM/libICE on some bpy builds), so
+            # still emit a loadable library carrying only a private dummy.
+            csrc.append("void *wsk_stub_placeholder(void){return 0;}")
         for ver, names in sorted(picked.items(), key=lambda kv:(kv[0] is not None, kv[0])):
             for n in sorted(set(names)): csrc.append(f"void *{n}(void){{return 0;}}")
             if ver: maps.append(f'{ver} {{ global: {"; ".join(sorted(set(names)))}; }};')
