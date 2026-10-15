@@ -14,6 +14,7 @@ disturbed.
 | 3 | `Wildshift_Knight_03_BaseBody.blend` | clean base body: one closed quad-dominant humanoid mesh (torso, pelvis, neck, head blank, arms, hands with thumbs, legs, feet), neutral material, proportion guide retained |
 | 4 | `Wildshift_Knight_04_HelmetBlockout.blend` | helmet foundation and head silhouette: enclosed ogival helmet with a narrow recessed face, centre crest, neck guard, and a spiked halo crown of separate broad elements; dark placeholder materials, no rig |
 | 5 | `Wildshift_Knight_05_ArmorBlockout.blend` | major armor masses in sixteen separate, editable pieces: cuirass front/back, broad pauldrons with two separate spikes, forearm and hand placeholders, thigh/shin guards, and sabatons; dark untextured placeholder metals, no rig |
+| 6 | `Wildshift_Knight_06_Silhouette.blend` | whole-figure silhouette pass: pauldrons narrowed to 0.530 m of plate, the two shoulder spikes re-seated as one broad 45 deg spike each on a 0.640 m span, central crown spike shortened to Z 2.115, leg guards extended toward knee and ankle, gauntlets over the fingertips, sabatons on the ground plane, plus a temporary silhouette material, world, view layer and four orthographic inspection cameras |
 
 ## Prompt 2 — proportions
 
@@ -341,6 +342,111 @@ Outputs:
 * `WSK_Armor_Blockout_Notes.txt` — design and fitting notes saved inside the
   `.blend` file.
 
+## Prompt 6 — full character silhouette
+
+Deliverable: **`Wildshift_Knight_06_Silhouette.blend`**, built from checkpoint 5.
+Scale, orientation and unit system are unchanged; the base body, the helmet
+shell / face plate / crest / neck guard and twelve of the thirteen crown
+elements are byte-identical.
+
+![front, rear, left and right silhouette inspection](analysis/silhouette/silhouette_inspection.png)
+
+### The one big correction: the shoulders
+
+`analysis/reference_measurements.md` anchors the body height at
+2.00 m = 81.2 % of 1293 px = 1050 px (**1.905 mm/px**) but converts its width
+readings with "1 % of image width = 13.7 mm" (**1.615 mm/px**).  Those two
+scales disagree by 17.9 %, so every width in that document is about 15 % short
+of the figure it describes.  The Prompt 3 overlay (`verify_base_body.py`)
+already used `m_per_px = 2.0 / body_px` = 1.905 mm/px, so Prompt 6 re-derives
+every width with that single scale.
+
+Width / height **ratios** are calibration free and are what decided the change:
+
+| feature | raw reading | / body height | metres at 2.00 m | document said |
+|---|---|---|---|---|
+| pauldron plate outer edges | x 33.0 – 67.0 % | 0.275 | 0.549 m | 0.46 |
+| spiked shoulder extent, front | x 30.5 – 69.5 % | 0.315 | 0.630 m | 0.52 – 0.54 |
+| spiked shoulder extent, rear | x 30.0 – 74.0 % | 0.358 | 0.715 m | 0.61 |
+| helmet / hood width | x 44.5 – 58.0 % | 0.109 | 0.218 m | 0.19 |
+| crown ring outer span | x 40.0 – 60.5 % | 0.166 | 0.331 m | 0.28 |
+
+Checkpoint 5's shoulders were 0.806 m of plate and 0.906 m over the spikes —
+1.65× too wide for its own head.  Checkpoint 6 is **0.530 m of plate and
+0.637 m over the spikes**, which puts the head-to-shoulder ratio at 0.31
+against a reference of 0.35.
+
+### Approved proportions
+
+| feature | model | reference |
+|---|---|---|
+| helmet dome top (ground Z = 0) | 1.995 m | 2.000 |
+| crown spike tips | 2.115 m | 2.131 |
+| shoulder line / pauldron top edge | Z 1.740 | 1.744 |
+| pauldron plate span | 0.530 m | 0.549 |
+| spiked shoulder span | 0.637 m | 0.630 / 0.715 |
+| shoulder spike | one per side, 0.113 m long, 45° out / 10° back | — |
+| crown spike fan span | 0.361 m | 0.331 (ring) |
+| chest / back plate outer edges | ±0.172 m | — |
+| hip / knee / ankle | Z 1.000 / 0.550 / 0.115 | — |
+| foot centres | ±0.236 m, stance 0.472 m | ±0.255, 0.510 |
+| sabaton sole / cuff | Z 0.000 / 0.106 | 0.017 / 0.15 |
+
+### Silhouette inspection setup (temporary, removable)
+
+* `MAT_Silhouette_Dark_01` — flat near-black diffuse placeholder.
+* `WSK_World_Silhouette` — flat light-grey contrasting backdrop.
+* View layer **`Silhouette Check`** — `material_override` + `world_override`,
+  with `Reference`, `Blockout` and `Lighting and Cameras` excluded.  Switch to
+  it to see the outline; switch back to `ViewLayer` for normal work.
+* `WSK_Cam_Sil_{Front,Rear,Left,Right}_01` — orthographic, 2.60 m, centred on
+  Z 1.03, in a new `Silhouette Check` collection.
+
+Nothing was merged, joined, applied or rigged: 16 armour objects each keep
+their own mesh and their BEVEL modifier, and the crown is still 13 parts.
+
+### Remaining visual issues
+
+1. **Head is narrow.** Helmet 0.195 m vs a reference 0.218 m and crown ring
+   0.269 m vs 0.331 m — a Prompt 4 deviation (helmet sized off the 0.172 m
+   Prompt 3 skull).  Fix it with the hood, not by rescaling the crown.
+2. **Stance** 0.472 m vs 0.510 m.  The legs are the Prompt 3 body.
+3. **Chest depth** 0.314 m vs a side-view read of 0.368 m (~15 % shallow).
+4. **Feet are long:** heel Y −0.114 vs a reference read of −0.050.
+5. **Upper arms are unarmoured** between pauldron and bracer; no new part was
+   added in Prompt 6.
+6. **Arm pose** is the symmetric Prompt 3 rest pose.  The reference is
+   asymmetric (one hand on a sword grip at about X 0.44, Z 1.45) — pose it
+   after the rig.
+7. **No cape yet.**  It dominates the reference outline below the shoulders
+   (0.94 m wide, hem at Z 0.21) and will change the silhouette again.
+
+### Verification
+
+`tools/verify_silhouette.py` runs **57 automated checks**, all passing.  It
+confirms the checkpoint-5 scope (only the 13 intended objects changed, only 4
+cameras, one material, one world and one collection added), the approved
+proportions, closed manifold shells, X balance, ground contact and upright
+posture, crown / shoulder-spike separation, that armour overlaps are still
+limited to the intended pauldron lap and the two spike seats, and that the four
+inspection views agree on the same figure (height, width, depth, front/rear and
+left/right mirror IoU above 0.99, one continuous mass in every view).
+
+Outputs:
+* `analysis/silhouette/silhouette_inspection.png` — front, rear, left and
+  right inspection views on the contrasting backdrop.
+* `analysis/silhouette/silhouette_{front,rear,left,right}.png` — the four
+  views individually.
+* `analysis/silhouette/silhouette_targets_{front,left}.png` — the same views
+  with the approved landmark lines drawn on them.
+* `analysis/silhouette/silhouette_before_after.png` — checkpoint 5 (red) vs
+  checkpoint 6 (blue) front outlines.
+* `analysis/verify/verify_silhouette_report.txt` — the full report.
+* `analysis/reference_silhouette_targets.md` — the re-derived reference table
+  and the measured silhouette profile.
+* `WSK_Silhouette_Notes.txt` — the same approved proportions and issues, saved
+  inside the `.blend` file.
+
 ## Reproducing
 
 ```bash
@@ -355,6 +461,8 @@ tools/bl.sh tools/build_helmet_blockout.py    # writes checkpoint 4
 tools/bl.sh tools/verify_helmet_blockout.py   # 68 checks + views, sections, poses
 tools/bl.sh tools/build_armor_blockout.py     # writes checkpoint 5
 tools/bl.sh tools/verify_armor_blockout.py    # 43 checks + front/side/rear views
+tools/bl.sh tools/build_silhouette.py         # writes checkpoint 6
+tools/bl.sh tools/verify_silhouette.py        # 57 checks + 4 silhouette views
 #   WSK_SKIP_RENDERS=1 for numeric checks only; WSK_SAMPLES=<n> sets render quality
 ```
 
@@ -374,12 +482,14 @@ analysis/                  measurements, diagrams, verification (outputs)
 analysis/basebody/         Prompt 3 body renders, joint close-ups, overlays
 analysis/helmet/           Prompt 4 helmet views, silhouettes, sections, poses
 analysis/armor/            Prompt 5 front, side and rear armor orthographic checks
+analysis/silhouette/       Prompt 6 front, rear, left and right silhouette inspection
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender
 tools/build_proportions.py checkpoint 2: proportion sheet + blockout
 tools/build_base_body.py   checkpoint 3: the base body
 tools/build_helmet_blockout.py   checkpoint 4: helmet + crown blockout
 tools/build_armor_blockout.py    checkpoint 5: separate armor plates
+tools/build_silhouette.py        checkpoint 6: whole-figure silhouette pass
 tools/verify_*.py          the check suites (proportions, body, helmet, armor)
 Wildshift_Knight_0*.blend  checkpoints
 setup_blend.py             checkpoint 1 script
