@@ -1,0 +1,194 @@
+WILDSHIFT KNIGHT - PROMPT 4 VERIFICATION: HELMET BASE AND HEAD SILHOUETTE
+============================================================================
+file    : Wildshift_Knight_04_HelmetBlockout.blend
+input   : Wildshift_Knight_03_BaseBody.blend (snapshot compared, never modified)
+script  : tools/verify_helmet_blockout.py   (geometry = evaluated meshes)
+result  : 68 passed, 0 failed
+
+
+A  scope - nothing outside the helmet changed
+---------------------------------------------
+[PASS] earlier checkpoints are untouched in git (01, 02, 03)  -> Wildshift_Knight_01.blend, Wildshift_Knight_02_Proportions.blend, Wildshift_Knight_03_BaseBody.blend
+[PASS] output file exists with the requested name  -> Wildshift_Knight_04_HelmetBlockout.blend (1.3 MB)
+[PASS] every pre-existing object is unchanged (mesh, transform, visibility, modifiers)  -> 66 objects compared
+[PASS] no new objects outside WSK_Helmet_*  -> none
+[PASS] base body kept as the scale reference, mesh identical to checkpoint 03  -> WSK_Body_Base_01
+[PASS] all other collections hold exactly the same objects  -> Reference, Blockout, Body, Armor, Cape, Accessories, Weapon, Rig, Lighting and Cameras
+[PASS] later-stage collections still empty (Armor, Cape, Accessories, Weapon, Rig)
+[PASS] Crown is a new child collection of Helmet
+[PASS] view-layer states unchanged (Blockout still excluded, Reference visible)
+[PASS] scene units / render settings unchanged  -> ('METRIC', 1.0), ('CYCLES', 1080, 1440, None)
+[PASS] earlier text blocks preserved (project notes only appended to)  -> WSK_BaseBody_Topology_Notes.txt, WSK_Project_Notes.txt, WSK_Proportion_Sheet.txt
+[PASS] helmet notes text block added  -> ['WSK_Helmet_Blockout_Notes.txt']
+[PASS] project notes carry a Prompt 4 section  -> +1464 characters
+[PASS] only the three helmet placeholder materials were added  -> ['MAT_Helmet_CrownIron_01', 'MAT_Helmet_DarkSteel_01', 'MAT_Helmet_FaceVoid_01']
+
+B  objects, hierarchy, materials, no rig
+----------------------------------------
+[PASS] Helmet collection = root + shell + face plate + crest + neck guard  -> WSK_Helmet_Crest_01, WSK_Helmet_Faceplate_01, WSK_Helmet_NeckGuard_01, WSK_Helmet_Root_01, WSK_Helmet_Shell_01
+[PASS] Crown collection = band + halo + spine + mount + 9 spikes (all separate objects)  -> 13 objects
+[PASS] names follow WSK_<Category>_<Descriptor>_<Index>  -> e.g. WSK_Helmet_CrownSpike_R2_01
+[PASS] every part has its own mesh datablock (independently editable)  -> 17 meshes, 1 user each
+[PASS] hierarchy: head parts -> root, spine/mount/spikes -> halo, neck guard unparented
+[PASS] root empty sits on the guide neck joint, unrotated, unit scale  -> root (0.0, 0.0, 1.78), WSK_Joint_Neck (0.0, 0.0, 1.78)
+[PASS] shell / face plate / neck guard keep live modifiers (Mirror > Solidify > Subsurf)  -> {'WSK_Helmet_Shell_01': ['MIRROR', 'SOLIDIFY', 'SUBSURF'], 'WSK_Helmet_Faceplate_01': ['MIRROR', 'SOLIDIFY', 'SUBSURF'], 'WSK_Helmet_NeckGuard_01': ['MIRROR', 'SOLIDIFY', 'SUBSURF']}
+[PASS] every object carries wsk_part / wsk_confidence / wsk_prompt
+[PASS] one placeholder material per part, as assigned  -> steel: shell/crest/neck guard, void: face plate, iron: crown
+[PASS] MAT_Helmet_DarkSteel_01: dark, untextured, non-emissive  -> base lum 0.0222, metallic 0.80, roughness 0.36, emission 0
+[PASS] MAT_Helmet_FaceVoid_01: dark, untextured, non-emissive  -> base lum 0.0041, metallic 0.00, roughness 0.95, emission 0
+[PASS] MAT_Helmet_CrownIron_01: dark, untextured, non-emissive  -> base lum 0.0393, metallic 0.85, roughness 0.56, emission 0
+[PASS] face void is near-black and non-metallic (reads as darkness, not a face)
+[PASS] no rig, shape keys, constraints, drivers or lights (no facial animation, no glowing eyes)  -> armatures [], keys [], cons [], lights []
+
+C  evaluated-mesh integrity (modifiers applied in memory)
+---------------------------------------------------------
+[PASS] all 17 parts are closed, manifold solids with the expected topology  -> no open edges, no non-manifold edges
+[PASS] outward normals on every part (positive enclosed volume)
+[PASS] no self-intersections, degenerate faces or loose vertices
+
+D  symmetry and crown balance
+-----------------------------
+[PASS] symmetric parts mirror onto themselves across X = 0 (evaluated)  -> worst 0.0 mm (WSK_Helmet_Faceplate_01)
+[PASS] left/right spikes are exact mirror pairs  -> worst 0.0 mm
+[PASS] crown centre of mass on the centre line (left/right balance)  -> x -0.1 mm
+[PASS] helmet centre of mass on the centre line  -> x 0.0 mm
+[PASS] spike reach falls off steadily from the top to the sides (organised, not random)  -> 27.0 > 22.8 > 21.4 > 19.3 > 17.4 cm from the halo centre
+
+E  fit - clearances, contacts, enclosure
+----------------------------------------
+[PASS] WSK_Helmet_Shell_01 clears the body by >= 5.0 mm  -> 5.7 mm
+[PASS] WSK_Helmet_Faceplate_01 clears the body by >= 5.0 mm  -> 7.9 mm
+[PASS] WSK_Helmet_Crest_01 clears the body by >= 5.0 mm  -> 12.2 mm
+[PASS] WSK_Helmet_NeckGuard_01 clears the body by >= 5.0 mm  -> 5.7 mm
+[PASS] crown clears the body by >= 10 mm  -> 13.4 mm
+[PASS] no unintended intersections between any two parts  -> 136 pairs tested
+[PASS] intended joints really connect (spikes/spine sunk in the halo, mount in band + spine, crest in face plate + shell)  -> 14 joints
+[PASS] crown band rests on the shell (0.5 - 3 mm gap, no intersection)  -> 0.7 mm
+[PASS] neck guard nests under the helmet rim without touching (>= 3 mm)  -> 11.4 mm
+[PASS] face plate chin clears the neck guard (>= 3 mm)  -> 27.8 mm
+[PASS] halo, spine and spikes stand off the shell (>= 8 mm)  -> 21.0 mm
+[PASS] head fully enclosed (helmet + neck guard): no head vertex visible from front, back, sides or top  -> 161 head vertices; visible {'front': 0, 'back': 0, 'right': 0, 'left': 0, 'top': 0}
+[PASS] face plate is featureless (one smooth bulge on its front centre line: no nose, lips or brow)  -> 1 bulge, 0 hollows over 36 samples (z 1.742-1.893)
+
+F  dimensions against the Prompt 2 guide envelope
+-------------------------------------------------
+[PASS] helmet width (shell) within 5 % of the guide 0.190 m  -> 0.1948 m (+2.5 %)
+[PASS] helmet dome top on the guide 2.000 m (+- 10 mm)  -> 1.9947 m
+[PASS] helmet chin on the guide 1.740 m (+- 10 mm)  -> 1.7400 m
+[PASS] halo outer width within 5 % of the guide crown ring 0.280 m  -> 0.2690 m (-3.9 %)
+[PASS] halo bottom on the guide ring frame 1.790 m (+- 10 mm)  -> 1.7868 m
+[PASS] spike span within 5 % of the guide +-0.180 m  -> +-0.1804 m
+[PASS] upper side spikes (+-30 deg) reach the guide spike top 2.110 m (+- 10 mm)  -> 2.1102 m
+
+G  rig - placement and head-motion sweep
+----------------------------------------
+[PASS] helmet does not reach down onto the chest/shoulders (lowest point >= 1.73 m)  -> 1.7400 m; 11.0 cm above the shoulder joints (1.63)
+[PASS] helmet does not project far forward (front <= 0.150 m, guide head front 0.132)  -> 0.1395 m
+[PASS] head pivot (neck joint) lies inside the helmet volume, root empty on it  -> (0.0, 0.0, 1.7799999713897705)
+[PASS] neck passes through the helmet opening with room to turn (>= 10 mm)  -> 24.5 mm
+[PASS] rest pose: head assembly clears torso + neck guard  -> 11.4 mm
+[PASS] head bone alone clears (>= 2 mm): flex 15, ext 20, turn 60, tilt 10 and combinations  -> flexion 15 6.6 mm, extension 20 10.3 mm, turn R 60 12.4 mm, turn L 60 12.4 mm, tilt R 10 6.9 mm, tilt L 10 6.9 mm, flex 10 + turn R 45 10.3 mm, flex 10 + turn L 45 10.3 mm, ext 15 + turn R 45 7.6 mm, ext 15 + turn L 45 7.6 mm, tilt R 8 + turn L 30 3.6 mm, tilt L 8 + turn R 30 3.6 mm
+[PASS] neck + head bones clear (>= 2 mm): look down 30, up 45, tilt 30, over the shoulder 80  -> look down 30 (neck 18 + head 12) 12.2 mm, look up 45 (neck 25 + head 20) 5.4 mm, tilt R 30 (neck 20 + head 10) 5.8 mm, tilt L 30 (neck 20 + head 10) 5.8 mm, over R shoulder 80 (30 + 50) 12.6 mm, over L shoulder 80 (30 + 50) 12.6 mm, down-left (neck 15 + head 10, turn 45) 3.6 mm, up-right (neck 15 + head 15, turn 45) 4.5 mm
+[PASS] head-bone first-contact angles beyond the tested range (flex >= 15, ext >= 20, turn >= 60, tilt >= 10)  -> flexion (chin down) 27.8 deg, extension (look up) 33.0 deg, turn to character right > 90 deg, turn to character left > 90 deg, tilt to right shoulder 18.9 deg, tilt to left shoulder 18.9 deg
+
+E2 silhouette integrity
+-----------------------
+[PASS] no see-through holes in the helmet silhouette (side + front, render subdivision)  -> side: 0 hole cells (3 grazing rays), front: 0 hole cells (0 grazing rays)
+
+H  silhouettes (rendered masks)
+-------------------------------
+[PASS] front silhouette is left/right symmetric (IoU with its mirror >= 0.98)  -> IoU 0.9997
+[PASS] rear silhouette is left/right symmetric (IoU with its mirror >= 0.98)  -> IoU 0.9997
+[PASS] crown silhouette balanced left/right (front view)  -> centroid offset -0.00 mm, area L/R 1.0001
+
+MESH TABLE (evaluated)
+----------------------
+WSK_Helmet_Shell_01                faces   8040  open 0  non-manifold 0  chi +2  vol     643.2 cm3  self-x 0  degen 0
+WSK_Helmet_Faceplate_01            faces   1896  open 0  non-manifold 0  chi +2  vol      49.6 cm3  self-x 0  degen 0
+WSK_Helmet_Crest_01                faces    204  open 0  non-manifold 0  chi +2  vol      20.6 cm3  self-x 0  degen 0
+WSK_Helmet_NeckGuard_01            faces   2880  open 0  non-manifold 0  chi +0  vol     170.1 cm3  self-x 0  degen 0
+WSK_Helmet_CrownBand_01            faces    256  open 0  non-manifold 0  chi +0  vol      84.0 cm3  self-x 0  degen 0
+WSK_Helmet_CrownHalo_01            faces    560  open 0  non-manifold 0  chi +0  vol     207.9 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpine_01           faces    120  open 0  non-manifold 0  chi +2  vol      21.1 cm3  self-x 0  degen 0
+WSK_Helmet_CrownMount_01           faces      6  open 0  non-manifold 0  chi +2  vol      19.4 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_C_01         faces     13  open 0  non-manifold 0  chi +2  vol       6.9 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_R1_01        faces     13  open 0  non-manifold 0  chi +2  vol       4.3 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_L1_01        faces     13  open 0  non-manifold 0  chi +2  vol       4.3 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_R2_01        faces     13  open 0  non-manifold 0  chi +2  vol       3.6 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_L2_01        faces     13  open 0  non-manifold 0  chi +2  vol       3.6 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_R3_01        faces     13  open 0  non-manifold 0  chi +2  vol       3.0 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_L3_01        faces     13  open 0  non-manifold 0  chi +2  vol       3.0 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_R4_01        faces     13  open 0  non-manifold 0  chi +2  vol       2.6 cm3  self-x 0  degen 0
+WSK_Helmet_CrownSpike_L4_01        faces     13  open 0  non-manifold 0  chi +2  vol       2.6 cm3  self-x 0  degen 0
+
+KEY DIMENSIONS
+--------------
+helmet width 0.195 m | dome top 1.995 | chin 1.740 | depth incl. crest 0.238 | front 0.139
+halo outer width 0.269 | halo 1.787 - 2.053
+spike span +-0.180 | +-30 deg tips 2.110 | central tip 2.187 | lowest tips 1.833 | crown rear -0.208
+crown centre of mass (-0.000, -0.106, 1.922)
+
+CLEARANCES (min distance, evaluated)
+------------------------------------
+WSK_Helmet_Shell_01                5.7 mm
+WSK_Helmet_Faceplate_01            7.9 mm
+WSK_Helmet_Crest_01                12.2 mm
+WSK_Helmet_NeckGuard_01            5.7 mm
+crown                              13.4 mm
+
+POSE SWEEP - head bone about the neck joint (0, 0, 1.78), neck bone about the
+neck base (0, 0.004, 1.69); torso below Z 1.69 and the neck guard static
+----------------------------------------------------------------------------
+head  flexion 15                                     clearance 6.6 mm
+head  extension 20                                   clearance 10.3 mm
+head  turn R 60                                      clearance 12.4 mm
+head  turn L 60                                      clearance 12.4 mm
+head  tilt R 10                                      clearance 6.9 mm
+head  tilt L 10                                      clearance 6.9 mm
+head  flex 10 + turn R 45                            clearance 10.3 mm
+head  flex 10 + turn L 45                            clearance 10.3 mm
+head  ext 15 + turn R 45                             clearance 7.6 mm
+head  ext 15 + turn L 45                             clearance 7.6 mm
+head  tilt R 8 + turn L 30                           clearance 3.6 mm
+head  tilt L 8 + turn R 30                           clearance 3.6 mm
+neck+head  look down 30 (neck 18 + head 12)          clearance 12.2 mm
+neck+head  look up 45 (neck 25 + head 20)            clearance 5.4 mm
+neck+head  tilt R 30 (neck 20 + head 10)             clearance 5.8 mm
+neck+head  tilt L 30 (neck 20 + head 10)             clearance 5.8 mm
+neck+head  over R shoulder 80 (30 + 50)              clearance 12.6 mm
+neck+head  over L shoulder 80 (30 + 50)              clearance 12.6 mm
+neck+head  down-left (neck 15 + head 10, turn 45)    clearance 3.6 mm
+neck+head  up-right (neck 15 + head 15, turn 45)     clearance 4.5 mm
+head bone first contact: flexion (chin down) 27.8 deg, extension (look up) 33.0 deg, turn to character right > 90 deg, turn to character left > 90 deg, tilt to right shoulder 18.9 deg, tilt to left shoulder 18.9 deg
+neck bone first contact: flexion (chin down) 40.8 deg, extension (look up) 58.8 deg, turn to character right > 60 deg, turn to character left > 60 deg, tilt to right shoulder 36.8 deg, tilt to left shoulder 36.8 deg, chained look-down (neck:head 3:2) 40.0 deg
+
+DEVIATIONS FROM THE GUIDE (deliberate, reference-driven)
+--------------------------------------------------------
+- central spike tip at 2.187 m, +7.7 cm over the guide's 2.11 (marked 'guide only / not measured'); the reference's top spike is clearly the tallest element - scale WSK_Helmet_CrownSpike_C_01 in local Z to 0.47 to sit on the guide
+- halo top at 2.053 m vs the guide ring frame top 1.930: the guide frame only covers the ring's sides; in the reference the ring clears the hood by ~4 cm (here 5.9 cm over the dome)
+- lowest spike tips at 1.833 m vs the guide spike frame bottom 1.760: the lower spikes sweep back (cone) rather than down, keeping them off the pauldrons-to-come
+
+NOTES
+-----
+- crown = 13 objects: 4 structural (band, halo, spine, mount) + 9 broad spikes - no small thorns yet (deferred detail)
+- crown centre of mass (-0.000, -0.106, 1.922) - 10.6 cm behind and 14.2 cm above the neck joint; carried by the spine + mount on the back of the band
+- face plate sits 2.1 mm behind the shell's slot edges - a recessed plate held by the crest keel
+- chained look-down limit 40.0 deg total: the helmet chin meets the neck guard / upper chest - expected for a closed helmet whose chin sits ~4 cm ahead of the throat
+- neck bone alone (whole head about the neck base (0, 0.004, 1.69)), neck guard static: flexion (chin down) 40.8 deg, extension (look up) 58.8 deg, turn to character right > 60 deg, turn to character left > 60 deg, tilt to right shoulder 36.8 deg, tilt to left shoulder 36.8 deg, chained look-down (neck:head 3:2) 40.0 deg
+- crown silhouette (front): span 0.360 m, top 2.185 m, 290 cm2
+
+IMAGES
+------
+- analysis/helmet/helmet_section_sagittal.png
+- analysis/helmet/helmet_section_coronal.png
+- analysis/helmet/helmet_section_transverse.png
+- analysis/helmet/helmet_front.png
+- analysis/helmet/helmet_side_left.png
+- analysis/helmet/helmet_rear.png
+- analysis/helmet/helmet_side_right.png
+- analysis/helmet/helmet_threequarter.png
+- analysis/helmet/helmet_threequarter_rear.png
+- analysis/helmet/helmet_views_sheet.png
+- analysis/helmet/helmet_silhouettes.png
+- analysis/helmet/helmet_vs_reference.png
+- analysis/helmet/helmet_rig_poses.png
