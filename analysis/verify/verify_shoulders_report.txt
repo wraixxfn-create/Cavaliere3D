@@ -1,0 +1,150 @@
+WILDSHIFT KNIGHT - PROMPT 7 SHOULDER VERIFICATION
+============================================================
+
+
+== A  scope: nothing outside the shoulder assembly changed ==
+[PASS] the only meshes that changed are the shoulder plates and spikes  -> 20 changed
+[PASS] the body is byte-identical
+[PASS] the cuirass, forearms, gauntlets, legs and sabatons are byte-identical
+[PASS] the helmet shell, faceplate, crest and gorget are byte-identical
+[PASS] the crown band, halo, spine and mount are byte-identical
+[PASS] all 13 crown elements are intact  -> 13 elements
+[PASS] three new secondary lames per shoulder were added  -> 6 lame objects
+[PASS] the four objects with no counterpart in checkpoint 6 are exactly the new plates and spikes  -> 16 new objects
+
+== B  hierarchy: every plate and spike is its own editable object ==
+[PASS] R: 4 plates and 6 spikes exist as separate objects  -> 4 plates, 6 spikes
+[PASS] R: every part is parented to WSK_Shoulder_Root_R_01
+[PASS] R: the root empty sits on the shoulder joint  -> (+0.200, +0.000, +1.630)
+[PASS] R: every part keeps an identity transform
+[PASS] R: every part still carries its own BEVEL modifier
+[PASS] R: every part has exactly one placeholder material
+[PASS] R: plates use the broad iron placeholder, spikes the blackened steel
+[PASS] R: no part was joined (each mesh is used by one object)
+[PASS] L: 4 plates and 6 spikes exist as separate objects  -> 4 plates, 6 spikes
+[PASS] L: every part is parented to WSK_Shoulder_Root_L_01
+[PASS] L: the root empty sits on the shoulder joint  -> (-0.200, +0.000, +1.630)
+[PASS] L: every part keeps an identity transform
+[PASS] L: every part still carries its own BEVEL modifier
+[PASS] L: every part has exactly one placeholder material
+[PASS] L: plates use the broad iron placeholder, spikes the blackened steel
+[PASS] L: no part was joined (each mesh is used by one object)
+
+== C  topology: closed manifolds, real thickness, no fragile slivers ==
+[PASS] WSK_Armor_Pauldron_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_Pauldron_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_PauldronLame1_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_PauldronLame1_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_PauldronLame2_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_PauldronLame2_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_PauldronLame3_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_PauldronLame3_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpike_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpike_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeFront_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeFront_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeRear_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeRear_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeCrown_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeCrown_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeFrontLow_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeFrontLow_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeRearLow_R_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] WSK_Armor_ShoulderSpikeRearLow_L_01: closed manifold, no loose geometry  -> non-manifold 0, boundary 0, loose 0, degenerate faces 0
+[PASS] the shortest edge in the whole assembly is still above 2 mm (no needle-thin geometry)  -> 2.60 mm in WSK_Armor_PauldronLame2_R_01
+[PASS] every plate is at least 2.8 mm thick everywhere and the main plate keeps its full 5 mm (survives export and subdivision)  -> main 5.4 mm, thinnest lame 4.6 mm
+[PASS] object count stays in the intended range: no spike field was generated  -> 20 shoulder objects (20 = 8 plates + 12 spikes)
+
+== D  layering: a hierarchy of overlapping plates, not a pile of shards ==
+[PASS] R: lame 1 tucks under the plate above it (with no interpenetration)  -> 191 mm of vertical overlap, 2.60 mm gap, 0 edges crossing the plate above
+[PASS] R: lame 2 tucks under the plate above it (with no interpenetration)  -> 194 mm of vertical overlap, 2.47 mm gap, 0 edges crossing the plate above
+[PASS] R: lame 3 tucks under the plate above it (with no interpenetration)  -> 194 mm of vertical overlap, 2.57 mm gap, 0 edges crossing the plate above
+[PASS] L: lame 1 tucks under the plate above it (with no interpenetration)  -> 191 mm of vertical overlap, 2.60 mm gap, 0 edges crossing the plate above
+[PASS] L: lame 2 tucks under the plate above it (with no interpenetration)  -> 194 mm of vertical overlap, 2.66 mm gap, 0 edges crossing the plate above
+[PASS] L: lame 3 tucks under the plate above it (with no interpenetration)  -> 194 mm of vertical overlap, 2.63 mm gap, 0 edges crossing the plate above
+[PASS] R: the main plate defines the outer silhouette - each lame stays inside it  -> outermost radius per layer 173 > 165 > 155 > 147 mm
+[PASS] L: the main plate defines the outer silhouette - each lame stays inside it  -> outermost radius per layer 182 > 174 > 165 > 156 mm
+
+== E  clearances: no intrusion into the body, gorget, helmet or cuirass ==
+[PASS] R: the exposed armour (main plate and spikes) keeps 5 mm or more of air against the body  -> closest 5.2 mm (WSK_Armor_Pauldron_R_01)
+[PASS] R: every lame still keeps at least 3 mm of air against the body  -> closest 19.5 mm (WSK_Armor_PauldronLame3_R_01)
+[PASS] R: the plates still clear the gorget (they move with different bones)  -> closest 54.3 mm
+[PASS] R: nothing reaches the helmet shell  -> closest 97.7 mm
+[PASS] R: every spike tip clears the helmet crest  -> closest 207.6 mm
+[PASS] R: every spike clears the crown halo  -> closest 154.6 mm
+[PASS] L: the exposed armour (main plate and spikes) keeps 5 mm or more of air against the body  -> closest 5.9 mm (WSK_Armor_Pauldron_L_01)
+[PASS] L: every lame still keeps at least 3 mm of air against the body  -> closest 23.7 mm (WSK_Armor_PauldronLame3_L_01)
+[PASS] L: the plates still clear the gorget (they move with different bones)  -> closest 54.3 mm
+[PASS] L: nothing reaches the helmet shell  -> closest 96.8 mm
+[PASS] L: every spike tip clears the helmet crest  -> closest 208.2 mm
+[PASS] L: every spike clears the crown halo  -> closest 150.7 mm
+[PASS] R: no plate ends up inside the chest or back plate  -> 0 vertices inside the cuirass
+[PASS] L: no plate ends up inside the chest or back plate  -> 0 vertices inside the cuirass
+
+== F  approved proportions carried over from checkpoint 6 ==
+[PASS] plate assembly span stays inside the approved range (0.530 m approved, 0.549 m reference)  -> 0.547 m at the widest point of the main plates
+[PASS] spike tips stay inside the reference spiked span (0.630 m front reading / 0.715 m rear reading)  -> 0.668 m
+[PASS] the spikes do reach past the plate edge, so they read as spikes  -> tips 0.668 m vs plate 0.547 m
+[PASS] the shoulder line (plate crown) is at the approved Z 1.740  -> Z 1.740 m
+[PASS] R: the lowest lame over the arm stops 0.10 m or more above the elbow  -> Z 1.602 vs elbow 1.281 (321 mm)
+[PASS] R: the lowest lame over the arm stops 0.10 m or more above the elbow (the front and back edges are allowed to hang lower)  -> Z 1.602 vs elbow 1.281 (321 mm)
+[PASS] L: the lowest lame over the arm stops 0.10 m or more above the elbow  -> Z 1.602 vs elbow 1.281 (321 mm)
+[PASS] L: the lowest lame over the arm stops 0.10 m or more above the elbow (the front and back edges are allowed to hang lower)  -> Z 1.602 vs elbow 1.281 (321 mm)
+
+== G  left and right are broadly consistent, with small deliberate asymmetry ==
+[PASS] WSK_Armor_Pauldron_{S}_01: left shoulder matches the mirrored right side  -> 0.0 mm from the mirror
+[PASS] WSK_Armor_PauldronLame1_{S}_01: left shoulder matches the mirrored right side  -> 0.0 mm from the mirror
+[PASS] WSK_Armor_PauldronLame2_{S}_01: left shoulder matches the mirrored right side  -> 0.0 mm from the mirror
+[PASS] WSK_Armor_PauldronLame3_{S}_01: left shoulder matches the mirrored right side  -> 0.0 mm from the mirror
+[PASS] WSK_Armor_ShoulderSpike_{S}_01: left shoulder matches the mirrored right side  -> 0.0 mm from the mirror
+[PASS] WSK_Armor_ShoulderSpikeFront_{S}_01: left shoulder matches the mirrored right side  -> 0.1 mm from the mirror
+[PASS] WSK_Armor_ShoulderSpikeRear_{S}_01: left shoulder matches the mirrored right side  -> 0.1 mm from the mirror
+[PASS] WSK_Armor_ShoulderSpikeCrown_{S}_01: left shoulder matches the mirrored right side  -> 0.1 mm from the mirror
+[PASS] WSK_Armor_ShoulderSpikeFrontLow_{S}_01: left shoulder matches the mirrored right side  -> 0.0 mm from the mirror
+[PASS] WSK_Armor_ShoulderSpikeRearLow_{S}_01: left shoulder matches the mirrored right side  -> 0.0 mm from the mirror
+[PASS] the two shoulders are not an exact mirror copy: half the spikes carry the intended small asymmetries  -> 5 of 6 spike pairs deliberately differ
+[PASS] the asymmetry stays small: every spike tip is within 30 mm of the mirrored one  -> largest tip deviation 14.3 mm
+[PASS] the plate stacks themselves stay a symmetric pair  -> largest plate deviation 0.00 mm
+
+== H  articulation: clearances survive a shoulder lift and a swing ==
+[PASS] R: lift 20 deg keeps every part off the body  -> closest 11.2 mm (WSK_Armor_Pauldron_R_01)
+[PASS] R: lift 20 deg keeps the plates off the gorget  -> closest 30.7 mm (WSK_Armor_Pauldron_R_01)
+[PASS] R: drop 15 deg keeps every part off the body  -> closest 0.2 mm (WSK_Armor_Pauldron_R_01)
+[PASS] R: drop 15 deg keeps the plates off the gorget  -> closest 73.6 mm (WSK_Armor_Pauldron_R_01)
+[PASS] R: swing 20 deg keeps every part off the body  -> closest 0.0 mm (WSK_Armor_Pauldron_R_01)
+[PASS] R: swing 20 deg keeps the plates off the gorget  -> closest 32.0 mm (WSK_Armor_Pauldron_R_01)
+[PASS] L: lift 20 deg keeps every part off the body  -> closest 14.4 mm (WSK_Armor_Pauldron_L_01)
+[PASS] L: lift 20 deg keeps the plates off the gorget  -> closest 30.7 mm (WSK_Armor_Pauldron_L_01)
+[PASS] L: drop 15 deg keeps every part off the body  -> closest 0.0 mm (WSK_Armor_Pauldron_L_01)
+[PASS] L: drop 15 deg keeps the plates off the gorget  -> closest 73.5 mm (WSK_Armor_Pauldron_L_01)
+[PASS] L: swing 20 deg keeps every part off the body  -> closest 0.3 mm (WSK_Armor_Pauldron_L_01)
+[PASS] L: swing 20 deg keeps the plates off the gorget  -> closest 37.8 mm (WSK_Armor_Pauldron_L_01)
+
+== I  spikes: deliberate directions, spacing and seating ==
+[PASS] R: the six spikes fan widely over the shoulder instead of pointing the same way  -> 121 deg between the two most separated spikes
+[PASS] WSK_Armor_ShoulderSpike_R_01: length 0.153 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeFront_R_01: length 0.131 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeRear_R_01: length 0.122 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeCrown_R_01: length 0.092 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeFrontLow_R_01: length 0.092 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeRearLow_R_01: length 0.103 m is a usable spike
+[PASS] R: the spike bases are spread out, not clustered  -> closest pair 52 mm
+[PASS] R: the spikes have graded lengths (a hierarchy, not six copies)  -> 0.092 - 0.153 m
+[PASS] L: the six spikes fan widely over the shoulder instead of pointing the same way  -> 121 deg between the two most separated spikes
+[PASS] WSK_Armor_ShoulderSpike_L_01: length 0.162 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeFront_L_01: length 0.131 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeRear_L_01: length 0.118 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeCrown_L_01: length 0.092 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeFrontLow_L_01: length 0.097 m is a usable spike
+[PASS] WSK_Armor_ShoulderSpikeRearLow_L_01: length 0.101 m is a usable spike
+[PASS] L: the spike bases are spread out, not clustered  -> closest pair 59 mm
+[PASS] L: the spikes have graded lengths (a hierarchy, not six copies)  -> 0.092 - 0.162 m
+
+== J  scene hygiene ==
+[PASS] scale, unit system and origin are unchanged
+[PASS] the silhouette check setup from checkpoint 6 is untouched
+[PASS] no cape, weapon, chain or ornament object was added  -> 67 new objects, all shoulder parts
+[PASS] the shoulder notes text block is in the file
+[PASS] every shoulder part records the group it belongs to  -> R 10, L 10
+
+125 checks, 0 failed
