@@ -1,0 +1,10 @@
+# local Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# Blender / editor scratch
+*.blend1
+*.blend2
+*.blend@
+.blender/

@@ -1,0 +1,64 @@
+Prompt 2 verification - 62/62 checks passed
+
+PASS	units metric, 1 unit = 1 m	METRIC 1.0
+PASS	all Prompt 1 collections still present	10/10
+PASS	Prompt 1 object intact: WSK_Origin_Centerline	
+PASS	Prompt 1 object intact: WSK_HeightRef_2m	
+PASS	Prompt 1 object intact: WSK_Studio_Ground_01	
+PASS	Prompt 1 object intact: WSK_Cam_Front_Ortho	
+PASS	Prompt 1 object intact: WSK_Cam_Side_Ortho	
+PASS	Prompt 1 object intact: WSK_Cam_Rear_Ortho	
+PASS	Prompt 1 object intact: WSK_Light_Key	
+PASS	menu: no second project / no scene reset	scenes=['Scene']
+PASS	mannequin part count	19 mesh parts
+PASS	mannequin has every required placeholder	head/torso/pelvis/arms/hands/legs/feet
+PASS	no modifiers anywhere	
+PASS	no armature / rigging	
+PASS	no cloth simulation settings	
+PASS	collection 'Body' left empty (out of scope for Prompt 2)	0 objects
+PASS	collection 'Helmet' left empty (out of scope for Prompt 2)	0 objects
+PASS	collection 'Armor' left empty (out of scope for Prompt 2)	0 objects
+PASS	collection 'Cape' left empty (out of scope for Prompt 2)	0 objects
+PASS	collection 'Accessories' left empty (out of scope for Prompt 2)	0 objects
+PASS	collection 'Weapon' left empty (out of scope for Prompt 2)	0 objects
+PASS	collection 'Rig' left empty (out of scope for Prompt 2)	0 objects
+PASS	all mannequin parts have identity transforms (edit-friendly)	[]
+PASS	mannequin uses neutral, untextured materials	['MAT_Mann_NeutralGrey_01', 'MAT_Mann_NeutralLight_01']
+PASS	feet exactly on the ground plane Z = 0	min Z = +0.00000
+PASS	total body height 2.00 m	max Z = 2.00000
+PASS	centred on the character origin (X mirror symmetry)	X span [-0.3786, +0.3786]
+PASS	centred on the character origin in Y	Y span [-0.1500, +0.2111]
+PASS	joint markers for neck/shoulders/elbows/wrists/hips/knees/ankles	16 markers
+PASS	UpperArm mirrored L/R	max X error 0.00e+00 m
+PASS	LowerArm mirrored L/R	max X error 0.00e+00 m
+PASS	Hand mirrored L/R	max X error 0.00e+00 m
+PASS	Thigh mirrored L/R	max X error 0.00e+00 m
+PASS	LowerLeg mirrored L/R	max X error 0.00e+00 m
+PASS	Foot mirrored L/R	max X error 0.00e+00 m
+PASS	guide present: WSK_Guide_Centerline_01	
+PASS	guide present: WSK_Guide_HeightRuler_01	
+PASS	guide present: WSK_Guide_Silhouette_HeadShoulders_01	
+PASS	guide present: WSK_Guide_CapeEnvelope_Front_01	
+PASS	guide present: WSK_Guide_CapeEnvelope_Side_01	
+PASS	guide present: WSK_Guide_WeaponEnvelope_01	
+PASS	guide present: WSK_Ref_View_Front	
+PASS	proportion sheet text block saved	
+PASS	head / helmet width = 0.190 m	0.1900 m
+PASS	neck width = 0.115 m	0.1150 m
+PASS	pelvis width = 0.340 m	0.3400 m
+PASS	waist / abdomen width = 0.310 m	0.3100 m
+PASS	shoulder width (one side, from centreline) = 0.230 m	0.2300 m
+PASS	hand block width = 0.105 m	0.1050 m
+PASS	foot R block length (heel to toe) = 0.30 m	0.304 m before yaw
+PASS	ankle R at X +0.215 m (measured sabaton centres +-0.215 m)	+0.2150 m
+PASS	foot L block length (heel to toe) = 0.30 m	0.304 m before yaw
+PASS	ankle L at X -0.215 m (measured sabaton centres +-0.215 m)	-0.2150 m
+PASS	rendered silhouette height = 2.00 m	2.006 m (926 px @ 2.167 mm/px)
+PASS	arm span is a plausible human ratio (0.35-0.42 of body height)	0.763 m = 0.381 h
+PASS	arm span stays inside the cape envelope (1.10 m)	0.763 m vs cape 1.10 m
+PASS	silhouette width at the shoulder line is the deltoid width (0.46 m measured pauldron plate) plus the arms just below	0.464 m
+PASS	rendered silhouette is left/right symmetric	worst row asymmetry 2.17 mm
+PASS	two separate feet with a gap between the sabatons	largest gap 0.251 m
+PASS	widest silhouette row (arm span) fits inside the cape envelope (1.10 m)	0.763 m
+PASS	side silhouette depth (toe to heel) ≈ 0.3 m	0.364 m (reference side reads 0.15-0.25 m, foreshortened)
+PASS	side silhouette height = 2.00 m	2.006 m
