@@ -15,6 +15,9 @@ disturbed.
 | 4 | `Wildshift_Knight_04_HelmetBlockout.blend` | helmet foundation and head silhouette: enclosed ogival helmet with a narrow recessed face, centre crest, neck guard, and a spiked halo crown of separate broad elements; dark placeholder materials, no rig |
 | 5 | `Wildshift_Knight_05_ArmorBlockout.blend` | major armor masses in sixteen separate, editable pieces: cuirass front/back, broad pauldrons with two separate spikes, forearm and hand placeholders, thigh/shin guards, and sabatons; dark untextured placeholder metals, no rig |
 | 6 | `Wildshift_Knight_06_Silhouette.blend` | whole-figure silhouette pass: pauldrons narrowed to 0.530 m of plate, the two shoulder spikes re-seated as one broad 45 deg spike each on a 0.640 m span, central crown spike shortened to Z 2.115, leg guards extended toward knee and ankle, gauntlets over the fingertips, sabatons on the ground plane, plus a temporary silhouette material, world, view layer and four orthographic inspection cameras |
+| 7 | `Wildshift_Knight_07_Shoulders.blend` | layered gothic shoulders: four closed plates and six separate graded spikes per side, manual shoulder pivots and articulation checks |
+| 8 | `Wildshift_Knight_08_TorsoArmor.blend` | refined chest/back cuirass, separate side plates, waist belt, hanging waist panels and blank medallion mount |
+| 9 | `Wildshift_Knight_09_LimbArmor.blend` | 54 separate refined limb-armour meshes: layered upper arms, forearms, gauntlets, thighs, greaves and sabatons; visibly segmented joints, stable soles, manual pose pivots and attachment metadata; no rig |
 
 ## Prompt 2 — proportions
 
@@ -589,6 +592,72 @@ Outputs:
 `tools/verify_shoulders.py` hard-codes the elbow pivot as `ELBOW_Z = 1.281`;
 that is the only landmark it takes from outside the shoulder objects themselves.
 
+## Prompt 9 — refined limb armour
+
+Deliverable: **`Wildshift_Knight_09_LimbArmor.blend`**, built from checkpoint 8
+without changing the body proportions, torso armour, shoulders or helmet.
+
+![neutral front, rear, left and right inspection](analysis/limb_armor/limb_armor_four_directions.png)
+
+### Construction
+
+* **54 closed armour meshes, 27 per side.** Every major segment is a separate,
+  single-user object with a controlled 0.55–1.45 mm bevel and future attachment
+  metadata.
+* Upper arm, forearm, thigh and shin each use **three broad lames**. The
+  proximal plate sits outside and overlaps the next distal plate; the five
+  stacks per side were checked for surface crossings.
+* Elbow and knee use separate floating cops. Wrist and ankle use short separate
+  cuffs, so no continuous rigid shell crosses a bending region.
+* Each gauntlet has a dorsal palm plate, a broad knuckle plate, four simple
+  finger plates and one thumb plate. These remain intentionally simple and do
+  not form an articulated mechanical-finger system.
+* Each foot has three overlapping dorsal sabaton plates plus a separate 12 mm
+  sole. The sole has a 0.172 × 0.305 m footprint and a tapered +Y toe, making
+  ground contact and forward direction clear.
+* `Limb Pose Controls` contains 16 empties—upper arm, elbow cop, forearm, hand,
+  thigh, knee cop, shin and foot per side. They are manual preview/attachment
+  pivots only: there is still no armature, weighting, constraints or animation.
+
+### Neutral and manual-pose checks
+
+![manual joint rotation checks](analysis/limb_armor/limb_armor_joint_poses.png)
+
+The saved file is in the neutral pose. The verification suite temporarily tests
+elbow 20°, wrist 12°, knee 20° and ankle 12° on both sides, then restores all
+controls to zero. The six joint interfaces per side remain separate in both
+neutral and test poses. These are armour-only checks because the body is not yet
+rigged; skin-deformation clearance must be checked again after actual bones and
+weights exist.
+
+### Pieces likely to need separate attachment bones
+
+* **Recommended helper bones:** `WSK_Armor_ElbowCop_{R,L}_01` and
+  `WSK_Armor_KneeCop_{R,L}_01`. They should split the adjacent limb angle and
+  may need animator-controlled slide at acute bends.
+* **Optional follow helpers at extreme range:** wrist cuffs and ankle cuffs.
+* The finger and thumb plates currently follow the hand pivot. Reassign them to
+  finger/thumb bones only when real finger articulation is authored.
+
+### Verification and outputs
+
+`tools/verify_limb_armor.py` runs **71 checks, all passing**: scope and unchanged
+body proportions; hierarchy; manifold topology; 3 mm minimum shell thickness;
+controlled bevels; no vertices inside the body; consistent overlap direction;
+no plate crossings in the five layered stacks; neutral joint gaps; gauntlet and
+sole construction; exact bilateral consistency; temporary joint rotations; and
+no rigging, weights, animation, chains or filigree.
+
+* `analysis/verify/verify_limb_armor_report.txt` — complete numeric report.
+* `analysis/limb_armor/limb_armor_four_directions.png` — neutral standing pose
+  from front, rear, left and right.
+* `analysis/limb_armor/limb_armor_neutral_views.png` — arm, hand, leg and foot
+  close-ups.
+* `analysis/limb_armor/limb_armor_joint_poses.png` — elbow, wrist, knee and ankle
+  manual-rotation checks.
+* `WSK_Limb_Armor_Notes.txt` inside the `.blend` — construction and attachment
+  notes.
+
 ## Reproducing
 
 ```bash
@@ -608,6 +677,10 @@ tools/bl.sh tools/verify_silhouette.py        # 57 checks + 4 silhouette views
 tools/bl.sh tools/build_shoulders.py          # writes checkpoint 7
 tools/bl.sh tools/verify_shoulders.py         # 125 checks + shoulder views
 tools/bl.sh tools/render_shoulders.py         # shoulder close-ups + figure views
+tools/bl.sh tools/build_torso_armor.py        # writes checkpoint 8
+tools/bl.sh tools/build_limb_armor.py         # writes checkpoint 9
+tools/bl.sh tools/verify_limb_armor.py        # 71 structural, fit and pose checks
+tools/bl.sh tools/render_limb_armor.py        # neutral, four-way and pose sheets
 #   WSK_SKIP_RENDERS=1 for numeric checks only; WSK_SAMPLES=<n> sets render quality
 ```
 
@@ -629,6 +702,7 @@ analysis/helmet/           Prompt 4 helmet views, silhouettes, sections, poses
 analysis/armor/            Prompt 5 front, side and rear armor orthographic checks
 analysis/silhouette/       Prompt 6 front, rear, left and right silhouette inspection
 analysis/shoulders/        Prompt 7 shoulder close-ups, sheets and articulation
+analysis/limb_armor/       Prompt 9 neutral, four-way and manual-pose views
 analysis/verify/           the verification reports
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender
@@ -640,7 +714,10 @@ tools/build_silhouette.py        checkpoint 6: whole-figure silhouette pass
 tools/build_shoulders.py         checkpoint 7: layered gothic shoulder armour
 tools/render_shoulders.py        checkpoint 7 render pass
 tools/inspect_shoulders.py       shoulder inspector
-tools/verify_*.py          the check suites (proportions, body, helmet, armor)
+tools/build_torso_armor.py       checkpoint 8: torso and waist armour
+tools/build_limb_armor.py        checkpoint 9: segmented layered limb armour
+tools/render_limb_armor.py       checkpoint 9 neutral and pose render pass
+tools/verify_*.py          the check suites (proportions, body, helmet, armour)
 Wildshift_Knight_0*.blend  checkpoints
 setup_blend.py             checkpoint 1 script
 ```
