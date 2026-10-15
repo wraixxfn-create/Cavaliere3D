@@ -1,0 +1,130 @@
+WILDSHIFT KNIGHT - PROMPT 5 VERIFICATION: MAJOR ARMOR BLOCKOUT
+======================================================================
+file   : Wildshift_Knight_05_ArmorBlockout.blend
+input  : Wildshift_Knight_04_HelmetBlockout.blend (preserved; read only)
+script : tools/verify_armor_blockout.py
+result : 43 passed, 0 failed
+
+
+A  checkpoint scope and preservation
+------------------------------------
+[PASS] requested checkpoint exists and is the delivered file  -> 1.94 MB
+[PASS] all Prompt 4 objects are byte-stable in geometry and unchanged in scene state  -> 84 source objects compared
+[PASS] only the sixteen WSK_Armor_* objects were added  -> 16 objects
+[PASS] existing collections preserved; only Armor is populated  -> no collection added or moved
+[PASS] collection hierarchy is unchanged
+[PASS] base body mesh and state preserved  -> WSK_Body_Base_01
+[PASS] Prompt 4 helmet and crown preserved  -> 18 parts
+[PASS] earlier text blocks are retained; armor notes are the only new block  -> new=['WSK_Armor_Blockout_Notes.txt']; altered=[]
+[PASS] Prompt 5 section appended to project notes
+[PASS] only the two dark armor placeholder materials were added  -> ['MAT_Armor_BlackenedSteel_01', 'MAT_Armor_BroadIron_01']
+[PASS] no armature or rig objects were introduced
+
+B  inventory, materials, separation
+-----------------------------------
+[PASS] Armor contains the intended sixteen independent major pieces  -> 16 objects
+[PASS] chest and back are separate mesh objects and mesh datablocks
+[PASS] every armor part is its own editable mesh  -> 16 meshes; no joined or shared geometry
+[PASS] armor remains unparented, ready for later bone attachment  -> no rig or helmet parenting
+[PASS] only two broad shoulder spikes, each a separate object  -> 2 total
+[PASS] no chains, filigree, cloth, weapon or ornament objects  -> none
+[PASS] both materials are dark, untextured, non-emissive placeholder metals  -> MAT_Armor_BlackenedSteel_01: L=0.022, metal=0.78, rough=0.40; MAT_Armor_BroadIron_01: L=0.042, metal=0.78, rough=0.46
+[PASS] each plate uses one of the two dark blockout materials  -> no final textures or mixed material slots
+
+C  evaluated mesh integrity
+---------------------------
+[PASS] all sixteen evaluated plates are closed, manifold, outward solids  -> one genus-zero shell per object; bevels evaluated in memory
+[PASS] no armor object contains geometry below ground level  -> minimum Z 0.0140 m
+
+D  balance, fit, and articulation zones
+---------------------------------------
+[PASS] Pauldron_R_01 pair mirrors across X=0  -> max vertex deviation 0.00 mm
+[PASS] ShoulderSpike_R_01 pair mirrors across X=0  -> max vertex deviation 0.11 mm
+[PASS] Forearm_R_01 pair mirrors across X=0  -> max vertex deviation 0.02 mm
+[PASS] Gauntlet_R_01 pair mirrors across X=0  -> max vertex deviation 0.06 mm
+[PASS] Thigh_R_01 pair mirrors across X=0  -> max vertex deviation 0.01 mm
+[PASS] Shin_R_01 pair mirrors across X=0  -> max vertex deviation 0.02 mm
+[PASS] Sabaton_R_01 pair mirrors across X=0  -> max vertex deviation 0.47 mm
+[PASS] Chest_01 stays centred and bilateral  -> centre X -0.00 mm; span -0.172..+0.172 m
+[PASS] Back_01 stays centred and bilateral  -> centre X -0.00 mm; span -0.172..+0.172 m
+[PASS] shoulder silhouette is broad, balanced and below crown spikes  -> span 0.906 m; Z max 1.776 m
+[PASS] body-fitted cuirass and limb plates do not deeply penetrate the mannequin  -> WSK_Armor_Chest_01 2.1 mm; WSK_Armor_Back_01 2.3 mm; WSK_Armor_Forearm_R_01 2.0 mm; WSK_Armor_Forearm_L_01 2.0 mm; WSK_Armor_Gauntlet_R_01 2.3 mm; WSK_Armor_Gauntlet_L_01 2.3 mm; WSK_Armor_Thigh_R_01 3.0 mm; WSK_Armor_Thigh_L_01 3.0 mm; WSK_Armor_Shin_R_01 2.8 mm; WSK_Armor_Shin_L_01 2.8 mm; WSK_Armor_Sabaton_R_01 0.1 mm; WSK_Armor_Sabaton_L_01 0.1 mm
+[PASS] elbow_R articulation zone remains clear  -> nearest armor 68.0 mm away (min 18 mm)
+[PASS] elbow_L articulation zone remains clear  -> nearest armor 68.0 mm away (min 18 mm)
+[PASS] wrist_R articulation zone remains clear  -> nearest armor 55.9 mm away (min 18 mm)
+[PASS] wrist_L articulation zone remains clear  -> nearest armor 55.9 mm away (min 18 mm)
+[PASS] hip_R articulation zone remains clear  -> nearest armor 124.0 mm away (min 25 mm)
+[PASS] hip_L articulation zone remains clear  -> nearest armor 124.0 mm away (min 25 mm)
+[PASS] knee_R articulation zone remains clear  -> nearest armor 100.3 mm away (min 25 mm)
+[PASS] knee_L articulation zone remains clear  -> nearest armor 100.3 mm away (min 25 mm)
+[PASS] ankle_R articulation zone remains clear  -> nearest armor 69.7 mm away (min 18 mm)
+[PASS] ankle_L articulation zone remains clear  -> nearest armor 69.7 mm away (min 18 mm)
+[PASS] armor overlaps are limited to the intentional shoulder/cuirass lap  -> 4 shallow pauldron-to-cuirass laps; 0 spike-base seats
+
+EVALUATED MESH TABLE
+--------------------
+WSK_Armor_Chest_01                 verts  1574 faces  1572 open 0 nonmanifold 0 chi +2 volume   1298.9 cm3 degenerate 0
+WSK_Armor_Back_01                  verts  1574 faces  1572 open 0 nonmanifold 0 chi +2 volume   1181.9 cm3 degenerate 0
+WSK_Armor_Pauldron_R_01            verts   506 faces   532 open 0 nonmanifold 0 chi +2 volume    666.5 cm3 degenerate 0
+WSK_Armor_Pauldron_L_01            verts   506 faces   532 open 0 nonmanifold 0 chi +2 volume    666.5 cm3 degenerate 0
+WSK_Armor_ShoulderSpike_R_01       verts    91 faces    91 open 0 nonmanifold 0 chi +2 volume     93.4 cm3 degenerate 0
+WSK_Armor_ShoulderSpike_L_01       verts    91 faces    91 open 0 nonmanifold 0 chi +2 volume     93.4 cm3 degenerate 0
+WSK_Armor_Forearm_R_01             verts   720 faces   718 open 0 nonmanifold 0 chi +2 volume    179.0 cm3 degenerate 0
+WSK_Armor_Forearm_L_01             verts   720 faces   718 open 0 nonmanifold 0 chi +2 volume    179.0 cm3 degenerate 0
+WSK_Armor_Gauntlet_R_01            verts   512 faces   510 open 0 nonmanifold 0 chi +2 volume     37.9 cm3 degenerate 0
+WSK_Armor_Gauntlet_L_01            verts   512 faces   510 open 0 nonmanifold 0 chi +2 volume     37.9 cm3 degenerate 0
+WSK_Armor_Thigh_R_01               verts   766 faces   764 open 0 nonmanifold 0 chi +2 volume    325.1 cm3 degenerate 0
+WSK_Armor_Thigh_L_01               verts   766 faces   764 open 0 nonmanifold 0 chi +2 volume    325.7 cm3 degenerate 0
+WSK_Armor_Shin_R_01                verts   766 faces   764 open 0 nonmanifold 0 chi +2 volume    286.3 cm3 degenerate 0
+WSK_Armor_Shin_L_01                verts   766 faces   764 open 0 nonmanifold 0 chi +2 volume    285.9 cm3 degenerate 0
+WSK_Armor_Sabaton_R_01             verts   813 faces   811 open 0 nonmanifold 0 chi +2 volume    127.7 cm3 degenerate 0
+WSK_Armor_Sabaton_L_01             verts   813 faces   811 open 0 nonmanifold 0 chi +2 volume    127.4 cm3 degenerate 0
+
+BODY CLEARANCE / CLOSEST VERTEX DISTANCES
+-------------------------------------------
+WSK_Armor_Chest_01                    2.11 mm
+WSK_Armor_Back_01                     2.26 mm
+WSK_Armor_Forearm_R_01                2.04 mm
+WSK_Armor_Forearm_L_01                2.04 mm
+WSK_Armor_Gauntlet_R_01               2.35 mm
+WSK_Armor_Gauntlet_L_01               2.35 mm
+WSK_Armor_Thigh_R_01                  2.95 mm
+WSK_Armor_Thigh_L_01                  2.95 mm
+WSK_Armor_Shin_R_01                   2.85 mm
+WSK_Armor_Shin_L_01                   2.85 mm
+WSK_Armor_Sabaton_R_01                0.05 mm
+WSK_Armor_Sabaton_L_01                0.05 mm
+
+ARTICULATION MARKER CLEARANCES
+-------------------------------
+elbow_R                67.95 mm
+elbow_L                67.95 mm
+wrist_R                55.85 mm
+wrist_L                55.85 mm
+hip_R                 124.04 mm
+hip_L                 124.04 mm
+knee_R                100.33 mm
+knee_L                100.33 mm
+ankle_R                69.75 mm
+ankle_L                69.75 mm
+
+INTENTIONAL CONTACTS
+--------------------
+WSK_Armor_Chest_01 <-> WSK_Armor_Pauldron_R_01: 34 intersecting triangle pairs (shallow pauldron lap over cuirass edge)
+WSK_Armor_Chest_01 <-> WSK_Armor_Pauldron_L_01: 34 intersecting triangle pairs (shallow pauldron lap over cuirass edge)
+WSK_Armor_Back_01 <-> WSK_Armor_Pauldron_R_01: 30 intersecting triangle pairs (shallow pauldron lap over cuirass edge)
+WSK_Armor_Back_01 <-> WSK_Armor_Pauldron_L_01: 30 intersecting triangle pairs (shallow pauldron lap over cuirass edge)
+
+RENDERED ORTHOGRAPHIC CHECKS
+----------------------------
+- analysis/armor/armor_front_ortho.png
+- analysis/armor/armor_side_ortho.png
+- analysis/armor/armor_rear_ortho.png
+- analysis/armor/armor_views_orthographic.png
+
+RESHAPING NOTES
+---------------
+- Pauldron underside/inner edge: confirm clearance to gorget and upper arm after shoulder rigging.
+- Forearm bracer shells: test elbow and wrist flexion; their rest-pose articulation gaps are open.
+- Thigh/shin guard offsets and sabaton top edge: re-fit after hip, knee and ankle pivots are finalized.
+- The current shapes are broad rest-pose blockouts, not final skinning-safe production plates.

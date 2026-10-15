@@ -13,6 +13,7 @@ disturbed.
 | 2 | `Wildshift_Knight_02_Proportions.blend` | measured proportion sheet, blockout mannequin, joint markers, silhouette/cape/weapon guides, reference views as aligned backdrops |
 | 3 | `Wildshift_Knight_03_BaseBody.blend` | clean base body: one closed quad-dominant humanoid mesh (torso, pelvis, neck, head blank, arms, hands with thumbs, legs, feet), neutral material, proportion guide retained |
 | 4 | `Wildshift_Knight_04_HelmetBlockout.blend` | helmet foundation and head silhouette: enclosed ogival helmet with a narrow recessed face, centre crest, neck guard, and a spiked halo crown of separate broad elements; dark placeholder materials, no rig |
+| 5 | `Wildshift_Knight_05_ArmorBlockout.blend` | major armor masses in sixteen separate, editable pieces: cuirass front/back, broad pauldrons with two separate spikes, forearm and hand placeholders, thigh/shin guards, and sabatons; dark untextured placeholder metals, no rig |
 
 ## Prompt 2 — proportions
 
@@ -270,6 +271,76 @@ Outputs:
 * `analysis/helmet/helmet_rig_poses.png` — rest, flexion, extension, turn
   and tilt, rendered with a temporary head/torso split of the body.
 
+## Prompt 5 — major armor plates
+
+Deliverable: **`Wildshift_Knight_05_ArmorBlockout.blend`**, built from
+checkpoint 4. The base body and helmet/crown are unchanged. The existing
+`Armor` collection now contains **16 independent, closed mesh objects**; no
+armor is joined, parented to a rig, or otherwise made rigid as one shell.
+
+![front, side and rear orthographic checks](analysis/armor/armor_views_orthographic.png)
+
+* `WSK_Armor_Chest_01` and `WSK_Armor_Back_01` are separate wraparound
+  cuirass shells. Their side seam remains separate, and the upper edges tuck
+  inward under the pauldrons to leave the armpit/shoulder articulation readable.
+* `WSK_Armor_Pauldron_{R,L}_01` are broad, balanced domed caps. Each has one
+  **separate** broad shoulder spike (`WSK_Armor_ShoulderSpike_{R,L}_01`), two
+  spikes total. The shoulder span is 0.906 m; the tips remain below the helmet
+  crown spikes.
+* `WSK_Armor_Forearm_{R,L}_01`, `WSK_Armor_Thigh_{R,L}_01`, and
+  `WSK_Armor_Shin_{R,L}_01` are individual swept plates, not continuous limb
+  shells. `WSK_Armor_Gauntlet_{R,L}_01` and `WSK_Armor_Sabaton_{R,L}_01` are
+  simple hand and foot armor placeholders.
+* Two untextured Principled placeholder materials provide the dark contrast:
+  `MAT_Armor_BlackenedSteel_01` and `MAT_Armor_BroadIron_01`. There are no
+  chains, filigree, cloth, weapon, final textures, or rig.
+* Objects carry attachment-hint metadata only; nothing is parented to bones.
+  The helmet, body, guide, cameras, lights and all earlier collections remain
+  as they were in checkpoint 4.
+
+### Articulation and reshape notes
+
+The rest-pose check keeps the elbow and wrist markers 68.0 mm and 55.9 mm
+from armor, respectively; hip, knee and ankle markers are 124.0 mm, 100.3 mm
+and 69.7 mm away. These are static clearances, not a pose sweep—the character
+is deliberately not rigged yet.
+
+Pieces still needing a rig-fit pass:
+
+1. **Pauldrons:** check the inner underside against the gorget and upper arm
+   during shoulder lift/rotation; adjust the shell edge if it catches.
+2. **Forearm guards:** test the separate bracers through elbow and wrist bends.
+   Their rest-pose gaps are visible, but there is no articulation test yet.
+3. **Thigh and shin guards:** re-fit their offsets/ends after the hip and knee
+   pivots are finalized.
+4. **Sabatons:** refine the toe/ankle transition and sole clearance after the
+   foot pivot is defined; these remain broad placeholders.
+5. **Gauntlets:** resize or split only after the hand/finger design is settled.
+
+The chest and back fit the neutral body and remain separate; no immediate
+reshaping is required for the blockout. Each pauldron intentionally laps the
+upper outer edges of the chest and back, creating a shallow layered shoulder
+seam. The spikes remain separate meshes; no deep spike/pauldron penetration
+is needed to hold their visual placement.
+
+### Verification
+
+`tools/verify_armor_blockout.py` runs **43 automated checks** on evaluated
+meshes and renders the required front, side and rear orthographic views.
+It confirms the body and helmet are preserved, every armor object is its own
+closed manifold shell, bilateral parts are balanced, and no unintended armor
+plate intersections are present. `analysis/verify/verify_armor_report.txt`
+contains the full results and closest-point articulation clearances.
+
+Outputs:
+* `analysis/armor/armor_views_orthographic.png` — labeled front, side and rear
+  orthographic checks.
+* `analysis/armor/armor_{front,side,rear}_ortho.png` — individual views.
+* `analysis/verify/verify_armor_report.txt` — inventory, topology, balance,
+  body fit, joint clearances and intended contacts.
+* `WSK_Armor_Blockout_Notes.txt` — design and fitting notes saved inside the
+  `.blend` file.
+
 ## Reproducing
 
 ```bash
@@ -282,7 +353,9 @@ tools/bl.sh tools/build_base_body.py          # writes checkpoint 3
 tools/bl.sh tools/verify_base_body.py         # 113 checks + views + overlays
 tools/bl.sh tools/build_helmet_blockout.py    # writes checkpoint 4
 tools/bl.sh tools/verify_helmet_blockout.py   # 68 checks + views, sections, poses
-#   WSK_SKIP_RENDERS=1 for the numeric checks only, WSK_SAMPLES=<n> for render quality
+tools/bl.sh tools/build_armor_blockout.py     # writes checkpoint 5
+tools/bl.sh tools/verify_armor_blockout.py    # 43 checks + front/side/rear views
+#   WSK_SKIP_RENDERS=1 for numeric checks only; WSK_SAMPLES=<n> sets render quality
 ```
 
 This sandbox has no Blender install and no X11/OpenGL/EGL runtime, so Blender is
@@ -300,12 +373,14 @@ reference/                 the supplied reference images (inputs)
 analysis/                  measurements, diagrams, verification (outputs)
 analysis/basebody/         Prompt 3 body renders, joint close-ups, overlays
 analysis/helmet/           Prompt 4 helmet views, silhouettes, sections, poses
+analysis/armor/            Prompt 5 front, side and rear armor orthographic checks
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender
 tools/build_proportions.py checkpoint 2: proportion sheet + blockout
 tools/build_base_body.py   checkpoint 3: the base body
 tools/build_helmet_blockout.py   checkpoint 4: helmet + crown blockout
-tools/verify_*.py          the check suites (proportions, base body, helmet)
+tools/build_armor_blockout.py    checkpoint 5: separate armor plates
+tools/verify_*.py          the check suites (proportions, body, helmet, armor)
 Wildshift_Knight_0*.blend  checkpoints
 setup_blend.py             checkpoint 1 script
 ```
