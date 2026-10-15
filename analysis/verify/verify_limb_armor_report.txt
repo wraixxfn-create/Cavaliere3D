@@ -1,0 +1,106 @@
+WILDSHIFT KNIGHT - PROMPT 9 LIMB ARMOUR VERIFICATION
+================================================================
+File: Wildshift_Knight_09_LimbArmor.blend
+Neutral pose is saved; articulation checks below are temporary and are reset.
+
+== A  scope and unchanged proportions ==
+[PASS] every non-limb mesh from checkpoint 08 is retained  -> 76 retained
+[PASS] body, torso, shoulders, helmet and scene meshes are byte-identical  -> 0 unexpected changes
+[PASS] the base body is byte-identical
+[PASS] body proportions and bounds did not change  -> 0.7518 m x 0.3297 m x 1.9100 m
+[PASS] the ten legacy placeholders were replaced by 54 refined pieces  -> 54 Prompt-9 meshes
+
+== B  object separation, hierarchy and neutral pose ==
+[PASS] sixteen manual-pose pivots exist (eight per side)  -> 16 empties
+[PASS] pose pivots are empties, not bones or an armature
+[PASS] all manual-pose controls are saved at zero rotation
+[PASS] every armour part owns a single-user mesh
+[PASS] every refined piece is in the Armor collection only
+[PASS] every refined piece is parented to a meaningful pose pivot
+[PASS] all armour objects keep identity location/scale in the neutral pose
+[PASS] all pieces use the intended upper/lower limb or joint pivot  -> 0 mismatches
+
+== C  topology, thickness and controlled bevels ==
+[PASS] all 54 pieces are closed manifolds with no loose or degenerate geometry  -> 0 bad objects
+[PASS] no needle-thin construction edges were introduced  -> shortest 0.87 mm in WSK_Armor_SabatonLame_Toe_L_01
+[PASS] every shell keeps at least 3 mm of real thickness  -> minimum 3.00 mm in WSK_Armor_GauntletFinger1_L_01
+[PASS] every piece has exactly one bevel modifier
+[PASS] bevel widths stay controlled between 0.5 and 1.5 mm  -> 0.55-1.45 mm
+[PASS] all bevels use two segments
+
+== D  neutral fit against the unchanged body ==
+[PASS] no visible limb plate penetrates the base body  -> 0 interior vertices
+[PASS] body-fit shells retain a measurable surface separation  -> closest 0.34 mm in WSK_Armor_GauntletFinger1_L_01
+[PASS] the separate soles stay on/above the ground plane  -> ground contact 1.50 mm
+
+== E  layering and joint segmentation in neutral ==
+[PASS] R upper arm: proximal plate sits outside the plates ahead  -> 32.4 mm > 17.5 mm > 9.1 mm
+[PASS] R upper arm: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] R forearm: proximal plate sits outside the plates ahead  -> 26.3 mm > 17.8 mm > 9.3 mm
+[PASS] R forearm: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] R thigh: proximal plate sits outside the plates ahead  -> 43.4 mm > 18.5 mm > 9.5 mm
+[PASS] R thigh: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] R shin: proximal plate sits outside the plates ahead  -> 27.4 mm > 18.4 mm > 9.4 mm
+[PASS] R shin: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] R sabaton: proximal plate sits outside the plates ahead  -> 25.0 mm > 16.5 mm > 8.0 mm
+[PASS] R sabaton: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] L upper arm: proximal plate sits outside the plates ahead  -> 32.4 mm > 17.5 mm > 9.1 mm
+[PASS] L upper arm: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] L forearm: proximal plate sits outside the plates ahead  -> 26.3 mm > 17.8 mm > 9.3 mm
+[PASS] L forearm: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] L thigh: proximal plate sits outside the plates ahead  -> 43.4 mm > 18.5 mm > 9.5 mm
+[PASS] L thigh: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] L shin: proximal plate sits outside the plates ahead  -> 27.4 mm > 18.4 mm > 9.4 mm
+[PASS] L shin: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] L sabaton: proximal plate sits outside the plates ahead  -> 25.0 mm > 16.5 mm > 8.0 mm
+[PASS] L sabaton: overlapping lames do not interpenetrate  -> triangle contacts 0, 0
+[PASS] R: elbow, wrist, knee and ankle remain separate at rest  -> elbow upper/cup 25.0 mm, elbow cup/forearm 18.2 mm, wrist cuff/hand 22.5 mm, knee thigh/cup 21.8 mm, knee cup/shin 6.1 mm, ankle cuff/foot 8.1 mm
+[PASS] L: elbow, wrist, knee and ankle remain separate at rest  -> elbow upper/cup 25.0 mm, elbow cup/forearm 18.2 mm, wrist cuff/hand 22.5 mm, knee thigh/cup 21.8 mm, knee cup/shin 6.1 mm, ankle cuff/foot 8.1 mm
+
+== F  hands read as armour without mechanical finger complexity ==
+[PASS] R: palm, knuckle, four finger and thumb plates exist
+[PASS] R: all seven hand plates remain separately attachable
+[PASS] R: finger plates are simple broad strips, not filigree  -> widths 11.4-11.7 mm
+[PASS] R: palm plate layers over the knuckle plate without surface crossing
+[PASS] L: palm, knuckle, four finger and thumb plates exist
+[PASS] L: all seven hand plates remain separately attachable
+[PASS] L: finger plates are simple broad strips, not filigree  -> widths 11.4-11.7 mm
+[PASS] L: palm plate layers over the knuckle plate without surface crossing
+
+== G  feet, sole stability and forward direction ==
+[PASS] R: sole has a stable readable footprint  -> 0.172 x 0.305 m
+[PASS] R: sole is visibly substantial without becoming a platform  -> 12.0 mm
+[PASS] R: tapered toe establishes an explicit +Y forward direction  -> rear -0.103, toe +0.202
+[PASS] L: sole has a stable readable footprint  -> 0.172 x 0.305 m
+[PASS] L: sole is visibly substantial without becoming a platform  -> 12.0 mm
+[PASS] L: tapered toe establishes an explicit +Y forward direction  -> rear -0.103, toe +0.202
+
+== H  bilateral consistency ==
+[PASS] there are 27 corresponding major pieces per side
+[PASS] left/right limb construction is consistently mirrored  -> worst 0.000 mm in WSK_Armor_AnkleCuff_R_01
+
+== I  temporary manual rotation tests ==
+[PASS] R: elbow 20°, wrist 12°, knee 20° and ankle 12° keep joint plates separate  -> elbow upper/cup 12.8 mm, elbow cup/forearm 9.1 mm, wrist cuff/hand 33.9 mm, knee thigh/cup 3.0 mm, knee cup/shin 2.3 mm, ankle cuff/foot 21.1 mm
+[PASS] L: elbow 20°, wrist 12°, knee 20° and ankle 12° keep joint plates separate  -> elbow upper/cup 12.8 mm, elbow cup/forearm 9.1 mm, wrist cuff/hand 33.9 mm, knee thigh/cup 3.0 mm, knee cup/shin 2.3 mm, ankle cuff/foot 21.1 mm
+[PASS] all temporary joint rotations were restored to neutral
+
+== J  rigging constraints and attachment-bone report ==
+[PASS] no armature or rig was created
+[PASS] no animation actions were created
+[PASS] no weight painting or vertex groups were added
+[PASS] no constraints were added
+[PASS] only elbow and knee cops are flagged for dedicated helper bones  -> 4 pieces
+[PASS] every major armour segment records a future bone attachment hint
+[PASS] all limbs retain the same restrained placeholder-metal language  -> MAT_Armor_BlackenedSteel_01, MAT_Armor_BroadIron_01
+[PASS] no chains or filigree were introduced
+
+ATTACHMENT-BONE REPORT
+  Separate helper recommended: ElbowCop_R/L and KneeCop_R/L.
+  Optional follow helper for extreme ranges: WristCuff_R/L and AnkleCuff_R/L.
+  Finger1-4 and Thumb currently follow the hand; reassign only when finger bones exist.
+
+POSE LIMITATION
+  Tests rotate armour-only pivots because Prompt 9 intentionally has no body rig.
+  Recheck body deformation clearance after actual bones and weights are authored.
+
+71 checks, 0 failed
