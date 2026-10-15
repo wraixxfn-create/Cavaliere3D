@@ -447,6 +447,148 @@ Outputs:
 * `WSK_Silhouette_Notes.txt` — the same approved proportions and issues, saved
   inside the `.blend` file.
 
+## Prompt 7 — layered gothic shoulder armour
+
+Deliverable: **`Wildshift_Knight_07_Shoulders.blend`**, built from checkpoint 6
+(read only).  Scale, orientation and unit system are unchanged, and every object
+outside the two shoulder assemblies — body, cuirass, back plate, forearms,
+gauntlets, legs, sabatons, helmet shell, face plate, crest, gorget and all
+thirteen crown elements — is byte-identical.
+
+![front, rear, side and three-quarter shoulder inspection](analysis/shoulders/shoulder_views.png)
+
+### What was there before
+
+Checkpoint 6 gave each shoulder one broad domed shell and one spike.  The shell
+was a single smooth cap that floated over the deltoid: nothing about it said
+"plate armour", there was no hierarchy and no overlap to read.  Prompt 7 keeps
+its approved outer dimensions and rebuilds it as a layered assembly.
+
+### The assembly (10 objects per shoulder, 20 in total)
+
+| object | role | samples | layer | body standoff |
+|---|---|---|---|---|
+| `WSK_Armor_Pauldron_{R,L}_01` | large primary plate | 16 × 37 | 0 | 5.2 / 9.8–107 mm |
+| `WSK_Armor_PauldronLame1_{R,L}_01` | upper lame | 8 × 33 | 9 mm in | 19.5–101 mm |
+| `WSK_Armor_PauldronLame2_{R,L}_01` | middle lame | 7 × 29 | 18 mm in | 17–93 mm |
+| `WSK_Armor_PauldronLame3_{R,L}_01` | lower lame | 7 × 25 | 27 mm in | 19–86 mm |
+| `WSK_Armor_ShoulderSpike_{R,L}_01` | primary spike | 8-sided | — | 0.153 m |
+| `WSK_Armor_ShoulderSpikeFront_{R,L}_01` | front spike | 8-sided | — | 0.131 m |
+| `WSK_Armor_ShoulderSpikeRear_{R,L}_01` | rear spike | 8-sided | — | 0.122 m |
+| `WSK_Armor_ShoulderSpikeCrown_{R,L}_01` | crown spike | 8-sided | — | 0.092 m |
+| `WSK_Armor_ShoulderSpikeFrontLow_{R,L}_01` | lower front barb | 8-sided | — | 0.092 m |
+| `WSK_Armor_ShoulderSpikeRearLow_{R,L}_01` | lower rear barb | 8-sided | — | 0.103 m |
+
+Each plate is a separate closed two-skin shell with its own mesh, its own BEVEL
+modifier and one placeholder material; each spike is a separate closed tapered
+shell.  Everything of one shoulder is parented to the empty
+`WSK_Shoulder_Root_{R,L}_01` sitting on that shoulder joint (identity transforms
+throughout), so the group can be swung for the articulation test.
+
+### How the layering is built
+
+* **One envelope, four layers.**  A single ellipsoid shoulder envelope (apex
+  Z 1.745, rim dropping 0.02 m over the arm and 0.13 m more at the front and the
+  back) is sampled once per plate, with plate *k* pulled `9 mm × k` in towards the
+  shoulder axis.  The plates are therefore congruent shells: the upper plate's
+  5 mm of steel can never be entered, whatever the body does, and the layering is
+  free instead of being fought for.
+* **Front and back is where the cascade shows.**  Between the trapezius and the
+  deltoid the body leaves only 10–30 mm of air — not enough for four layers — so
+  over the arm the lames stay short and hide behind the main plate.  Towards the
+  chest and the upper back, where 40–90 mm is available, each lame opens into a
+  visible band (0.05 m, 0.12 m, 0.19 m of cascade) with matched scalloped cusps
+  on the exposed edge.  `band_cap` closes each band exactly where the body
+  pinches, so the stack can never be squeezed into the shoulder.
+* **Conformance and squeeze.**  Every sample is measured against the body, the
+  cuirass, the back plate and the gorget, and pushed along its own radius until
+  it is clear (a plain "away from the nearest surface" push was tried first and
+  collapsed neighbouring samples into sub-millimetre edges).  The inner skin is
+  then resolved separately: it may not enter the plate above (2.8 mm of margin)
+  or come closer than 5.5 mm to the body, and where a lame is genuinely out of
+  room it thins locally — never below 2.8 mm, and only deep inside a hidden lap.
+* **Readable edges.**  Every exposed edge flares out slightly over the last 20 %
+  of its band (the rolled lip of a real lame) and every mesh carries a 2-segment
+  bevel at 38° — 1.4 mm on the main plate, 1.0 mm on the lames — which is what
+  keeps the plate edges catching light instead of dissolving into the shoulder.
+
+### Approved proportions, unchanged
+
+| feature | Prompt 6 | Prompt 7 |
+|---|---|---|
+| shoulder line / plate crown | Z 1.740 | Z 1.740 |
+| plate assembly span | 0.530 m | 0.547 m (reference 0.549) |
+| spiked span | 0.637 m | 0.668 m (reference 0.630 / 0.715) |
+| lowest lame over the arm | — | Z 1.602, 0.32 m above the elbow |
+| head-to-shoulder ratio | 0.31 | 0.31 |
+
+### Deliberate asymmetry
+
+The right envelope is scaled 0.95 to the left's 1.00 (the reference's slightly
+smaller side).  Five of the six spike pairs then carry a small intentional
+difference — the left primary spike is 6 % longer, the left front spike sits 5°
+further forward, the left rear spike 6° further back and 2 % shorter, the crown
+spike 4° further back, the lower barbs 2–5 % longer and a few degrees round —
+while the four plates of the two shoulders still mirror within 0.03 mm.  The
+largest spike-tip deviation between the sides is 14.3 mm.
+
+### Articulation concerns
+
+* Nothing touches the body, cuirass, back plate or gorget at rest: the main
+  plate keeps a full 5.2 mm, the gorget 54 mm, the helmet shell 97 mm.
+* The rotation tests (20° lift, 15° drop, 20° swing, section H of the report)
+  keep everything clear, but only just: a 15° drop or a 20° swing closes the gap
+  between the medial edge of the main plate and the trapezius to 0.0–0.3 mm,
+  and a 20° lift is the roomiest direction at 11–14 mm.  Large shoulder
+  movement therefore still has to be re-checked after rigging.
+* The over-arm lame edges stop 0.32 m above the elbow, so the arm can swing
+  freely under the pauldron; the front and back lame ends hang lower, where they
+  belong to the chest rather than to the arm.
+* The medial edge is the tight one (the trap leaves 5–10 mm on the main plate),
+  so a shoulder bone that rotates more than ~20° will need the plate stack to
+  slide on its own bone instead of rigidly following the shoulder.
+
+### Verification
+
+`tools/verify_shoulders.py` runs **125 automated checks**, all passing:
+
+* **scope** — only the 20 shoulder meshes changed; body, cuirass, forearms,
+  gauntlets, legs, sabatons, helmet, gorget and the 13 crown elements are
+  byte-identical, and exactly 16 objects are new.
+* **hierarchy** — 4 plates + 6 spikes per side, each a separate single-user mesh
+  with one BEVEL modifier, one material and an identity transform, all parented
+  to the shoulder-root empty.
+* **topology** — 20 closed manifolds, no non-manifold or boundary edges, no
+  loose geometry, no degenerate faces, shortest edge 2.60 mm, no plate below
+  2.8 mm (main plate a full 5.4 mm).
+* **layering** — each lame tucks under the plate above with a 2.5–2.7 mm lap gap
+  and **zero** edges crossing the plate above (exact edge-vs-face test), and the
+  main plate always defines the outer silhouette.
+* **clearances** — exposed armour ≥ 5 mm off the body, lames ≥ 19 mm, gorget
+  54 mm, helmet 97 mm, crest 208 mm, crown halo 151 mm, 0 vertices inside the
+  chest or back plate.
+* **proportions, asymmetry, articulation, spike fan, scene hygiene** — as listed
+  above; section G checks the mirror consistency *and* that the asymmetry is
+  real, section H runs the three rotation tests with renders.
+
+Outputs:
+
+* `analysis/shoulders/shoulder_views.png` — front, rear, side and three-quarter.
+* `analysis/shoulders/shoulder_threequarter.png` — the two three-quarter views
+  (with and without the back).
+* `analysis/shoulders/shoulder_{front,rear,side,threequarter,threequarter_back}.png`
+  — the five close-ups.
+* `analysis/shoulders/shoulder_in_context.png` — the same shoulder in the whole
+  figure, full length.
+* `analysis/shoulders/shoulder_articulation.png` — rest, 20° lift, 15° drop and
+  20° swing overlaid on the body.
+* `analysis/verify/verify_shoulders_report.txt` — the full report.
+* `WSK_Shoulder_Notes.txt` (inside the `.blend`) — the same design notes,
+  proportions, spike parameters and articulation caveats.
+
+`tools/verify_shoulders.py` hard-codes the elbow pivot as `ELBOW_Z = 1.281`;
+that is the only landmark it takes from outside the shoulder objects themselves.
+
 ## Reproducing
 
 ```bash
@@ -463,6 +605,9 @@ tools/bl.sh tools/build_armor_blockout.py     # writes checkpoint 5
 tools/bl.sh tools/verify_armor_blockout.py    # 43 checks + front/side/rear views
 tools/bl.sh tools/build_silhouette.py         # writes checkpoint 6
 tools/bl.sh tools/verify_silhouette.py        # 57 checks + 4 silhouette views
+tools/bl.sh tools/build_shoulders.py          # writes checkpoint 7
+tools/bl.sh tools/verify_shoulders.py         # 125 checks + shoulder views
+tools/bl.sh tools/render_shoulders.py         # shoulder close-ups + figure views
 #   WSK_SKIP_RENDERS=1 for numeric checks only; WSK_SAMPLES=<n> sets render quality
 ```
 
@@ -483,6 +628,8 @@ analysis/basebody/         Prompt 3 body renders, joint close-ups, overlays
 analysis/helmet/           Prompt 4 helmet views, silhouettes, sections, poses
 analysis/armor/            Prompt 5 front, side and rear armor orthographic checks
 analysis/silhouette/       Prompt 6 front, rear, left and right silhouette inspection
+analysis/shoulders/        Prompt 7 shoulder close-ups, sheets and articulation
+analysis/verify/           the verification reports
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender
 tools/build_proportions.py checkpoint 2: proportion sheet + blockout
@@ -490,6 +637,9 @@ tools/build_base_body.py   checkpoint 3: the base body
 tools/build_helmet_blockout.py   checkpoint 4: helmet + crown blockout
 tools/build_armor_blockout.py    checkpoint 5: separate armor plates
 tools/build_silhouette.py        checkpoint 6: whole-figure silhouette pass
+tools/build_shoulders.py         checkpoint 7: layered gothic shoulder armour
+tools/render_shoulders.py        checkpoint 7 render pass
+tools/inspect_shoulders.py       shoulder inspector
 tools/verify_*.py          the check suites (proportions, body, helmet, armor)
 Wildshift_Knight_0*.blend  checkpoints
 setup_blend.py             checkpoint 1 script
