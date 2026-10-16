@@ -1,0 +1,55 @@
+Prompt 14 - cape layered torn panels: verification report
+source: Wildshift_Knight_13_CapeBlockout.blend
+target: Wildshift_Knight_14_CapePanels.blend
+
+[PASS] scope: only the Prompt 13 cape shell is removed - removed=['WSK_Cape_Blockout_01']
+[PASS] scope: every other checkpoint-13 object is unchanged - 236 objects compared; changed=[]
+[PASS] scope: exactly the upper piece and five panels added - added=['WSK_Cape_Panel_01', 'WSK_Cape_Panel_02', 'WSK_Cape_Panel_03', 'WSK_Cape_Panel_04', 'WSK_Cape_Panel_05', 'WSK_Cape_Upper_01']
+[PASS] scope: one new material (the wall tone) - new=['MAT_Cape_Burgundy_Edge_01']
+[PASS] scope: no collection added - collections=14
+[PASS] structure: Cape collection holds the pivot, upper piece and five panels only - Cape=['WSK_Cape_Panel_01', 'WSK_Cape_Panel_02', 'WSK_Cape_Panel_03', 'WSK_Cape_Panel_04', 'WSK_Cape_Panel_05', 'WSK_Cape_Pivot_01', 'WSK_Cape_Upper_01']
+[PASS] structure: pivot unchanged at the yoke centre (0, -0.23, 1.60) - pivot=(0.0, -0.23, 1.6)
+[PASS] structure: every cape piece parented to the pivot, identity local transform
+[PASS] structure: no modifiers on any cape piece
+[PASS] material: outer material unchanged from Prompt 13
+[PASS] material: both placeholders are two-sided, untextured
+[PASS] material: wall tone is darker than the outer face
+[PASS] topology: WSK_Cape_Upper_01 closed, manifold, one shell, outward - V=2608 F=2606 chi=2 boundary=0 nonmanifold=0 loose=0 shells=1 volume=9583.0 cm^3
+[PASS] topology: WSK_Cape_Panel_01 closed, manifold, one shell, outward - V=656 F=654 chi=2 boundary=0 nonmanifold=0 loose=0 shells=1 volume=3126.8 cm^3
+[PASS] topology: WSK_Cape_Panel_02 closed, manifold, one shell, outward - V=574 F=572 chi=2 boundary=0 nonmanifold=0 loose=0 shells=1 volume=2872.5 cm^3
+[PASS] topology: WSK_Cape_Panel_03 closed, manifold, one shell, outward - V=488 F=486 chi=2 boundary=0 nonmanifold=0 loose=0 shells=1 volume=2349.2 cm^3
+[PASS] topology: WSK_Cape_Panel_04 closed, manifold, one shell, outward - V=644 F=642 chi=2 boundary=0 nonmanifold=0 loose=0 shells=1 volume=3098.5 cm^3
+[PASS] topology: WSK_Cape_Panel_05 closed, manifold, one shell, outward - V=594 F=592 chi=2 boundary=0 nonmanifold=0 loose=0 shells=1 volume=2798.7 cm^3
+[PASS] topology: WSK_Cape_Upper_01 has no self-intersecting faces - intersecting triangle pairs = 0
+[PASS] topology: WSK_Cape_Panel_01 has no self-intersecting faces - intersecting triangle pairs = 0
+[PASS] topology: WSK_Cape_Panel_02 has no self-intersecting faces - intersecting triangle pairs = 0
+[PASS] topology: WSK_Cape_Panel_03 has no self-intersecting faces - intersecting triangle pairs = 0
+[PASS] topology: WSK_Cape_Panel_04 has no self-intersecting faces - intersecting triangle pairs = 0
+[PASS] topology: WSK_Cape_Panel_05 has no self-intersecting faces - intersecting triangle pairs = 0
+[PASS] topology: cape budget (all pieces under 8000 vertices) - total cape vertices 5564
+[PASS] separation: no two lower panels touch (closest vertices >= 10 mm) - closest pairs: 1-2 23.0 mm, 1-3 240.7 mm, 1-4 386.0 mm, 1-5 629.1 mm, 2-3 37.2 mm, 2-4 208.6 mm, 2-5 444.1 mm, 3-4 21.9 mm, 3-5 256.4 mm, 4-5 22.9 mm
+[PASS] separation: panels meet the upper piece only along the seam - 106 shared seam vertices, Z 0.859..1.079
+[PASS] separation: nothing else of the upper piece closer than 1 mm to a panel - nearest non-seam pair 13.20 mm
+  Z 0.45 gaps: x -0.348..-0.330 (20 mm), x -0.138..-0.098 (42 mm), x +0.072..+0.098 (28 mm), x +0.330..+0.348 (20 mm)
+[PASS] tears: four narrow tears through the lower cape (one per V-apex) - gaps at Z 0.45 = 4
+[PASS] tears: every tear is narrow (under 50 mm at Z 0.45) - widths 20, 42, 28, 20 mm
+  tear tops: x -0.339: top Z 1.190, x -0.118: top Z 1.110, x +0.085: top Z 1.170, x +0.339: top Z 0.970
+[PASS] tears: two long tears climb to Z 1.10 or higher into the upper piece - tear tops Z 1.190, 1.110, 1.170, 0.970
+[PASS] tears: the short tear stops at the seam, well below the long tears - shortest top Z 0.970, longest 1.190
+[PASS] tears: the upper piece is intact at the yoke (no gap at Z 1.35) - gaps at Z 1.35 = 0
+[PASS] tears: the upper piece is intact at the shoulders (no gap at Z 1.50) - gaps at Z 1.50 = 0
+[PASS] bites: B1 large missing section in the lobe between the 3rd and 4th tears - lowest cape at x=+0.218: Z 0.326 m (band 0.20-0.40)
+[PASS] bites: B2 notch in the lobe between the 1st and 2nd tears - lowest cape at x=-0.235: Z 0.196 m (band 0.12-0.32)
+[PASS] bites: B3 torn-off outer corner - lowest cape at x=+0.521: Z 0.276 m (band 0.16-0.42)
+[PASS] panels: unequal widths (spread over 0.08 m) - widths 0.265, 0.209, 0.169, 0.246, 0.241 m (spread 0.096)
+[PASS] panels: unequal spacing between tears (spread over 0.05 m) - tear spacings 0.221, 0.203, 0.254 m
+[PASS] panels: each panel reaches the floor band (0.04-0.10 m) - lowest points [0.084, 0.06, 0.078, 0.079, 0.059]
+[PASS] silhouette: upper vertices sit on the approved Prompt 13 surface (9 mm shell half-thickness) - 2608 vertices: median 0.11 mm, 99th pct 2.53 mm, worst 5.32 mm from 9 mm; 19 beyond 3 mm (the G1 crease, where the shell thins locally)
+[PASS] silhouette: panel vertices sit on the approved Prompt 13 surface (9 mm shell half-thickness) - 2956 vertices: median 0.02 mm, 99th pct 1.29 mm, worst 3.86 mm from 9 mm; 2 beyond 3 mm (the G1 crease, where the shell thins locally)
+[PASS] silhouette: rear extent unchanged (deepest point within 15 mm of Prompt 13) - old -0.682 m, new -0.682 m
+[PASS] silhouette: overall width unchanged (within 5 mm) - old 0.564 m, new 0.564 m
+[PASS] silhouette: lowest hem unchanged (within 5 mm) - old 0.059 m, new 0.059 m
+[PASS] clearance: no cape vertex inside any armour, body, helmet or crown mesh - inside hits=[]
+[PASS] clearance: nearest solid part at least 30 mm from the cape - nearest 45.7 mm (WSK_Cape_Upper_01 to WSK_Armor_Pauldron_L_01)
+
+47 / 47 checks passing
