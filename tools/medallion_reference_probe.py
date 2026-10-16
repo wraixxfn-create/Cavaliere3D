@@ -184,9 +184,11 @@ def measure(path, frame, guess, name, r_lo=12.0, r_hi=26.0, rmax=46.0):
         f"   (gold spokes still present)")
     say(f"    ray reach by sector (mm): "
         + ", ".join(f"{s * mm:.0f}" for s in sectors))
-    say(f"                    vertical {vert * mm:.0f} mm vs horizontal {horiz * mm:.0f} mm"
-        f"  = {vert / max(horiz, 1e-9):.2f} x : the reach is even all round, with the")
-    say("                    longest blades running up and down the panel")
+    say(f"                    top/bottom {vert * mm:.0f} mm vs left/right {horiz * mm:.0f} mm"
+        f"  = {vert / max(horiz, 1e-9):.2f} x")
+    say("                    the blades are hand-drawn embroidery, so their reach is uneven")
+    say("                    all round; checkpoint 11 replaces that with three evenly graded")
+    say("                    tiers, which is what makes an ornament read as designed")
     say(f"    spokes outside the bezel: {n_rays}"
         + (f"  (band counts {counts})" if counts else ""))
     say(f"    ratios          core/bezel {core_r / outer:.2f},"
@@ -205,14 +207,14 @@ def annotate(path, box, cx, cy, core_r, inner, peak_r, outer, ray_r, title, scal
                                Image.LANCZOS)
     d = ImageDraw.Draw(crop)
     ox, oy = (cx - box[0]) * scale, (cy - box[1]) * scale
-    for r, colour, label in ((core_r, (0, 220, 255), "core"),
-                             (inner, (120, 255, 120), "bezel inner"),
-                             (peak_r, (255, 90, 90), "bezel"),
-                             (outer, (255, 160, 60), "bezel outer"),
-                             (ray_r, (255, 230, 60), "ray tips")):
+    for k, (r, colour, label) in enumerate(((core_r, (0, 220, 255), "core"),
+                                            (inner, (120, 255, 120), "bezel inner"),
+                                            (peak_r, (255, 90, 90), "bezel peak"),
+                                            (outer, (255, 160, 60), "bezel outer"),
+                                            (ray_r, (255, 230, 60), "ray tips"))):
         d.ellipse([ox - r * scale, oy - r * scale, ox + r * scale, oy + r * scale],
                   outline=colour, width=2)
-        d.text((ox + r * scale + 4, oy - 7), label, font=font(12, True), fill=colour)
+        d.text((ox + r * scale + 4, oy - 42 + k * 19), label, font=font(13, True), fill=colour)
     d.line([ox - 6, oy, ox + 6, oy], fill=(0, 255, 0), width=2)
     d.line([ox, oy - 6, ox, oy + 6], fill=(0, 255, 0), width=2)
     d.rectangle([3, 3, 360, 22], fill=(20, 20, 24))

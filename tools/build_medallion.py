@@ -532,7 +532,7 @@ ring    WSK_Armor_WaistMedallionRing_01
     (genus 1, no boundary, no loose edge).
         rear seat          Y {SEAT_Y:.4f} (0.4 mm inside the mount's face)
         outer radius       {RING_OUT * 1000:.1f} mm, so {((MOUNT_R - RING_OUT) * 1000):.1f} mm of the mount's face stays
-                           visible outside the ring
+                           visible outside the ring ({((MOUNT_R - RING_OUT) * 1000 - 0.6):.1f} mm to the ring's bevelled edge)
         aperture radius    {RING_APERTURE * 1000:.1f} mm at the back, funnelling to
                            {(RING_APERTURE + 0.00055) * 1000:.2f} mm at the front
         outer wall top     Y {RING_WALL_TOP:.4f}
@@ -634,7 +634,7 @@ def write_notes(log, rays):
             "\n\nPROMPT 11 - WAIST MEDALLION\n"
             "---------------------------\n"
             "Checkpoint 11 adds the central waist ornament to the blank mount of\n"
-            f"checkpoint 8: a 40 mm antique-gold ring, a recessed centre disc and\n"
+            f"checkpoint 8: a {RING_OUT * 1000:.0f} mm antique-gold ring, a recessed centre disc and\n"
             f"{len(rays)} fitted radial blades, three components and fourteen meshes,\n"
             "parented to a new pivot at the mount's axis.  Belt, fauld panels,\n"
             "mount, body, torso armour and scene setup are unchanged.  See\n"

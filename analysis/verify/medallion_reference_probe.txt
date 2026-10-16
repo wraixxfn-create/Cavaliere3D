@@ -9,8 +9,10 @@ gold test: R-B > 18, R > 55, R > G;  dark test: luminance < 19
     bezel            16.0-22.5 px =  30.5-42.9 mm  (peak 0.90 gold at 19.0 px)
     ray tips         45.0 px =  85.7 mm   (gold spokes still present)
     ray reach by sector (mm): 61, 77, 87, 86, 55, 87, 79, 87
-                    vertical 87 mm vs horizontal 87 mm  = 1.00 x : the reach is even all round, with the
-                    longest blades running up and down the panel
+                    top/bottom 87 mm vs left/right 87 mm  = 1.00 x
+                    the blades are hand-drawn embroidery, so their reach is uneven
+                    all round; checkpoint 11 replaces that with three evenly graded
+                    tiers, which is what makes an ornament read as designed
     spokes outside the bezel: 21  (band counts [23, 16, 21])
     ratios          core/bezel 0.62, tips/bezel 2.00 (vertical)
     annotated crop -> analysis/medallion/ref_front_motif.png
@@ -22,8 +24,10 @@ gold test: R-B > 18, R > 55, R > G;  dark test: luminance < 19
     bezel            12.5-15.5 px =  24.0-29.8 mm  (peak 0.18 gold at 14.5 px)
     ray tips         22.0 px =  42.3 mm   (gold spokes still present)
     ray reach by sector (mm): 0, 0, 0, 0, 33, 76, 87, 79
-                    vertical 87 mm vs horizontal 79 mm  = 1.11 x : the reach is even all round, with the
-                    longest blades running up and down the panel
+                    top/bottom 87 mm vs left/right 79 mm  = 1.11 x
+                    the blades are hand-drawn embroidery, so their reach is uneven
+                    all round; checkpoint 11 replaces that with three evenly graded
+                    tiers, which is what makes an ornament read as designed
     spokes outside the bezel: 3  (band counts [5, 3, 3])
     ratios          core/bezel 2.97, tips/bezel 1.42 (vertical)
     annotated crop -> analysis/medallion/ref_back_motif.png
