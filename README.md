@@ -22,6 +22,7 @@ disturbed.
 | 11 | `Wildshift_Knight_11_Medallion.blend` | the central waist ornament on the checkpoint-8 mount: a 35 mm antique-gold ring (genus-1 solid of revolution), a recessed centre disc with a rear plug flange, and 12 fitted radial blades in three graded reaches, each blade's rear face ray-fitted to the belt and the mount under it; three separate components, fourteen meshes, a new pivot empty, no applied modifiers |
 | 12 | `Wildshift_Knight_12_ArmorDetails.blend` | selective engravings and gothic trim: eleven separate antique-gold ornament meshes at five chosen locations only - a keel line and one chevron on the chest, top-edge trim flanking the waist medallion, brow-band trim flanking the helmet crest, and one lanceolate motif each on the knee cops and shin plates; every piece swept from a reusable trim profile with its back face ray-fitted and seated into the host plate, one unapplied edge bevel each, all existing meshes byte-identical |
 | 13 | `Wildshift_Knight_13_CapeBlockout.blend` | the cape base shape: one separate burgundy cloth-like shell (`WSK_Cape_Blockout_01`, 1650 vertices, closed) hung from the upper back behind the rear shoulder spikes, flaring to 1.12 m at the hem with four broad tears; pivot empty `WSK_Cape_Pivot_01` at the yoke; one placeholder material; no cloth simulation, no modifiers, every checkpoint-12 object unchanged |
+| 14 | `Wildshift_Knight_14_CapePanels.blend` | the cape split into layered torn panels: one intact upper cape piece and five separate lower panels hung from a wavy seam, on the four Prompt 13 V-apexes with narrow tears, two hem bites and a torn outer corner; same surface and silhouette as checkpoint 13, all in the `Cape` collection, two placeholder burgundy materials, no cloth or physics, every checkpoint-13 object except the replaced cape shell unchanged |
 
 ## Prompt 2 — proportions
 
@@ -1112,6 +1113,98 @@ turned the dark burgundy salmon pink.
 No cloth simulation, wind, physics, torn threads, chains or embroidery. The cape is a
 static blockout. The Reference-collection cape envelope guides are unchanged.
 
+## Prompt 14 — layered torn panels
+
+Deliverable: **`Wildshift_Knight_14_CapePanels.blend`**, built from checkpoint 13.
+The single Prompt 13 shell `WSK_Cape_Blockout_01` is replaced by six closed
+pieces in the `Cape` collection. Every other checkpoint-13 object is unchanged
+(236 objects compared on transform, parent, collection, material, modifiers and
+mesh coordinates); the armour and body are untouched.
+
+### Pieces
+
+* **`WSK_Cape_Upper_01`** — the intact upper cape: shoulders and yoke down to a
+  wavy seam at about 46 % of the drop (Z ≈ 0.86–1.08, rising at the apexes). One
+  closed shell. Only the long tears cut into it.
+* **`WSK_Cape_Panel_01` … `_05`** — five separate lower panels, left to right
+  (−X to +X). Each is one closed shell hung from the seam.
+* **`WSK_Cape_Pivot_01`** — unchanged plain-axes empty at the yoke centre, parent
+  of every cape piece with identity local transforms.
+
+### Shape
+
+The surface is the Prompt 13 surface, imported unchanged from
+`tools/build_cape_blockout.py`, and sampled finer (48 × 56 cells per face instead of
+24 × 32). The outline, flare, rear billow and the four broad V-tears of the hem are
+the approved ones. Nothing is added to the silhouette; the change is cuts.
+
+* **Tears.** The four cuts sit on the four Prompt 13 V-apexes (u −0.62, −0.22, 0.16,
+  0.60), so each narrow tear continues upward from one of the approved V-tears
+  and the panel edges are those tears, not new lines. Measured at Z 0.45 the gaps
+  are 20, 42, 28 and 20 mm wide. Tear tops (measured by following each tear up
+  the cape): Z 1.19, 1.11, 1.17 (long tears) and 0.97 (short tear, ends at the
+  seam). The second tear is two cells wide, the other three one cell.
+* **Missing sections.** Three bites in the hem lobes: a large one in the lobe between
+  the third and fourth tears (lowest point Z ≈ 0.33 at its centre), a notch in the
+  lobe between the first two tears (Z ≈ 0.20), and a torn-off outer corner
+  (Z ≈ 0.28).
+* **Irregularity.** Panel widths 0.27, 0.21, 0.17, 0.25, 0.24 m (spread 0.10 m);
+  tear spacings 0.22, 0.20, 0.25 m. No two panels share a length or a spacing.
+* **Upper piece intact.** No gap at Z 1.35 or Z 1.50; the yoke, shoulders and upper
+  back are the Prompt 13 surface.
+
+### Panels, thickness and separation
+
+* Each cut edge is a real 18 mm wall, so every panel reads as thick. Walls use a
+  second placeholder material, `MAT_Cape_Burgundy_Edge_01` (darker burgundy); the
+  outer and inner faces keep `MAT_Cape_Burgundy_01`. Both have backface culling
+  off, so each face shades from both sides.
+* Neighbouring panels never share a vertex or an edge. The closest vertices of two
+  panels are 22–37 mm apart at the tears, and the upper piece is at least 13 mm
+  from every panel except along the seam, where the two shells meet edge to edge.
+* No self-intersections in any piece (exact triangle tests).
+
+### Method notes
+
+* The shell is built from one (u, v) grid per piece. Each grid node is offset ±9 mm
+  along a node normal, and the normal field is averaged over 3 × 3 neighbours
+  twice. Without that averaging the outer and inner faces crossed in the thin
+  wedge just above the first tear (23 triangle pairs), because the Prompt 13 hem
+  has a sharp V-crease there. The averaging moves the centre surface by nothing;
+  it only changes the thickness direction. Result: median vertex 0.1 mm from 9 mm
+  off the approved surface, 99 % within 3 mm, worst 5.3 mm at the first tear's
+  crease, where the shell is locally about 7.5 mm thick instead of 18 mm.
+* Bite edges and tear walls follow the grid, so they step at the column and row
+  resolution (about 2 cm across, 2–3 cm high). Up close the bites look slightly
+  stepped. Sub-cell detail would need a finer grid or a re-cut, which is out of
+  scope for a blockout.
+
+### Verification
+
+`tools/verify_cape_panels.py` runs **47 checks, all passing**: scope against
+checkpoint 13, topology of all six pieces (closed, manifold, one shell, outward,
+no self-intersections), structure and parenting, separation, the tear and bite
+measurements above (ray-traced from the rear), unequal widths and spacings, the
+approved outline (rear extent, width, hem, and vertices on the approved surface),
+clearance to every armour, body, helmet and crown mesh (nearest 45.7 mm, no
+vertex inside any part), and material. The report is at
+`analysis/verify/verify_cape_panels_report.txt`.
+
+Renders (`tools/render_cape_panels.py`, Cycles on CPU, the Prompt 13 render
+settings):
+
+* `analysis/cape/p14_context_*.png` — the whole knight: rear, both sides, two
+  three-quarters.
+* `analysis/cape/p14_cape_only_*.png` — the cape alone.
+* `analysis/cape/p14_hem_*.png` — hem close-ups from the rear and the left side.
+* `analysis/cape/p14_contact_sheet.png` — context and cape-only rows.
+
+### Not done (by design)
+
+No cloth simulation, wind, physics, rigging or modifiers. Nothing is applied. The
+armour and the body are unchanged. The Reference-collection envelope guides are
+unchanged.
+
 ## Reproducing
 
 ```bash
@@ -1147,6 +1240,9 @@ tools/bl.sh tools/render_armor_details.py     # gameplay and close-up trim sheet
 tools/bl.sh tools/build_cape_blockout.py     # writes checkpoint 13
 tools/bl.sh tools/verify_cape_blockout.py    # 38 scope, topology, placement, clearance checks
 tools/bl.sh tools/render_cape_blockout.py    # cape in-context and cape-only views
+tools/bl.sh tools/build_cape_panels.py       # writes checkpoint 14
+tools/bl.sh tools/verify_cape_panels.py     # 47 scope, topology, tear, silhouette, clearance checks
+tools/bl.sh tools/render_cape_panels.py     # cape panels in-context, cape-only and hem close-ups
 tools/medallion_reference_probe.py            # the reference's sun motif in millimetres
 tools/crown_reference_probe.py                # metric grid over the reference views
 tools/crown_silhouette_read.py                # reference crown silhouette in metres
@@ -1178,7 +1274,7 @@ analysis/shoulders/        Prompt 7 shoulder close-ups, sheets and articulation
 analysis/limb_armor/       Prompt 9 neutral, four-way and manual-pose views
 analysis/medallion/        Prompt 11 waist, ornament-only and in-context views
 analysis/armor_details/    Prompt 12 trim close-ups, before/after and gameplay reads
-analysis/cape/             Prompt 13 cape renders (in context and cape only)
+analysis/cape/             Prompt 13 and 14 cape renders (in context, cape only, hem close-ups)
 analysis/verify/           the verification reports
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender
