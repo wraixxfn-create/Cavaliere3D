@@ -20,6 +20,7 @@ disturbed.
 | 9 | `Wildshift_Knight_09_LimbArmor.blend` | 54 separate refined limb-armour meshes: layered upper arms, forearms, gauntlets, thighs, greaves and sabatons; visibly segmented joints, stable soles, manual pose pivots and attachment metadata; no rig |
 | 10 | `Wildshift_Knight_10_Crown.blend` | thorn crown: the nine flat radial spikes replaced by 21 planted thorns in two graded rows around the existing halo ring, and the twelve shoulder spikes re-cut in the same profile at 65 % length; every base ray-planted on the evaluated helmet and length-fitted against all other parts |
 | 11 | `Wildshift_Knight_11_Medallion.blend` | the central waist ornament on the checkpoint-8 mount: a 35 mm antique-gold ring (genus-1 solid of revolution), a recessed centre disc with a rear plug flange, and 12 fitted radial blades in three graded reaches, each blade's rear face ray-fitted to the belt and the mount under it; three separate components, fourteen meshes, a new pivot empty, no applied modifiers |
+| 12 | `Wildshift_Knight_12_ArmorDetails.blend` | selective engravings and gothic trim: eleven separate antique-gold ornament meshes at five chosen locations only - a keel line and one chevron on the chest, top-edge trim flanking the waist medallion, brow-band trim flanking the helmet crest, and one lanceolate motif each on the knee cops and shin plates; every piece swept from a reusable trim profile with its back face ray-fitted and seated into the host plate, one unapplied edge bevel each, all existing meshes byte-identical |
 
 ## Prompt 2 — proportions
 
@@ -929,6 +930,118 @@ Outputs:
 * `WSK_Medallion_Notes.txt` inside the `.blend` — the same notes plus the build
   log.
 
+## Prompt 12 — selective engravings and gothic trim
+
+Deliverable: **`Wildshift_Knight_12_ArmorDetails.blend`**, built from
+checkpoint 11. Every checkpoint-11 object — the cuirass, the belt, the
+medallion, the crown, the limb plates, the body, the cape and weapon guides,
+the cameras and lights — is byte-identical; the only additions are the eleven
+ornament meshes described below. The large armour silhouettes are untouched,
+the cape and the weapon are untouched, and nothing was applied, baked or
+sculpted.
+
+### Where the decoration is (and where it deliberately is not)
+
+Five locations out of the whole figure, 11 meshes, 954 vertices in total:
+
+| location | objects | motif |
+|---|---|---|
+| chest | `WSK_Decor_ChestKeelTrim_01` | 6.4 mm antique-gold line seated on the cuirass keel crest, Z 1.155–1.600, faded ends |
+| chest | `WSK_Decor_ChestChevron_L/R_01` | one shallow 5.6 mm chevron over the pectoral planes, apex beside the keel line at Z 1.450, arms out to \|X\| 0.112 |
+| waist band | `WSK_Decor_BeltTrimTop_L/R_01` | 6.0 mm top-edge trim at Z 1.0965, azimuth 10–80° each side, stopping 10.7 mm clear of the medallion |
+| helmet brow | `WSK_Decor_BrowTrim_L/R_01` | 5.4 mm trim along the brow band's front arc at Z 1.8935, from \|X\| 0.006 (2.4 mm clear of the centre crest) to \|X\| 0.082 |
+| knees | `WSK_Decor_KneeRidge_L/R_01` | 10 mm lens-tapered lanceolate boss on the knee cop face, Z 0.505–0.590 |
+| shins | `WSK_Decor_ShinRidge_L/R_01` | 11 mm lens-tapered lanceolate ridge down the shin plate, Z 0.372–0.470 |
+
+Nothing is decorated on the pauldrons, the arms, the gauntlets, the thighs,
+the sabatons, the back plate, the fauld panels or the medallion itself: the
+waist already carries the sun ornament and the crown already carries the thorn
+language. The motifs are pure geometry — a line, one chevron, edge trims, two
+lanceolates — with no text, emblem or accidental lettering, and the widths and
+reliefs (5.4–11 mm wide, 1.6–2.6 mm proud) stay inside a "readable but never
+dominant" budget.
+
+### How the trim sits on the plates
+
+Each ornament is one reusable sweep of a six-point trim profile (flat seated
+back, drafted sides, chamfered crown) along a path fitted to its host plate —
+the same parametric solid style as the rest of the project. Every station
+ray-casts the *evaluated* host across the ornament's full width and the swept
+back face is seated 0.35–0.45 mm into the metal along the host's own surface
+normal, so the trim follows the plate's rake and curvature instead of floating
+over it. Measured on the finished file: every swept back face sits 0.35–0.45 mm
+inside its plate (nothing floats, nothing plunges past 0.45 mm), and every
+crown face stands 1.5–2.1 mm above the plate.
+
+Each ornament is parented to the plate it decorates with an identity local
+transform — so the knee and shin trims follow their plates' existing pose
+pivots — and the only modifier on each ornament is an unapplied 0.16 mm edge
+bevel. One restrained placeholder material, `MAT_Armor_AntiqueGold_01`
+(metallic 1.0, roughness 0.42, no emission, no textures), already shared with
+the Prompt 11 medallion, distinguishes the decoration from the blackened steel.
+
+### Verification
+
+`tools/verify_armor_details.py` runs **61 checks, all passing**, on the saved
+file:
+
+* **scope** — exactly the eleven ornaments were added and nothing deleted;
+  all 224 checkpoint-11 objects are byte-identical (mesh, modifiers, matrix,
+  parent — hosts' bevel/mirror/solidify/subsurf stacks preserved); no
+  material, collection, camera or light was added; the gold carries no emission.
+* **components** — every ornament wears only the gold placeholder, is parented
+  to its host plate with identity local transforms, and carries one unapplied
+  bevel.
+* **mesh quality** — every piece is a closed sweep solid (no boundary, no loose
+  edge, 2·E = Σ face degrees), genus 0, outward normals, 954 vertices total.
+* **placement** — swept back faces seated 0.35–0.45 mm into the host on all
+  eleven pieces; mid-path crowns 1.5–2.1 mm above the plate; chamfer rings
+  never below the surface; every vertex in the shallow band; tightest foreign
+  gap 2.7 mm (belt trim to the medallion's ray tips).
+* **design** — all trims narrow (5.4–11 mm) and shallow (1.9–2.6 mm); the belt
+  trim stops 24.5 mm from the centre line (clear of the medallion); the brow
+  trim stops 6 mm from it (clear of the crest); the keel line runs 445 mm;
+  left/right pairs mirror about X = 0 to 0.15 mm (two-sided Hausdorff, fitted
+  not assumed); motifs are pure geometry.
+* **render** — at gameplay framing (orthographic scale 2.5) the trim does not
+  grow the silhouette (front mask unchanged to the pixel) while adding 675
+  gold pixels — 1.46 % of the figure's pixels: visible at a reasonable
+  distance, not dominant.
+
+Outputs:
+
+* `analysis/armor_details/p12_detail_sheet.png` — every decorated location
+  close up: chest, waist, brow, knees, shins.
+* `analysis/armor_details/p12_bare_detail_sheet.png` / `p12_before_after_sheet.png`
+  — the same framings without the trim, and before/after pairs.
+* `analysis/armor_details/p12_gameplay_sheet.png` — whole figure at gameplay
+  distance, front and three-quarter, with and without the trim.
+* `analysis/armor_details/p12_{chest,waist,brow,knees,shins,legs,figure}_*.png`
+  — the individual views.
+* `analysis/verify/verify_armor_details_report.txt` — the full report.
+* `WSK_ArmorDetails_Notes.txt` inside the `.blend` — the same notes plus the
+  build log.
+
+### Remaining high-priority visual issues
+
+1. **No cloth** — the cape, the tabard and the hanging chains are still only
+   envelope guides; the reference's silhouette and gold-bordered cloth carry
+   much of its ornament, and the figure reads bare without them.
+2. **Head reads narrow** — Prompt 6 recorded this against the reference; the
+   reference's hood (not a rescaled crown) is still the agreed fix and is not
+   modelled.
+3. **Both torso side plates sit on the +X flank** — `WSK_Armor_SidePlate_L_01`
+   and `_R_01` occupy the same side (the Prompt 8 `panel()` helper ignores its
+   sign argument); the left flank has no side plate. A pre-existing bug this
+   prompt deliberately did not touch.
+4. **The weapon is a guide envelope** — the reference's greatsword is a major
+   readable element of the silhouette.
+5. **Materials are placeholders** — the gold and the two steels need proper
+   PBR variation, edge wear and value separation at texture time; at gameplay
+   distance the gold reads mostly as value, not colour.
+6. **No rig** — articulation is still manual pose pivots; the Prompt 12 trims
+   follow their plates through those pivots but there is no skeleton.
+
 ## Reproducing
 
 ```bash
@@ -958,6 +1071,9 @@ tools/bl.sh tools/render_crown.py             # crown, crown-only and in-context
 tools/bl.sh tools/build_medallion.py          # writes checkpoint 11
 tools/bl.sh tools/verify_medallion.py         # 102 placement, design, planting and render checks
 tools/bl.sh tools/render_medallion.py         # waist, ornament-only and in-context sheets
+tools/bl.sh tools/build_armor_details.py      # writes checkpoint 12
+tools/bl.sh tools/verify_armor_details.py     # 61 scope, seating, design and render checks
+tools/bl.sh tools/render_armor_details.py     # gameplay and close-up trim sheets
 tools/medallion_reference_probe.py            # the reference's sun motif in millimetres
 tools/crown_reference_probe.py                # metric grid over the reference views
 tools/crown_silhouette_read.py                # reference crown silhouette in metres
@@ -988,6 +1104,7 @@ analysis/silhouette/       Prompt 6 front, rear, left and right silhouette inspe
 analysis/shoulders/        Prompt 7 shoulder close-ups, sheets and articulation
 analysis/limb_armor/       Prompt 9 neutral, four-way and manual-pose views
 analysis/medallion/        Prompt 11 waist, ornament-only and in-context views
+analysis/armor_details/    Prompt 12 trim close-ups, before/after and gameplay reads
 analysis/verify/           the verification reports
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender
@@ -1004,6 +1121,8 @@ tools/build_limb_armor.py        checkpoint 9: segmented layered limb armour
 tools/render_limb_armor.py       checkpoint 9 neutral and pose render pass
 tools/build_medallion.py         checkpoint 11: the central waist medallion
 tools/render_medallion.py        checkpoint 11 waist and ornament render pass
+tools/build_armor_details.py     checkpoint 12: selective engravings and gothic trim
+tools/render_armor_details.py    checkpoint 12 gameplay and close-up render pass
 tools/medallion_reference_probe.py  reads the reference's sun motif in metres
 tools/verify_*.py          the check suites (proportions, body, helmet, armour)
 Wildshift_Knight_0*.blend  checkpoints
