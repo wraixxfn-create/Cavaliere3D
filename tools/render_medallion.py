@@ -1,16 +1,12 @@
-"""Prompt 11 - render harness for the waist medallion.
+"""Prompt 11 - render the waist medallion inspection views.
 
-Works on any checkpoint (WSK_SRC=<file>, WSK_TAG=<prefix>), so the same script
-produces the "before" sheet from checkpoint 10 and the "after" sheet from
-checkpoint 11.
-
-Views: front, rear, both sides and both three-quarters at waist framing, a tight
-front and rear framing of the ornament alone with the rest of the figure hidden,
-and the whole figure from the front / rear / left silhouette cameras so the
-ornament can be judged against the belt it sits on.
+Views: tight front and rear close-ups, the waist in context, two three-quarters,
+a grazing edge-on view for the relief depth, the ornament alone (armour and body
+hidden) and whole-figure sheets.  Works on any checkpoint (WSK_SRC=<file>), so
+the same harness produces the "before" and "after" sheets.
 
 Env: WSK_SRC=<blend>, WSK_TAG=<prefix>, WSK_SKIP_RENDERS=1, WSK_SAMPLES=<n>,
-     WSK_QUICK=1 (the tight framings only).
+     WSK_VIEWS=close|all
 Run: tools/bl.sh tools/render_medallion.py
 """
 import os
@@ -23,28 +19,36 @@ ROOT = "/home/user/Cavaliere3D"
 SRC = os.environ.get("WSK_SRC", os.path.join(ROOT, "Wildshift_Knight_11_Medallion.blend"))
 TAG = os.environ.get("WSK_TAG", "p11_")
 SHOTS = os.path.join(ROOT, "analysis/medallion")
-SAMPLES = int(os.environ.get("WSK_SAMPLES", "32"))
+SAMPLES = int(os.environ.get("WSK_SAMPLES", "64"))
 SKIP = os.environ.get("WSK_SKIP_RENDERS") == "1"
-QUICK = os.environ.get("WSK_QUICK") == "1"
+VIEWS_MODE = os.environ.get("WSK_VIEWS", "all")
 
-RES = (760, 950)
-WAIST_Z = 1.055
-ORTHO = 0.46
-VIEWS = {
-    "front": dict(loc=(0.0, 3.0, WAIST_Z), tgt=(0.0, 0.0, WAIST_Z), ortho=ORTHO),
-    "rear": dict(loc=(0.0, -3.0, WAIST_Z), tgt=(0.0, 0.0, WAIST_Z), ortho=ORTHO),
-    "side_left": dict(loc=(-3.0, 0.0, WAIST_Z), tgt=(0.0, 0.0, WAIST_Z), ortho=ORTHO),
-    "side_right": dict(loc=(3.0, 0.0, WAIST_Z), tgt=(0.0, 0.0, WAIST_Z), ortho=ORTHO),
-    "threequarter": dict(loc=(-0.95, 1.35, 1.32), tgt=(0.0, 0.06, 1.02), lens=125),
-    "threequarter_rear": dict(loc=(0.95, -1.35, 1.32), tgt=(0.0, -0.06, 1.02), lens=125),
+FRONT_Z = 1.055          # the existing mount centre
+REAR_Z = 1.155           # the rear medallion centre (lower back plate)
+RES = (760, 900)
+
+CLOSE = {
+    "pf_front": dict(loc=(0.0, 1.2, FRONT_Z + 0.012), tgt=(0.0, 0.0, FRONT_Z + 0.012), ortho=0.235),
+    "pf_rear": dict(loc=(0.0, -1.2, REAR_Z), tgt=(0.0, 0.0, REAR_Z), ortho=0.235),
+    "pf_relief": dict(loc=(0.62, 0.62, FRONT_Z + 0.02), tgt=(0.0, 0.10, FRONT_Z), lens=90),
+    "pf_threequarter": dict(loc=(-0.62, 0.78, FRONT_Z + 0.30), tgt=(0.0, 0.10, FRONT_Z), lens=95),
+    "pf_threequarter_rear": dict(loc=(0.70, -0.72, REAR_Z + 0.32), tgt=(0.0, -0.09, REAR_Z), lens=95),
 }
-TIGHT = {
-    "front_only": dict(loc=(0.0, 1.2, 1.055), tgt=(0.0, 0.0, 1.055), ortho=0.175),
-    "rear_only": dict(loc=(0.0, -1.2, 1.030), tgt=(0.0, 0.0, 1.030), ortho=0.175),
-    "threequarter_only": dict(loc=(0.55, 0.90, 1.28), tgt=(0.0, 0.03, 1.03), lens=140),
+CONTEXT = {
+    "waist_front": dict(loc=(0.0, 2.4, 1.02), tgt=(0.0, 0.0, 1.02), ortho=0.62),
+    "waist_rear": dict(loc=(0.0, -2.4, 1.06), tgt=(0.0, 0.0, 1.06), ortho=0.62),
+    "waist_left": dict(loc=(-2.4, 0.0, 1.02), tgt=(0.0, 0.0, 1.02), ortho=0.62),
+    "waist_threequarter": dict(loc=(-1.35, 1.75, 1.55), tgt=(0.0, 0.0, 1.00), lens=95),
+}
+ALONE = {
+    "front": dict(loc=(0.0, 1.2, FRONT_Z + 0.012), tgt=(0.0, 0.0, FRONT_Z + 0.012), ortho=0.155),
+    "rear": dict(loc=(0.0, -1.2, REAR_Z), tgt=(0.0, 0.0, REAR_Z), ortho=0.155),
+    "relief": dict(loc=(0.62, 0.62, FRONT_Z + 0.02), tgt=(0.0, 0.11, FRONT_Z), lens=90),
+    "threequarter": dict(loc=(-0.42, 0.52, FRONT_Z + 0.16), tgt=(0.0, 0.11, FRONT_Z), lens=95),
 }
 HIDE_PREFIX = ("WSK_Guide_", "WSK_Label_", "WSK_Ref_", "WSK_Joint_", "WSK_Mann_", "WSK_Studio_")
-MEDALLION = "WSK_Armor_WaistMedallion"
+MEDALLION_PREFIX = "WSK_Armor_WaistMedallion"
+BODY = "WSK_Body_Base_01"
 
 
 def font(size, bold=False):
@@ -78,16 +82,15 @@ def setup_render():
     bg = scene.world.node_tree.nodes.get("Background")
     bg.inputs[0].default_value = (0.030, 0.030, 0.034, 1.0)
     bg.inputs[1].default_value = 1.0
-    for name, loc, energy, size in (("MedRim", (0.5, -1.1, 1.6), 45.0, 0.5),
-                                    ("MedTop", (-0.4, 0.5, 1.6), 22.0, 0.6),
-                                    ("MedFront", (0.0, 1.6, 1.35), 26.0, 0.8),
-                                    ("MedLow", (0.0, 0.9, 0.55), 12.0, 0.8)):
+    for name, loc, energy, size in (("MedRim", (0.75, 1.05, 1.35), 22.0, 0.45),
+                                    ("MedTop", (-0.55, -0.75, 1.55), 12.0, 0.6),
+                                    ("MedFar", (0.0, -1.9, 1.05), 5.0, 0.7)):
         lamp = bpy.data.lights.new(name, "AREA")
         lamp.energy = energy
         lamp.size = size
         obj = bpy.data.objects.new(name, lamp)
         scene.collection.objects.link(obj)
-        look_at(obj, loc, (0.0, 0.0, 1.055))
+        look_at(obj, loc, (0.0, 0.0, 1.02))
     cam = bpy.data.objects.new("MedCam", bpy.data.cameras.new("MedCam"))
     scene.collection.objects.link(cam)
     scene.camera = cam
@@ -121,7 +124,7 @@ def render(scene, path):
     return comp.convert("RGB"), (np.asarray(im)[..., 3] > 127)
 
 
-def sheet(items, out, cols, title, scale=0.62, bg=(235, 235, 238)):
+def sheet(items, out, cols, title, scale=0.72, bg=(235, 235, 238)):
     tiles = [(t, im.resize((int(im.width * scale), int(im.height * scale)), Image.LANCZOS))
              for t, im in items]
     tw = max(t.width for _, t in tiles)
@@ -139,70 +142,62 @@ def sheet(items, out, cols, title, scale=0.62, bg=(235, 235, 238)):
     return out
 
 
-def hide_all_but(prefix):
-    hidden = {}
-    for o in bpy.data.objects:
-        if o.type == "MESH" and not o.name.startswith(prefix):
-            hidden[o.name] = o.hide_render
-            o.hide_render = True
-    return hidden
-
-
-def restore(hidden):
-    for o in bpy.data.objects:
-        if o.type == "MESH" and o.name in hidden:
-            o.hide_render = hidden[o.name]
-
-
 def main():
     bpy.ops.wm.open_mainfile(filepath=SRC)
     os.makedirs(SHOTS, exist_ok=True)
     if SKIP:
         return
     scene, cam = setup_render()
-    shots = []
-    views = (("front_only", TIGHT["front_only"]), ("rear_only", TIGHT["rear_only"])) if QUICK \
-        else VIEWS.items()
-    for name, v in views:
+    pre = TAG
+    close, context = [], []
+    for name, v in CLOSE.items():
         set_view(cam, v)
         print("      rendering", name)
-        im, _ = render(scene, os.path.join(SHOTS, f"{TAG}waist_{name}.png"))
-        shots.append((name, im))
-    if not QUICK:
-        sheet(shots[:4], os.path.join(SHOTS, f"{TAG}waist_four_views.png"), 4,
-              f"waist: front / rear / left / right  ({os.path.basename(SRC)})")
-        sheet(shots[4:], os.path.join(SHOTS, f"{TAG}waist_threequarter.png"), 2,
-              "three-quarter front and three-quarter rear")
-
-    # the ornament alone: every mesh whose name is not the waist ornament hidden
-    hidden = hide_all_but(MEDALLION)
-    tight = []
-    for name, v in TIGHT.items():
+        im, _ = render(scene, os.path.join(SHOTS, f"{pre}{name}.png"))
+        close.append((name.replace("pf_", ""), im))
+    sheet(close, os.path.join(SHOTS, f"{pre}medallion_closeups.png"), 3,
+          f"waist medallion close-ups  ({os.path.basename(SRC)})")
+    for name, v in CONTEXT.items():
         set_view(cam, v)
-        print("      rendering ornament-only", name)
-        im, _ = render(scene, os.path.join(SHOTS, f"{TAG}medallion_{name}.png"))
-        tight.append((name.replace("_", " "), im))
-    restore(hidden)
-    sheet(tight, os.path.join(SHOTS, f"{TAG}medallion_only_sheet.png"), 3,
-          "waist medallion alone (belt and body hidden)")
-    if QUICK:
+        print("      rendering", name)
+        im, _ = render(scene, os.path.join(SHOTS, f"{pre}{name}.png"))
+        context.append((name.replace("waist_", ""), im))
+    sheet(context, os.path.join(SHOTS, f"{pre}medallion_in_context.png"), 4,
+          "waist medallion in context")
+    if VIEWS_MODE == "close":
         return
 
+    # the ornament alone: every mesh except the medallion parts hidden
+    hidden = {}
+    for o in bpy.data.objects:
+        if o.type == "MESH" and not o.name.startswith(MEDALLION_PREFIX):
+            hidden[o.name] = o.hide_render
+            o.hide_render = True
+    alone = []
+    for name, v in ALONE.items():
+        set_view(cam, v)
+        print("      rendering medallion-only", name)
+        im, _ = render(scene, os.path.join(SHOTS, f"{pre}medalliononly_{name}.png"))
+        alone.append(("medallion only " + name, im))
+    for o in bpy.data.objects:
+        if o.type == "MESH" and o.name in hidden:
+            o.hide_render = hidden[o.name]
+    sheet(alone, os.path.join(SHOTS, f"{pre}medallion_only_sheet.png"), 2,
+          "the waist medallion alone (mount, armour and body hidden)")
+
+    # whole figure, from the saved silhouette cameras
     whole = []
     for name in ("WSK_Cam_Sil_Front_01", "WSK_Cam_Sil_Rear_01", "WSK_Cam_Sil_Left_01"):
-        if name not in bpy.data.objects:
-            continue
         scene.camera = bpy.data.objects[name]
         scene.render.resolution_x, scene.render.resolution_y = (560, 900)
-        scene.render.filepath = os.path.join(SHOTS, f"{TAG}figure_{name[9:-3]}.png")
+        scene.render.filepath = os.path.join(SHOTS, f"{pre}figure_{name[-9:]}.png")
         bpy.ops.render.render(write_still=True)
         im = Image.open(scene.render.filepath).convert("RGB")
         whole.append((name[9:-3], im))
     scene.camera = cam
     scene.render.resolution_x, scene.render.resolution_y = RES
-    if whole:
-        sheet(whole, os.path.join(SHOTS, f"{TAG}waist_in_context.png"), 3,
-              "whole figure: front / rear / left")
+    sheet(whole, os.path.join(SHOTS, f"{pre}medallion_figure.png"), 3,
+          "waist medallion at figure scale: front / rear / left")
 
 
 if __name__ == "__main__":

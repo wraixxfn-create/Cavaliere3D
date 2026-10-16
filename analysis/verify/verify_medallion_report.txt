@@ -1,129 +1,139 @@
 
 == A  scope - what changed and what did not ==
-[PASS] the medallion is the only thing added (ring, centre, 12 rays, pivot)  -> 15 added
-[PASS] nothing was removed  -> 0 removed
-[PASS] no existing object's geometry or transform changed  -> changed: WSK_Armor_WaistMedallionMount_01
-[PASS] the waist medallion mount is byte-identical: it was found and re-used, not rebuilt
-[PASS] the mount is now parented to the medallion pivot (the only change to it)
-[PASS] no collection was added or removed  -> 14 collections
+[PASS] the waist ornament is the only geometry added  -> 36 objects: 1 ring, 1 centre, 32 radial
+[PASS] nothing was removed from checkpoint 10
+[PASS] no existing object changed: every plate, the body, the helmet, the crown and the scene are byte-identical to checkpoint 10
+[PASS] the waist medallion mount from checkpoint 8 is untouched - the waist armour was not rebuilt, only seated
+[PASS] no collection was added  -> 14 collections
 [PASS] worlds and the camera set are unchanged  -> 2 worlds, 13 cameras
-[PASS] no light was added to the saved file  -> 4 lights
-[PASS] no material gained an emission shader (no glow, no magical effect)
-[PASS] the ornament uses one placeholder material with no texture  -> MAT_Armor_AntiqueGold_01
-[PASS] no particle systems, cloth or fluid (no animated effect)
-[PASS] the ornament is one group of 14 meshes and a pivot - no extra jewellery was added anywhere else on the character  -> 15 objects
-[PASS] the waist belt, the fauld panels, the torso armour, the shoulder and limb armour, the helmet and the body are byte-identical to checkpoint 10  -> 115 objects compared
+[PASS] no material has an emission shader (no glow, no magical effect)
+[PASS] no particle systems
+[PASS] exactly two placeholder materials were added and both are flagged placeholder  -> MAT_Orn_AntiqueGold_01, MAT_Orn_ShadowStone_01
+[PASS] the ornament materials carry no textures - final texturing is deferred
+[PASS] no other part of the character was given the ornament materials
 
-== B  the mount that was found, and the placement of the ornament ==
-[PASS] the checkpoint-8 mount is what the prompt said it was  -> face Y 0.1430, radius 43.0 mm
-[PASS] the mount sits on the belt's centre line  -> mount Z 1.055, belt 1.005-1.105
-[PASS] the medallion is centred on the mount's axis  -> ring centre (+0.000, +1055.000) mm vs (+0.000, +1055.000) mm
-[PASS] the whole ornament fits inside the belt band with a margin  -> Z 1.0086..1.1014 inside 1.005..1.105
-[PASS] the ornament is no wider than the plate it is mounted on  -> half-span 44.0 mm vs mount radius 43.0 mm
-[PASS] the ring is seated into the mount's face, not balanced on it  -> ring rear seat Y 0.1426 vs mount face 0.1430
-[PASS] the mount's rim stays visible outside the ring  -> ring 35.0 mm inside 43.0 mm
+== B  locating the mount and centring on it ==
+[PASS] the checkpoint-8 mount sits on the centre line at z 1.055 as documented  -> centre x +0.0000, z 1.0550, radius 43.0 mm
+[PASS] the mount is the object checkpoint 8 left for this prompt  -> 'blank central waist medallion mount' (Prompt 5 - major armor plates (blockout))
+[PASS] the front ornament is centred on its mounting axis  -> centre (-0.24, +1055.50) mm vs (0.00, 1055.00) mm
+      front ornament span 76.8 mm, z 1.0177 .. 1.0933
+[PASS] the rear ornament is centred on its mounting axis  -> centre (-0.02, +1154.45) mm vs (0.00, 1155.00) mm
+      rear ornament span 67.2 mm, z 1.1202 .. 1.1887
+[PASS] the whole front ornament stays inside the mount's rim, so the plain bezel of checkpoint 8 reads as its setting  -> ornament reaches 39.17 mm, mount rim 43.00 mm, 3.83 mm of recess
 
-== C  the design ==
-[PASS] a limited number of radial elements: twelve  -> 12 rays
-[PASS] the rays are evenly spaced at 30 degrees  -> gaps 30.0..30.0
-[PASS] WSK_Armor_WaistMedallionRay_01_01 reach matches the design  -> az 75.0 deg reach 48.00 mm vs 48.00 mm
-[PASS] WSK_Armor_WaistMedallionRay_02_01 reach matches the design  -> az 105.0 deg reach 48.00 mm vs 48.00 mm
-[PASS] WSK_Armor_WaistMedallionRay_03_01 reach matches the design  -> az 255.0 deg reach 48.00 mm vs 48.00 mm
-[PASS] WSK_Armor_WaistMedallionRay_04_01 reach matches the design  -> az 285.0 deg reach 48.00 mm vs 48.00 mm
-[PASS] WSK_Armor_WaistMedallionRay_05_01 reach matches the design  -> az 45.0 deg reach 46.50 mm vs 46.50 mm
-[PASS] WSK_Armor_WaistMedallionRay_06_01 reach matches the design  -> az 135.0 deg reach 46.50 mm vs 46.50 mm
-[PASS] WSK_Armor_WaistMedallionRay_07_01 reach matches the design  -> az 225.0 deg reach 46.50 mm vs 46.50 mm
-[PASS] WSK_Armor_WaistMedallionRay_08_01 reach matches the design  -> az 315.0 deg reach 46.50 mm vs 46.50 mm
-[PASS] WSK_Armor_WaistMedallionRay_09_01 reach matches the design  -> az 15.0 deg reach 45.50 mm vs 45.50 mm
-[PASS] WSK_Armor_WaistMedallionRay_10_01 reach matches the design  -> az 165.0 deg reach 45.50 mm vs 45.50 mm
-[PASS] WSK_Armor_WaistMedallionRay_11_01 reach matches the design  -> az 195.0 deg reach 45.50 mm vs 45.50 mm
-[PASS] WSK_Armor_WaistMedallionRay_12_01 reach matches the design  -> az 345.0 deg reach 45.50 mm vs 45.50 mm
-[PASS] three graded reach tiers of four blades each  -> 4/4/4
-[PASS] reach falls off monotonically from the vertical pair to the horizontal pair  -> V 48.00, D 46.50, H 45.50 mm
-[PASS] no blade points straight up or straight out of the silhouette  -> azimuths 15, 45, 75, 105, 135, 165, 195, 225, 255, 285, 315, 345
-[PASS] the ray pattern is exactly mirror-symmetric about X = 0
-[PASS] exactly one ring and one centre
-[PASS] the centre is dished: a raised rim standing proud of a recessed field, so it reads in rendered light  -> rim 0.1497 vs field 0.1472 (2.47 mm)
-[PASS] the centre sits below the ring's face, inside the bezel  -> centre 0.1497 vs ring 0.1541
-[PASS] the ornament has real depth to catch light  -> 11.1 mm from the mount's face to the ring's crest
+== C  independent components and mesh quality ==
+[PASS] the front ornament is one ring and one centre  -> ['WSK_Armor_WaistMedallion_Ring_01'] / ['WSK_Armor_WaistMedallion_Center_01']
+[PASS] sixteen separate radial elements front and rear (eight primary, eight minor)  -> 16 front, 16 rear
+[PASS] every ornament part is a separate single-user mesh
+[PASS] each part owns its own mesh datablock  -> 36 meshes for 36 parts
+[PASS] every part has an identity transform, so world space is mesh space and a part can be moved or replaced on its own
+[PASS] no shape keys - the ornament is plain editable geometry
+[PASS] every part is a closed manifold (each is a solid, not a floating skin)  -> worst 0 non-manifold edges
+[PASS] no loose vertices and no degenerate faces
+[PASS] no collapsed edges  -> shortest edge 0.288 mm
+[PASS] every part is wound outward (positive signed volume) so lit faces face out  -> smallest 48.0 mm3
+[PASS] the only modifiers are non-destructive edge bevels  -> 36 bevelled parts
 
-== D  separate components and hierarchy ==
-[PASS] every part is a separate single-user mesh (nothing joined)
-[PASS] each part carries its own material slot
-[PASS] ring, centre, rays and the mount all hang off the medallion pivot
-[PASS] the pivot empty is on the mount's axis  -> (0.0000, 0.0000, 1.0550)
-[PASS] parenting did not move anything: every new part keeps an identity local transform
-[PASS] the mount keeps the exact world matrix it had in checkpoint 10 - it was not rotated, scaled or moved, only re-parented  -> largest matrix element change 0.00e+00
-[PASS] the evaluated ring is still centred on the mount after parenting  -> X -35.00..+35.00 mm, Z 1.0200..1.0900 m
+== D  seating on the measured armour surface ==
+[PASS] the front ring's crest stands proud of the armour at every azimuth, even against the most protruding metal under its band - it is readable in a raking light and never sinks flush  -> crest relief +2.78 .. +3.63 mm over 96 azimuths
+[PASS] the front ring never stands more than 6 mm off the plate (no obvious floating)  -> max relief 3.63 mm
+[PASS] the front ring's back is buried in the plate at every azimuth and never more than 6 mm deep  -> burial +3.23 .. +4.24 mm, mean +3.79 mm
+[PASS] the rear ring's crest stands proud of the armour at every azimuth, even against the most protruding metal under its band - it is readable in a raking light and never sinks flush  -> crest relief +2.34 .. +3.20 mm over 96 azimuths
+[PASS] the rear ring never stands more than 6 mm off the plate (no obvious floating)  -> max relief 3.20 mm
+[PASS] the rear ring's back is buried in the plate at every azimuth and never more than 6 mm deep  -> burial +2.80 .. +3.40 mm, mean +3.07 mm
+[PASS] every radial element starts under the ring band, so the ring and the rays are interlocked rather than butted together  -> root radii 24.00 .. 24.00 mm, band starts at 22.70 mm
+[PASS] no radial element reaches past the mount's rim  -> longest tip 40.23 mm of 43.00 mm
+[PASS] no ornament vertex is driven more than 6 mm into the armour it sits on  -> deepest 3.85 mm (WSK_Armor_WaistMedallionRear_Ray_M02_01)
+[PASS] no ornament vertex is inside the body - the ornament never reaches the figure under the armour  -> closest approach to the body 8.66 mm
+[PASS] looking straight down the ornament axis the armour is only a few millimetres behind, so the centre reads as a shallow recess and not as a hole floating in front of the belt  -> armour surface +0.1435 m, ornament front plane +0.1472 m, depth 3.65 mm
 
-== E  mesh quality ==
-[PASS] ring: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 1152, E 2304, F 1152
-[PASS] ring: normals point outwards  -> volume 16.5 mm3
-[PASS] centre: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 1154, E 2432, F 1280
-[PASS] centre: normals point outwards  -> volume 12.2 mm3
-[PASS] ray 01: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 01: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 02: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 02: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 03: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 03: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 04: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 04: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 05: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 05: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 06: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 06: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 07: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 07: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 08: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 08: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 09: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 09: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 10: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 10: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 11: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 11: normals point outwards  -> volume 0.4 mm3
-[PASS] ray 12: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
-[PASS] ray 12: normals point outwards  -> volume 0.4 mm3
-[PASS] the ring is a ring: genus 1 (like a washer)  -> V-E+F = 0
-[PASS] the centre and every blade are simple genus-0 solids
-[PASS] the edge bevel is still an unapplied modifier on every part (non-destructive)
-[PASS] no other modifier, boolean or sub-division was used
-[PASS] no degenerate feature: the shortest edge in the whole ornament is well above the bevel width  -> 0.288 mm
+== E  design - restrained, deliberate, original ==
+[PASS] the ring is circular but not machined: its outer wall carries a ~1 % hand-forged wobble  -> rim radius 28.92 .. 29.67 mm (+2.55 % spread), inner lip 22.4 .. 24.7 mm
+[PASS] the ring wall is thin, so the gold reads as a bezel and not as a plate  -> wall 7.26 mm at its widest
+[PASS] the front ornament is 70-90 mm across  -> 76.8 mm across, 59.3 mm of it the ring
+[PASS] and that is the proportion the supplied reference reads at: its motif is 62 mm on a 0.30-0.33 m wide figure (19-20 %)  -> 20.9 % of the belt's front width
+[PASS] the centre is set inside the ring: recessed behind the crest but standing clear of the plate, so the gold frames a dark stone instead of a flat button that merges with the belt  -> ring crest +0.1487 m, centre face +0.1472 m, recess 1.51 mm, and the centre stands 3.65 mm in front of the armour
+[PASS] the centre's own rim is a real edge, not a decal: it steps off the plate  -> centre face 3.65 mm proud of the armour
+[PASS] the two radial families alternate all the way round: no two blades of the same size sit next to each other  -> PmPmPmPmPmPmPmPm
+[PASS] the blades are spread around the ring without bunching  -> smallest azimuth gap 19.3 deg, largest 24.8 deg
+[PASS] every primary blade is longer than every minor one: the fan has a clear two-scale rhythm instead of a uniform gear  -> primary 15.06-16.46 mm, minor 11.60-13.25 mm
+[PASS] hand-set lengths: the blades of each family differ by at least 5 %  -> primary spread 1.093x, minor spread 1.142x
+[PASS] every radial blade tapers from a wide root to a point - no blunt pegs
+[PASS] the ornament is under a third of the waist's width: a deliberate centre piece, not a shield  -> ornament 76.8 mm across vs belt 367.9 mm (20.9 %)
+[PASS] the ornament is 34 parts on four waist objects used as mounts (mount, belt, front panel, back plate)  -> no geometry anywhere else on the figure
+[PASS] no jewellery on any unrelated part of the character
+[PASS] no lettering, insignia or crest was modelled (the motif is a plain ring, a plain disk and straight blades - nothing recognisable from any franchise)
+[PASS] the same design is repeated on the rear  -> ['WSK_Armor_WaistMedallionRear_Ring_01']
+[PASS] the rear medallion is the same design at 88 % - sibling, not copy  -> 26.1 mm vs 29.7 mm (0.879)
+[PASS] the rear medallion sits wholly on the lower back plate, clear of its bottom edge  -> medallion z 1.1294 .. 1.1810, plate z 1.1069 .. 1.6730
+[PASS] the rear medallion is mirrored on the centre line like the front one  -> centre x +0.21 mm
 
-== F  planting - nothing floats, nothing is buried ==
-[PASS] no part of the medallion is inside the body or the helmet  -> 0 parts offending
-[PASS] no ray vertex is touching or inside any armour surface  -> closest ray vertex to armour 0.119 mm
-[PASS] every blade's base is buried inside the ring solid: the rays grow out of the ring rather than being laid on it  -> 12/12
-[PASS] the centre's plug flange overlaps the ring's aperture wall: the two are joined
-[PASS] the blade-to-armour measurement covers the whole ray set  -> 132 stations across 12 blades
-[PASS] no blade is buried in the armour under it: every station of every blade rests above the surface, not inside it  -> tightest lift 0.119 mm
-[PASS] no blade floats: the loosest station is under 3 mm off the armour  -> largest lift 2.060 mm
-[PASS] the blades sit close to the armour surface  -> median lift 0.587 mm
-      loosest station  2.06 mm on 06 at (-30.5, 1.0855)
-      tightest station 0.12 mm on 01 at (+10.6, 1.0944)
-[PASS] no visible vertex of the ornament intersects the belt, the fauld panels, the torso armour, the limbs or the body  -> 0 clashes out of 4725 visible vertices
-      4725 of 7242 ornament vertices are visible metal; the rest are socketed into the mount or buried in the ring, which is where the components are joined
-[PASS] the whole rear seat of the ring is inside the mount's face: the ornament is socketed, not balanced on it  -> 768 seated vertices
-[PASS] the centre's plug overshoots the ring's aperture by a socketing margin - a flange, not a second disc  -> plug radius 25.35 mm vs aperture 25.00 mm
-[PASS] the centre is socketed 1 mm or less into the mount, never plunged into it  -> core rear Y 0.1425 vs mount face 0.1430
-[PASS] the centre stays inside the ring's outer wall  -> max radius 25.4 mm vs ring 35.0 mm
-[PASS] the ring leaves a clean band of the mount's face visible around it  -> nearest ring vertex to the mount's rim 7.42 mm
-[PASS] the ring stands proud of the centre, so the ornament has a real rim  -> 4.44 mm
+== F  rendered centring and restraint ==
+[PASS] the front ornament's rendered silhouette is centred on the axis  -> centroid offset +0.07 mm
+[PASS] the front ornament's rendered silhouette is centred vertically on its mount  -> mid 1.0558 m vs 1.0550 m
+      front rendered span 76.3 mm, height 75.3 mm, gold area 29.70 cm2
+[PASS] the rear ornament's rendered silhouette is centred on the axis  -> centroid offset -0.07 mm
+[PASS] the rear ornament's rendered silhouette is centred vertically on its mount  -> mid 1.1545 m vs 1.1550 m
+      rear rendered span 67.0 mm, height 68.0 mm, gold area 23.12 cm2
+[PASS] the ornament's silhouette sits entirely on the armour - nothing overhangs the edge of the plates it is mounted on
+[PASS] over 90 % of the ornament is over the waist belt band it is centred on  -> 100.0 % over the belt
+[PASS] the inspection renders the prompt asks for exist  -> p11_figure__Front_01.png, p11_figure_l_Left_01.png, p11_figure_l_Rear_01.png, p11_medallion_closeups.png ... (20 files)
 
-== G  the rendered read ==
-[PASS] in an orthographic front render the ornament is horizontally centred  -> mask centre x 239.5 px vs image centre 239.5 px
-[PASS] the rendered silhouette is exactly the modelled ornament  -> render 43.98 x 46.37 mm vs model 44.02 x 46.44 mm
-[PASS] the ornament is centred vertically on the belt's centre line  -> mask centre y 299.5 px vs image centre 299.5 px
-[PASS] the ornament is smaller than the belt it sits on, so it does not overwhelm it  -> 93 mm ornament on a 100 mm belt
-[PASS] the ornament reads as one deliberate mass rather than a scatter of pieces  -> 43.5 % of the frame
+== G  design table ==
+azimuth   crest proud   back buried   (front ring, mm)
+     0.0      +3.53      +3.82
+    30.0      +3.60      +4.23
+    60.0      +3.48      +4.10
+    90.0      +3.16      +3.72
+   120.0      +2.95      +3.47
+   150.0      +3.06      +3.60
+   180.0      +3.53      +3.83
+   210.0      +3.63      +4.19
+   240.0      +3.37      +4.20
+   270.0      +3.09      +3.27
+   300.0      +2.84      +3.54
+   330.0      +3.10      +3.55
 
-== summary ==
-checks passed: 102
-checks failed: 0
-warnings:      0
+radial elements (front)
+  WSK_Armor_WaistMedallion_Ray_P01_01        primary  azimuth   0.84 deg  run 15.39 mm
+  WSK_Armor_WaistMedallion_Ray_M01_01        minor    azimuth  21.23 deg  run 12.60 mm
+  WSK_Armor_WaistMedallion_Ray_P02_01        primary  azimuth  43.90 deg  run 16.31 mm
+  WSK_Armor_WaistMedallion_Ray_M02_01        minor    azimuth  68.67 deg  run 11.60 mm
+  WSK_Armor_WaistMedallion_Ray_P03_01        primary  azimuth  88.18 deg  run 16.18 mm
+  WSK_Armor_WaistMedallion_Ray_M03_01        minor    azimuth 111.21 deg  run 12.64 mm
+  WSK_Armor_WaistMedallion_Ray_P04_01        primary  azimuth 135.93 deg  run 16.46 mm
+  WSK_Armor_WaistMedallion_Ray_M04_01        minor    azimuth 156.47 deg  run 12.92 mm
+  WSK_Armor_WaistMedallion_Ray_P05_01        primary  azimuth 178.17 deg  run 16.02 mm
+  WSK_Armor_WaistMedallion_Ray_M05_01        minor    azimuth 202.47 deg  run 13.24 mm
+  WSK_Armor_WaistMedallion_Ray_P06_01        primary  azimuth 226.63 deg  run 16.40 mm
+  WSK_Armor_WaistMedallion_Ray_M06_01        minor    azimuth 248.79 deg  run 13.25 mm
+  WSK_Armor_WaistMedallion_Ray_P07_01        primary  azimuth 268.04 deg  run 15.06 mm
+  WSK_Armor_WaistMedallion_Ray_M07_01        minor    azimuth 292.11 deg  run 11.82 mm
+  WSK_Armor_WaistMedallion_Ray_P08_01        primary  azimuth 315.97 deg  run 15.20 mm
+  WSK_Armor_WaistMedallion_Ray_M08_01        minor    azimuth 335.83 deg  run 12.41 mm
 
-The ornaments: 1 ring (genus 1, revolved 9-point profile), 1 dished centre disc
-with a rear plug flange, 12 fitted radial blades, 1 pivot empty.  Fourteen
-separate meshes on a common data path - no booleans, no applied modifiers, no
-texture work, no glow, and nothing else on the character was touched.
+radial elements (rear)
+  WSK_Armor_WaistMedallionRear_Ray_M01_01        azimuth  21.23 deg  run 11.09 mm
+  WSK_Armor_WaistMedallionRear_Ray_M02_01        azimuth  68.67 deg  run 10.21 mm
+  WSK_Armor_WaistMedallionRear_Ray_M03_01        azimuth 111.21 deg  run 11.12 mm
+  WSK_Armor_WaistMedallionRear_Ray_M04_01        azimuth 156.47 deg  run 11.37 mm
+  WSK_Armor_WaistMedallionRear_Ray_M05_01        azimuth 202.47 deg  run 11.65 mm
+  WSK_Armor_WaistMedallionRear_Ray_M06_01        azimuth 248.79 deg  run 11.66 mm
+  WSK_Armor_WaistMedallionRear_Ray_M07_01        azimuth 292.11 deg  run 10.40 mm
+  WSK_Armor_WaistMedallionRear_Ray_M08_01        azimuth 335.83 deg  run 10.92 mm
+  WSK_Armor_WaistMedallionRear_Ray_P01_01        azimuth   0.84 deg  run 13.54 mm
+  WSK_Armor_WaistMedallionRear_Ray_P02_01        azimuth  43.90 deg  run 14.35 mm
+  WSK_Armor_WaistMedallionRear_Ray_P03_01        azimuth  88.18 deg  run 14.24 mm
+  WSK_Armor_WaistMedallionRear_Ray_P04_01        azimuth 135.93 deg  run 14.49 mm
+  WSK_Armor_WaistMedallionRear_Ray_P05_01        azimuth 178.17 deg  run 14.09 mm
+  WSK_Armor_WaistMedallionRear_Ray_P06_01        azimuth 226.63 deg  run 15.58 mm
+  WSK_Armor_WaistMedallionRear_Ray_P07_01        azimuth 268.04 deg  run 15.45 mm
+  WSK_Armor_WaistMedallionRear_Ray_P08_01        azimuth 315.97 deg  run 15.04 mm
+
+front ornament: 59.3 mm across on a 367.9 mm belt (16.1 %); rear ornament 52.2 mm across
+front ring measured against the armour over 96 azimuths: crest +2.78 .. +3.63 mm proud, back +3.23 .. +4.24 mm buried
+rear ring measured against the armour over 96 azimuths: crest +2.34 .. +3.20 mm proud, back +2.80 .. +3.40 mm buried
+
+==========================================================================
+64 checks passed, 0 failed, 0 warnings
+

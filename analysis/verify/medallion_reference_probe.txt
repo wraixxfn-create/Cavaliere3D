@@ -11,8 +11,8 @@ gold test: R-B > 18, R > 55, R > G;  dark test: luminance < 19
     ray reach by sector (mm): 61, 77, 87, 86, 55, 87, 79, 87
                     top/bottom 87 mm vs left/right 87 mm  = 1.00 x
                     the blades are hand-drawn embroidery, so their reach is uneven
-                    all round; checkpoint 11 replaces that with three evenly graded
-                    tiers, which is what makes an ornament read as designed
+                    all round; checkpoint 11 reads the crowd rather than any single
+                    blade and lays out sixteen of its own in two alternating scales
     spokes outside the bezel: 21  (band counts [23, 16, 21])
     ratios          core/bezel 0.62, tips/bezel 2.00 (vertical)
     annotated crop -> analysis/medallion/ref_front_motif.png
@@ -26,22 +26,41 @@ gold test: R-B > 18, R > 55, R > G;  dark test: luminance < 19
     ray reach by sector (mm): 0, 0, 0, 0, 33, 76, 87, 79
                     top/bottom 87 mm vs left/right 79 mm  = 1.11 x
                     the blades are hand-drawn embroidery, so their reach is uneven
-                    all round; checkpoint 11 replaces that with three evenly graded
-                    tiers, which is what makes an ornament read as designed
+                    all round; checkpoint 11 reads the crowd rather than any single
+                    blade and lays out sixteen of its own in two alternating scales
     spokes outside the bezel: 3  (band counts [5, 3, 3])
     ratios          core/bezel 2.97, tips/bezel 1.42 (vertical)
     annotated crop -> analysis/medallion/ref_back_motif.png
 
---- what that means at the waist (the numbers checkpoint 11 is built to)
+--- what that means at the waist
     checkpoint-10 mount: radius 43 mm, face at Y 0.1430, belt band Z 1.005-1.105 (belt height 100 mm)
-    reference motif:     core 27 mm, bezel 30-43 mm, rays to 86 mm (171 mm across), ~21 spokes
-    ratios to copy:      core = 0.62 x the bezel radius
-    ratio NOT to copy:   blades = 2.00 x the bezel radius, which at this size is a
-                         140 mm emblem on a 100 mm belt
-    checkpoint 11:       bezel 35 mm (0.81 of the mount radius, so the mount's rim stays visible),
-                         core 24.2 mm (0.69 x against the reference's 0.62 x, kept to within
-                         7% of it), blades out to 45.5-48.0 mm
-                         (1.37 x the bezel instead of 2.00 x, cropped), and 12
-                         blades instead of ~20, so the ornament stays inside
-                         the belt it is mounted on and reads as a deliberate
-                         waist ornament rather than the tabard emblem.
+    reference motif:     core 27 mm, bezel 30-43 mm radius (peak 36 mm), rays to 86 mm radius,
+                         about 21 gold spokes
+
+    The ray reach is the one number that does NOT transfer.  Taken literally the
+    86 mm ray tips are a 171 mm emblem on a 100 mm belt band, and the gold tests
+    that produced that figure are reading the tabard's embroidery and chainwork
+    as much as the motif's own points.  What transfers is the composition: a thin
+    gold ring around a near-black centre, with many short blades crowding the
+    outside of the ring and reaching roughly one blade-length past it.
+
+    checkpoint 11 (delivered, built by tools/build_medallion.py):
+       ring        59.3 mm across (29.7 mm rim radius), wall 7.3 mm - the low end
+                   of the reference's 30-43 mm bezel radius, held there so the
+                   whole ornament stays inside the 43 mm mount radius and the
+                   plain bezel of checkpoint 8 keeps showing around the gold
+       centre      48.2 mm outer diameter, dark (MAT_Orn_ShadowStone_01), set
+                   2.31 mm behind the ring's crest, 2.8 mm in front of the belt
+       blades      16 blades in two alternating scales, primaries 15.1-16.5 mm of
+                   run and minors 11.6-13.3 mm, tips to 40.2 mm radius
+       overall     76.8 mm across = 20.9 % of the 367.9 mm belt width
+
+    Note on scale: this probe uses its own 1.9049 mm/px fit to ref_front.png, while
+    the crown work (tools/crown_reference_probe.py) uses Prompt 4's 1.8323 mm/px
+    chin calibration.  The two agree on the ring to within 4 %, and both are
+    quoted in README.md rather than averaged away.
+
+    The rear ornament is the same design at 88 %, seated on the lower back plate
+    (checkpoint 11), because the reference carries the motif on the back as well -
+    the back motif's own gold test is much weaker (0.16 vs 0.86 on the ring),
+    which is what the darker, smaller back piece matches.

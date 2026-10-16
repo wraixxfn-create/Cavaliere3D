@@ -1,193 +1,154 @@
-"""Prompt 11 - the waist medallion: an antique-gold sun disc on the existing mount.
+"""Prompt 11: build the waist medallion on the existing mount.
 
-Opens `Wildshift_Knight_10_Crown.blend`, locates the blank medallion mount that
-Prompt 8 left on the belt, and builds the ornament on it:
+The ornament is generated as three closed, independent solids - a gold ring, a
+dark recessed centre and two sets of gold radial blades - seated on the real
+armour surface measured with ray casts, so nothing floats and nothing is driven
+deep into the plate.  A smaller sibling of the same design is seated on the
+lower back plate, mirroring the circular motif the reference shows on the front
+and the back of the character.
 
-    WSK_Armor_WaistMedallionRing_01      the ring (bezel)
-    WSK_Armor_WaistMedallionCore_01      the recessed centre disc
-    WSK_Armor_WaistMedallionRay_01..12   twelve radial blades
-    WSK_Armor_WaistMedallionRoot_01      empty pivot for the group
-
-and saves `Wildshift_Knight_11_Medallion.blend`.  Nothing else is touched: the
-belt, the fauld panels, the mount and every other armour plate keep their
-geometry, and the mount is only re-parented to the new pivot.
-
-Construction
-------------
-Everything here is a non-destructive, parametric solid built from measured
-numbers, in the same style as the rest of the project - no booleans, no applied
-bevels, no sculpting, no texture work.
-
-* The **ring** is a solid of revolution: a 9-point profile in (radius, Y)
-  revolved about the mount's axis at 128 steps, giving a closed ring (genus 1)
-  with a flat rear seat, a low outer flange, an inner band that slopes up
-  towards the centre, and an aperture that funnels down to the mount's face.
-* The **centre** is a disc of revolution welded at its pole: a recessed field,
-  a groove step, a raised rim, and a plug flange at the back that overlaps the
-  ring's aperture wall, so the two parts are actually joined.
-* The **rays** are twelve closed blades.  Each one draws its own profile along
-  its own axis in the medallion plane, and each one's *outer* face is fitted to
-  the real armour: the front-most surface under the blade is ray-cast at seven
-  radial stations (three parallel lines across the blade's width, so the highest
-  sample wins), a parabola is fitted through those samples and offset by a
-  fixed clearance.  Where that line crosses the mount's bevelled rim the blade
-  bends down with it, so the tips lie on the belt instead of floating over it.
-
-Design (measured against the reference in tools/medallion_reference_probe.py)
-----------------------------------------------------------------------------
-The reference puts its sun motif on the tabard at 171 mm across, with a core
-radius of 0.62 x the bezel radius and blades reaching twice the bezel radius.
-Scaled to the 43 mm mount that would be a 160 mm emblem on a 100 mm belt, so
-the ornament keeps the reference's *core and bezel* proportions and crops only
-the blade reach - see the probe report.  Twelve blades, three graded lengths,
-mirror-symmetric about X = 0: a deliberate, centred, hand-cut-looking ornament
-rather than a copy of the reference's embroidery.
-
-Run:  tools/bl.sh tools/build_medallion.py
+Run: tools/bl.sh tools/build_medallion.py
 """
 import math
 import os
+import sys
 
-import bpy          # noqa: F401  (must be imported first: sets module paths)
-import bmesh        # noqa: E402
-import numpy as np  # noqa: E402
-from mathutils import Vector  # noqa: E402
-from mathutils.bvhtree import BVHTree  # noqa: E402
+import bpy
+import bmesh  # noqa: E402  (importable only after bpy)
+import numpy as np
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 
 ROOT = "/home/user/Cavaliere3D"
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+import build_armor_blockout as A  # noqa: E402
+
 SRC = os.path.join(ROOT, "Wildshift_Knight_10_Crown.blend")
 DST = os.path.join(ROOT, "Wildshift_Knight_11_Medallion.blend")
-PROMPT = "Prompt 11 - waist medallion"
+PROMPT = "Prompt 11 - the waist medallion"
 
 MOUNT = "WSK_Armor_WaistMedallionMount_01"
-BODY = "WSK_Body_Base_01"
-GOLD = "MAT_Armor_AntiqueGold_01"
+BELT = "WSK_Armor_WaistBelt_01"
+BACK = "WSK_Armor_Back_01"
+FRONT_SUPPORT = (MOUNT, BELT,
+                 "WSK_Armor_WaistPanel_Front_01_01",
+                 "WSK_Armor_WaistPanel_Front_02_01",
+                 "WSK_Armor_WaistPanel_Front_03_01",
+                 "WSK_Armor_Chest_01")
 
-# --------------------------------------------------------------------------
-# measured mounting geometry (checkpoint 10)
-# --------------------------------------------------------------------------
-CENTRE_X = 0.0
-CENTRE_Z = 1.0550            # the mount's axis: 0.050 m below the belt's top edge
-MOUNT_FACE_Y = 0.1430        # the mount's flat front face
-MOUNT_R = 0.0430             # the mount's radius
-BELT_TOP, BELT_BOTTOM = 1.105, 1.005
-BELT_Y_CENTRE = 0.1435       # the belt's front-most point, at the waist centre line
+GOLD = "MAT_Orn_AntiqueGold_01"
+STONE = "MAT_Orn_ShadowStone_01"
 
-# The ornament's own numbers, all in metres.  `RELIEF` is measured from the
-# ring's rear seat, which sits 0.4 mm inside the mount's face - i.e. the ring is
-# seated in the mount, not balanced on top of it.
-SEAT_Y = 0.1426
-RING_OUT = 0.0350
-RING_FLANGE = 0.0310
-RING_BAND = 0.0260
-RING_APERTURE = 0.0250
-RING_WALL_TOP = 0.1478
-RING_FLANGE_TOP = 0.1504
-RING_STEP_TOP = 0.1518
-RING_BAND_TOP = 0.1542
-CORE_OUT = 0.0242
-CORE_PLUG = 0.02535
-CORE_FIELD = 0.1484
-CORE_FIELD_EDGE = 0.1474
-CORE_GROOVE = 0.1472
-CORE_RIM = 0.1497
-CORE_BACK = 0.1425           # 0.1 mm below the ring's seat: the socket, never a plunge
-RAY_COUNT = 12
-RAY_PHASE = 15.0             # degrees: no blade points straight up or straight out
-RAY_BASE_R = 0.0300          # buried under the ring: the blades grow out of it
-RAY_EMERGE_R = 0.0350        # where a blade leaves the ring's outer wall
-RAY_BASE_HALF = 0.0036       # half-width at the buried base
-RAY_EMERGE_HALF = 0.0050     # half-width at the ring's wall: the blade's shoulders
-RAY_TIP_HALF = 0.00045
-RAY_BASE_T = 0.0062          # thickness at the buried base
-RAY_EMERGE_T = 0.0054        # thickness at the ring's wall
-RAY_TIP_T = 0.00120
-RAY_CLEAR = 0.00055          # target gap between a blade's back and the armour under it
-RAY_MIN_CLEAR = 0.00020      # the gap the fitted back is never allowed to fall below
-RAY_MAX_CLEAR = 0.00160      # nor the lift, so no blade can read as floating
-RAY_STATIONS = 11
-# Three graded reach tiers.  The near-vertical pair is the longest, continuing the
-# reference's vertical blades; every tip stays inside the 100 mm belt band so the
-# blades always have armour under them.
-TIERS = {
-    "V": dict(angles=(75.0, 105.0, 255.0, 285.0), tip=0.0480, note="vertical"),
-    "D": dict(angles=(45.0, 135.0, 225.0, 315.0), tip=0.0465, note="diagonal"),
-    "H": dict(angles=(15.0, 165.0, 195.0, 345.0), tip=0.0455, note="horizontal"),
-}
+# ---------------------------------------------------------------- geometry ---
+# The front ornament is centred on the prompt-8 mount; the rear sibling sits on
+# the lower back plate, 88 % of the front's scale so it stays inside that plate.
+FRONT = dict(name="WaistMedallion", centre=(0.0, 1.055), sign=1.0, scale=1.0,
+             support=FRONT_SUPPORT)
+REAR = dict(name="WaistMedallionRear", centre=(0.0, 1.155), sign=-1.0, scale=0.88,
+            support=(BACK,))
 
+R_SEGMENTS = 96        # lathe segments (the ring is the visible hero form)
+C_SEGMENTS = 96
+R_REF = 0.0260         # radius the ring's seat is measured at
+SMOOTH = 6             # half-window of the circular surface smoothing
+
+# Profile offsets are measured along the outward normal of the armour: positive
+# is in front of the measured surface, negative is inside it.
 RING_PROFILE = [
-    (RING_APERTURE, SEAT_Y),
-    (RING_OUT, SEAT_Y),
-    (RING_OUT, RING_WALL_TOP),
-    (RING_OUT - 0.0008, RING_FLANGE_TOP),
-    (RING_FLANGE, RING_FLANGE_TOP),
-    (RING_FLANGE - 0.0010, RING_STEP_TOP),
-    (RING_BAND + 0.0002, RING_BAND_TOP),
-    (RING_APERTURE + 0.00055, RING_BAND_TOP - 0.0010),
-    (RING_APERTURE, 0.1442),
+    (0.0230, +0.0008),   # inner lip, front
+    (0.0244, +0.0028),
+    (0.0262, +0.0034),   # crest
+    (0.0278, +0.0027),
+    (0.0289, +0.0020),
+    (0.0293, +0.0010),   # outer rim, front
+    (0.0293, -0.0016),   # outer rim, back
+    (0.0278, -0.0032),
+    (0.0262, -0.0040),
+    (0.0244, -0.0032),
+    (0.0230, -0.0024),   # inner lip, back
+    (0.0227, -0.0006),   # inner wall
 ]
-CORE_PROFILE = [
-    (0.0, CORE_FIELD + 0.0002),
-    (0.0100, CORE_FIELD - 0.0001),
-    (0.0160, CORE_FIELD_EDGE),
-    (0.0172, CORE_GROOVE),
-    (0.0179, CORE_RIM),
-    (0.0228, CORE_RIM),
-    (0.0236, CORE_RIM - 0.0009),
-    (CORE_OUT, CORE_RIM - 0.0021),
-    (CORE_PLUG, CORE_RIM - 0.0027),
-    (CORE_PLUG, CORE_BACK),
-    (0.0, CORE_BACK),
+CENTER_PROFILE = [
+    (0.0000, -0.0020),   # back pole, inside the mount plate
+    (0.0116, -0.0016),
+    (0.0232, -0.0012),   # back rim
+    (0.0232, +0.0012),   # front rim: a 2.4 mm edge wall the ring frames
+    (0.0210, +0.0017),   # chamfer
+    (0.0130, +0.0018),   # face: 1.8 mm proud of the plate, 1.6 mm under the crest
+    (0.0050, +0.0017),
+    (0.0000, +0.0016),   # front pole
 ]
-REVOLVE_STEPS = 128
+RAYS = dict(
+    primary=dict(count=8, offset=0.0, r_root=0.0240, r_cap=0.0405,
+                 half_width=0.0036, half_thick=0.0030,
+                 rise0=-0.0024, rise1=+0.0013),
+    minor=dict(count=8, offset=0.5, r_root=0.0240, r_cap=0.0362,
+               half_width=0.0026, half_thick=0.0028,
+               rise0=-0.0024, rise1=+0.0011),
+)
+R_TIP_MAX = 0.0420      # stay inside the mount plate's 43 mm rim
 
-# Everything that must not be treated as armour to fit against.
-SELF_NAMES = ("WSK_Armor_WaistMedallionRing_01", "WSK_Armor_WaistMedallionCore_01") + \
-             tuple(f"WSK_Armor_WaistMedallionRay_{i:02d}_01" for i in range(1, RAY_COUNT + 1))
+# Hand-forged irregularity: the ring is not a machined circle.  Two smooth
+# low-order harmonics bend its radius and its crest by about a percent each,
+# with different phases for the front and the rear so the two ornaments are
+# clearly siblings rather than copies.
+WRINKLE = dict(front=dict(radius=(0.0085, 3.0, 0.60, 0.0050, 5.0, -1.20),
+                          relief=(0.10, 2.0, 0.35)),
+               rear=dict(radius=(0.0075, 3.0, 2.10, 0.0045, 5.0, 0.40),
+                         relief=(0.09, 2.0, 1.85)))
+BEVEL = dict(ring=0.0006, centre=0.0007, ray=0.00035)
 
-
-# --------------------------------------------------------------------------
-# helpers
-# --------------------------------------------------------------------------
-def set_props(obj, part, attachment, note, **extra):
-    obj["wsk_part"] = part
-    obj["wsk_attachment_hint"] = attachment
-    obj["wsk_prompt"] = PROMPT
-    obj["wsk_confidence"] = "built to measured checkpoint-10 mount and belt surfaces"
-    obj["wsk_note"] = note
-    for key, value in extra.items():
-        obj[key] = value
-
-
-def evaluated_world(obj):
-    bpy.context.view_layer.update()
-    depsgraph = bpy.context.evaluated_depsgraph_get()
-    ev = obj.evaluated_get(depsgraph)
-    me = ev.to_mesh()
-    mw = ev.matrix_world.copy()
-    verts = [mw @ v.co for v in me.vertices]
-    faces = [tuple(p.vertices) for p in me.polygons]
-    ev.to_mesh_clear()
-    return verts, faces
+TITLE = "WSK_Medallion_Notes.txt"
 
 
-def bvh_of(names):
-    verts, faces = [], []
-    for name in names:
-        v, f = evaluated_world(bpy.data.objects[name])
-        off = len(verts)
-        verts += v
-        faces += [tuple(i + off for i in face) for face in f]
-    return BVHTree.FromPolygons(verts, faces, all_triangles=False)
+# ------------------------------------------------------------ surface probe ---
+class Surface:
+    """Outward-most armour surface in a direction, as a ray-cast oracle."""
+
+    def __init__(self, names):
+        dg = bpy.context.evaluated_depsgraph_get()
+        self.trees = []
+        for n in names:
+            obj = bpy.data.objects[n]
+            ev = obj.evaluated_get(dg)
+            me = ev.to_mesh()
+            verts = [ev.matrix_world @ v.co for v in me.vertices]
+            faces = [tuple(p.vertices) for p in me.polygons]
+            ev.to_mesh_clear()
+            self.trees.append((n, BVHTree.FromPolygons(verts, faces,
+                                                       all_triangles=False)))
+
+    def hit(self, x, z, sign):
+        origin = Vector((x, sign * 0.6, z))
+        direction = Vector((0.0, -sign, 0.0))
+        best = None
+        for name, tree in self.trees:
+            loc, _n, _i, dist = tree.ray_cast(origin, direction, 1.0)
+            if loc is not None and (best is None or dist < best[1]):
+                best = (name, dist, loc)
+        return best
+
+    def y_at(self, x, z, sign):
+        h = self.hit(x, z, sign)
+        return None if h is None else h[2].y
 
 
-def front_y(tree, x, z, origin=1.0, limit=3.0):
-    """Y of the front-most surface at (x, z), or None if the ray misses."""
-    hit = tree.ray_cast(Vector((x, origin, z)), Vector((0.0, -1.0, 0.0)), limit)
-    return None if hit[0] is None else hit[0].y
+def circular_smooth(values, half):
+    n = len(values)
+    out = []
+    for i in range(n):
+        acc = 0.0
+        wsum = 0.0
+        for k in range(-half, half + 1):
+            w = float(half + 1 - abs(k))
+            acc += values[(i + k) % n] * w
+            wsum += w
+        out.append(acc / wsum)
+    return out
 
 
-def make_material(name, rgb, metallic, roughness):
+# --------------------------------------------------------------- materials ---
+def make_material(name, rgb, metallic, roughness, role):
     mat = bpy.data.materials.get(name) or bpy.data.materials.new(name)
     mat.use_nodes = True
     bsdf = mat.node_tree.nodes.get("Principled BSDF")
@@ -202,443 +163,388 @@ def make_material(name, rgb, metallic, roughness):
     mat.metallic = metallic
     mat.roughness = roughness
     mat["wsk_placeholder"] = True
-    mat["wsk_role"] = "placeholder antique-gold ornament metal; no texture work"
-    mat["wsk_prompt"] = PROMPT
+    mat["wsk_role"] = role
     return mat
 
 
-def build_object(name, verts, faces, material, bevel=0.00016, weld=1e-6):
-    """Make a mesh object from raw geometry, welded, normals recalculated.
-
-    Flat faces (normals mostly along Y) are left faceted; curved walls are smooth
-    shaded, which is how the rest of the armour is shaded.
-    """
+# ------------------------------------------------------------- mesh maker ---
+def finish(name, verts, faces, coll, mat, bevel, smooth=True):
     mesh = bpy.data.meshes.new(name + "_mesh")
     mesh.from_pydata([tuple(v) for v in verts], [], [tuple(f) for f in faces])
-    mesh.validate(verbose=False)
     bm = bmesh.new()
     bm.from_mesh(mesh)
-    if weld:
-        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=weld)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     bm.to_mesh(mesh)
     bm.free()
+    mesh.validate(verbose=False)
     mesh.update()
     for poly in mesh.polygons:
-        poly.use_smooth = abs(poly.normal.y) < 0.92
+        poly.use_smooth = smooth
     obj = bpy.data.objects.new(name, mesh)
-    bpy.data.collections["Armor"].objects.link(obj)
-    mesh.materials.append(material)
+    coll.objects.link(obj)
+    obj.data.materials.append(mat)
     if bevel:
-        mod = obj.modifiers.new("WSK_Medallion_EdgeBevel", "BEVEL")
+        mod = obj.modifiers.new("WSK_Softened_Ornament_Edges", "BEVEL")
         mod.width = bevel
         mod.segments = 2
         mod.limit_method = "ANGLE"
         mod.angle_limit = math.radians(38.0)
-        mod.use_clamp_overlap = True
+        mod.harden_normals = True
     return obj
 
 
-def ring_rot(a, r, y):
-    return Vector((CENTRE_X + r * math.cos(a), y, CENTRE_Z + r * math.sin(a)))
+def lathe(name, profile, segs, cfg, y_base, coll, mat, bevel,
+          radial_fn=None, relief_fn=None):
+    """Revolve a closed (radius, normal-offset) profile about the disc axis.
 
-
-def revolve_loop(profile, steps=REVOLVE_STEPS):
-    """Solid of revolution of a *closed* profile loop: a washer (genus 1).
-
-    `profile` is a loop of (radius, y) points in the half-plane r > 0.
+    A profile point on the axis collapses to a single shared vertex and the
+    segment between two axis points is dropped, so a closed profile containing
+    poles builds a clean fan and a watertight solid rather than a seam of
+    degenerate faces.
     """
-    n = len(profile)
-    verts = [ring_rot(2.0 * math.pi * i / steps, r, y)
-             for i in range(steps) for r, y in profile]
+    cx, cz = cfg["centre"]
+    sign, scale = cfg["sign"], cfg["scale"]
+    verts, idx = [], []
+    for r, off in profile:
+        rr = r * scale
+        if rr < 1e-7:
+            idx.append([len(verts)])
+            verts.append((cx, y_base[0] + sign * off * scale, cz))
+            continue
+        row = []
+        for i in range(segs):
+            th = 2.0 * math.pi * i / segs
+            rmod = rr * (radial_fn(th) if radial_fn else 1.0)
+            omod = off * (relief_fn(th) if relief_fn else 1.0)
+            row.append(len(verts))
+            verts.append((cx + rmod * math.cos(th),
+                          y_base[i % R_SEGMENTS] + sign * omod * scale,
+                          cz + rmod * math.sin(th)))
+        idx.append(row)
     faces = []
-    for i in range(steps):
-        j = (i + 1) % steps
+    for i in range(len(profile)):
+        a, b = idx[i], idx[(i + 1) % len(profile)]
+        if len(a) == 1 and len(b) == 1:
+            continue                       # two poles in a row: nothing to bridge
+        if len(a) == 1:
+            faces += [(a[0], b[k], b[(k + 1) % segs]) for k in range(segs)]
+        elif len(b) == 1:
+            faces += [(a[k], a[(k + 1) % segs], b[0]) for k in range(segs)]
+        else:
+            faces += [(a[k], a[(k + 1) % segs], b[(k + 1) % segs], b[k])
+                      for k in range(segs)]
+    return finish(name, verts, faces, coll, mat, bevel)
+
+
+def evaluated_world(obj):
+    """(world-space vertices, faces) of an object with its modifiers applied."""
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = obj.evaluated_get(dg)
+    me = ev.to_mesh()
+    mw = ev.matrix_world.copy()
+    verts = [mw @ v.co for v in me.vertices]
+    ev.to_mesh_clear()
+    return verts, None
+
+
+def ray_blade(name, cfg, azim, spec, surf, coll, mat, bevel, log):
+    """One tapered radial blade, laid on the measured surface and fitted."""
+    cx, cz = cfg["centre"]
+    sign, scale = cfg["sign"], cfg["scale"]
+    ux, uz = math.cos(azim), math.sin(azim)
+    tx, tz = -math.sin(azim), math.cos(azim)
+    r_root = spec["r_root"] * scale
+    r_cap = spec["r_cap"] * scale
+
+    def sample(r):
+        return surf.y_at(cx + r * ux, cz + r * uz, sign)
+
+    # A local straight reference through the first third of the blade; the tip
+    # is cut where the armour surface bends away from it, so a blade never
+    # climbs a plate edge.
+    p0, p1 = r_root + 0.0030 * scale, r_root + 0.0110 * scale
+    y0, y1 = sample(p0), sample(p1)
+    if y0 is None or y1 is None:
+        return None
+    slope = (y1 - y0) / (p1 - p0)
+
+    def ref(r):
+        return y0 + slope * (r - p0)
+
+    r_tip = r_cap
+    r = p1
+    while r <= r_cap + 1e-9:
+        y = sample(r)
+        if y is None or abs(y - ref(r)) > 0.0009:
+            r_tip = max(r - 0.0006, r_root + 0.0090 * scale)
+            break
+        r += 0.0006
+    else:
+        r_tip = r_cap
+    r_tip = min(r_tip, r_cap, R_TIP_MAX * scale)
+    r_tip = max(r_tip, min(r_cap, R_TIP_MAX * scale) - 0.0025 * scale)
+    if r_tip < r_root + 0.009 * scale:
+        log.append(f"    {name}: refused, only {1000*(r_tip-r_root):.1f} mm of run")
+        return None
+
+    stations = 5
+    a0 = spec["half_width"] * scale
+    b0 = spec["half_thick"] * scale
+    c0, c1 = spec["rise0"] * scale, spec["rise1"] * scale
+    verts = []
+    for si in range(stations):
+        t = si / (stations - 1.0)
+        r = r_root + (r_tip - r_root) * t
+        y_s = sample(r)
+        if y_s is None:
+            y_s = ref(r)
+        c = c0 + (c1 - c0) * (t ** 1.4)
+        a = a0 * (1.0 - t) ** 0.85
+        b = b0 * (1.0 - t) ** 1.05
+        centre = Vector((cx + r * ux, y_s + sign * c, cz + r * uz))
+        if si == stations - 1:
+            verts.append(centre)
+            continue
+        for phi in (math.radians(30), math.radians(90), math.radians(150),
+                    math.radians(210), math.radians(270), math.radians(330)):
+            verts.append(centre
+                         + Vector((tx, 0.0, tz)) * (a * math.cos(phi))
+                         + Vector((0.0, sign, 0.0)) * (b * math.sin(phi)))
+    faces = []
+    for i in range(6):
+        j = (i + 1) % 6
+        faces.append((i, j, 6 + j, 6 + i))                 # root -> ring 1
+        faces.append((6 + j, 6 + i, 12 + i, 12 + j))       # ring 1 -> ring 2
+    for i in range(6):
+        j = (i + 1) % 6
+        faces.append((18 + i, 18 + j, 12 + j, 12 + i))     # ring 2 -> ring 3
+        faces.append((24, 18 + j, 18 + i))                 # tip fan
+    faces.append(tuple(range(5, -1, -1)))                  # root cap
+    obj = finish(name, verts, faces, coll, mat, bevel)
+    obj["wsk_ray_azimuth_deg"] = round(math.degrees(azim), 3)
+    obj["wsk_ray_length_m"] = round(r_tip - r_root, 5)
+    obj["wsk_ray_run_mm"] = round(1000.0 * (r_tip - r_root), 2)
+    log.append(f"    {name}: {math.degrees(azim):7.2f} deg  run "
+               f"{1000.0*(r_tip-r_root):5.2f} mm  of cap {1000.0*(r_cap-r_root):5.2f} mm")
+    return obj
+
+
+# ------------------------------------------------------------------ driver ---
+def build_one(cfg, coll, gold, stone, log, stats):
+    surf = Surface(cfg["support"])
+    cx, cz = cfg["centre"]
+    sign, scale = cfg["sign"], cfg["scale"]
+
+    # The ring's seat is measured across its whole band width and the *forward*
+    # most of the three is kept, so even where the belt ridge crosses under the
+    # band the crest still clears the metal and the back stays buried.
+    band = (RING_PROFILE[0][0], R_REF, RING_PROFILE[5][0])
+    raw = []
+    for i in range(R_SEGMENTS):
+        th = 2.0 * math.pi * i / R_SEGMENTS
+        vals = [surf.y_at(cx + r * scale * math.cos(th),
+                          cz + r * scale * math.sin(th), sign) for r in band]
+        vals = [v for v in vals if v is not None]
+        raw.append(None if not vals else sign * max(sign * v for v in vals))
+    known = [v for v in raw if v is not None]
+    mean = sum(known) / len(known)
+    raw = [mean if v is None else v for v in raw]
+    y_base = circular_smooth(raw, SMOOTH)
+
+    name = cfg["name"]
+    wr = WRINKLE["front" if sign > 0 else "rear"]
+    a1, k1, p1, a2, k2, p2 = wr["radius"]
+    radial_fn = lambda th: 1.0 + a1 * math.sin(k1 * th + p1) + a2 * math.sin(k2 * th + p2)
+    b1, k3, p3 = wr["relief"]
+    relief_fn = lambda th: 1.0 + b1 * math.sin(k3 * th + p3)
+    ring = lathe(f"WSK_Armor_{name}_Ring_01", RING_PROFILE, R_SEGMENTS, cfg,
+                 y_base, coll, gold, BEVEL["ring"],
+                 radial_fn=radial_fn, relief_fn=relief_fn)
+    A.set_props(ring, "waist medallion ring", "pelvis / waist belt",
+                "closed lathed antique-gold ring seated on the prompt-8 medallion "
+                "mount; separate component, no final texture work",
+                wsk_component="ring")
+    centre = lathe(f"WSK_Armor_{name}_Center_01", CENTER_PROFILE, C_SEGMENTS, cfg,
+                   y_base, coll, stone, BEVEL["centre"])
+    A.set_props(centre, "waist medallion centre", "pelvis / waist belt",
+                "recessed dark centre disk and floor; separate component",
+                wsk_component="center")
+
+    rng = np.random.default_rng(11055)
+    made = []
+    for group in ("primary", "minor"):
+        spec = RAYS[group]
+        n = spec["count"]
         for k in range(n):
-            k2 = (k + 1) % n
-            faces.append((i * n + k, j * n + k, j * n + k2, i * n + k2))
-    return verts, faces
+            azim = 2.0 * math.pi * (k + spec["offset"]) / n
+            azim += math.radians(rng.uniform(-2.0, 2.0))
+            jittered = dict(spec)
+            span = 0.030 if group == "primary" else 0.030
+            jittered["r_cap"] = spec["r_cap"] * (1.0 + rng.uniform(-span, span))
+            jittered["half_width"] = spec["half_width"] * (1.0 + rng.uniform(-0.07, 0.07))
+            jittered["half_thick"] = spec["half_thick"] * (1.0 + rng.uniform(-0.05, 0.05))
+            obj = ray_blade(f"WSK_Armor_{name}_Ray_{group[0].upper()}{k+1:02d}_01",
+                            cfg, azim, jittered, surf, coll, gold,
+                            BEVEL["ray"], log)
+            if obj is not None:
+                A.set_props(obj, "waist medallion radial element",
+                            "pelvis / waist belt",
+                            f"{group} radial blade, length fitted to the measured "
+                            "armour surface; separate component",
+                            wsk_component="radial", wsk_group=group)
+                made.append(obj)
+
+    # -- measured seating report -------------------------------------------
+    # Read the produced mesh back and compare every vertex with the armour
+    # surface measured at that vertex's own radius.  This is the conservative
+    # reading of the relief: the crest figure quoted in the verification report
+    # is taken against the most protruding metal under the ring's whole band.
+    for tag, obj in (("ring", ring), ("centre", centre)):
+        verts, _f = evaluated_world(obj)
+        relief = []
+        for p in verts:
+            r = math.hypot(p.x - cx, p.z - cz)
+            y = surf.y_at(p.x, p.z, sign)
+            if y is None or r < 1e-5:
+                continue
+            relief.append(sign * (p.y - y))
+        if relief:
+            stats.setdefault(tag, []).append((cfg["name"], min(relief) * 1000.0,
+                                              max(relief) * 1000.0))
+    ray_relief = []
+    for obj in made:
+        verts, _f = evaluated_world(obj)
+        for p in verts:
+            y = surf.y_at(p.x, p.z, sign)
+            if y is not None:
+                ray_relief.append(sign * (p.y - y))
+    if ray_relief:
+        stats.setdefault("rays", []).append((cfg["name"], min(ray_relief) * 1000.0,
+                                             max(ray_relief) * 1000.0))
+    stats.setdefault("surface", []).append(
+        (cfg["name"], min(known), max(known), mean))
+    return [ring, centre] + made
 
 
-def revolve_disc(profile, steps=REVOLVE_STEPS):
-    """Solid of revolution of a pole-to-pole profile: a disc (genus 0).
-
-    `profile` runs from a point on the axis, out to the rim and back to a point
-    on the axis.  The two poles become single vertices, so the mesh closes with
-    two triangle fans and there is no degenerate face anywhere on the axis.
-    """
-    ring_prof = profile[1:-1]
-    n = len(ring_prof)
-    verts = [ring_rot(0.0, *profile[0])]
-    verts += [ring_rot(2.0 * math.pi * i / steps, r, y)
-              for i in range(steps) for r, y in ring_prof]
-    pole_top = len(verts)
-    verts.append(ring_rot(0.0, *profile[-1]))
-
-    def idx(i, k):
-        return 1 + i * n + k
-
-    faces = []
-    for i in range(steps):
-        j = (i + 1) % steps
-        faces.append((0, idx(j, 0), idx(i, 0)))
-        for k in range(n - 1):
-            faces.append((idx(i, k), idx(j, k), idx(j, k + 1), idx(i, k + 1)))
-        faces.append((pole_top, idx(i, n - 1), idx(j, n - 1)))
-    return verts, faces
-
-
-def medallion_point(radius, angle_deg, y):
-    a = math.radians(angle_deg)
-    return Vector((CENTRE_X + radius * math.cos(a), y, CENTRE_Z + radius * math.sin(a)))
-
-
-def blade_t(r, tip_r):
-    return (r - RAY_BASE_R) / (tip_r - RAY_BASE_R)
-
-
-def blade_half(r, tip_r):
-    """Half-width of a blade: it flares out of the ring, then tapers to a point.
-
-    A ray is not a pin: it has shoulders where it leaves the ring's wall and a
-    long straight taper to the tip, which is what makes it read as forged
-    ornament rather than a stud.
-    """
-    u = blade_t(r, tip_r)
-    u_e = blade_t(RAY_EMERGE_R, tip_r)
-    if u <= u_e:
-        return RAY_BASE_HALF + (RAY_EMERGE_HALF - RAY_BASE_HALF) * (u / u_e) ** 0.60
-    return max(RAY_TIP_HALF,
-               RAY_EMERGE_HALF * ((1.0 - u) / (1.0 - u_e)) ** 0.90)
-
-
-def blade_thick(r, tip_r):
-    u = blade_t(r, tip_r)
-    u_e = blade_t(RAY_EMERGE_R, tip_r)
-    if u <= u_e:
-        return RAY_BASE_T + (RAY_EMERGE_T - RAY_BASE_T) * (u / u_e) ** 0.60
-    return RAY_TIP_T + (RAY_EMERGE_T - RAY_TIP_T) * ((1.0 - u) / (1.0 - u_e)) ** 0.95
-
-
-def blade_rings(tree, angle_deg, tip_r):
-    """Cross-section rings along one blade, with the back fitted to the armour."""
-    a = math.radians(angle_deg)
-    e_r = Vector((math.cos(a), 0.0, math.sin(a)))
-    u = Vector((-math.sin(a), 0.0, math.cos(a)))
-    radii = [RAY_BASE_R + (tip_r - RAY_BASE_R) * i / (RAY_STATIONS - 1)
-             for i in range(RAY_STATIONS)]
-
-    # ---- fit the blade's back to the armour under it ---------------------
-    rows = []
-    for r in radii:
-        w = blade_half(r, tip_r)
-        samples = []
-        for off in (-w, 0.0, w):
-            p = medallion_point(r, angle_deg, 0.0) + u * off
-            y = front_y(tree, p.x, p.z)
-            # The mount itself is a flat face; over its middle it is the surface
-            # the blade lies on, and over its rim it bevels away into the belt.
-            if r <= MOUNT_R - 0.0015:
-                y = max(y if y is not None else -9.0, MOUNT_FACE_Y - 0.0002)
-            elif r < MOUNT_R + 0.0015:
-                f = (r - (MOUNT_R - 0.0015)) / 0.003
-                y = max(y if y is not None else -9.0, MOUNT_FACE_Y - 0.0025 * f)
-            if y is None:
-                y = MOUNT_FACE_Y
-            samples.append(y)
-        rows.append((r, max(samples)))
-    supported = np.array([y for _r, y in rows])
-
-    # Smooth the desired offsets so the blade's back is a fair curve, then clamp
-    # it back above every sample: a fitted curve must never dip into the armour
-    # under it, and it must never lift off it by more than the clearance either.
-    back = supported + RAY_CLEAR
-    for _ in range(2):
-        smooth = back.copy()
-        for i in range(1, len(back) - 1):
-            smooth[i] = 0.65 * back[i] + 0.175 * (back[i - 1] + back[i + 1])
-        back = smooth
-    back = np.clip(back, supported + RAY_MIN_CLEAR, supported + RAY_MAX_CLEAR)
-    # never let the back run behind the mount's own body
-    back = np.maximum(back, MOUNT_FACE_Y - 0.008)
-    return radii, [float(b) for b in back], e_r, u
-
-
-def blade_geometry(radii, back, e_r, u):
-    rings = []
-    for i, r in enumerate(radii):
-        w, h = blade_half(r, radii[-1]), blade_thick(r, radii[-1])
-        base = Vector((CENTRE_X, 0.0, CENTRE_Z)) + e_r * r
-        b = back[i]
-        section = ((+w, b), (-w, b), (-0.80 * w, b + 0.62 * h),
-                   (-0.32 * w, b + h), (+0.32 * w, b + h), (+0.80 * w, b + 0.62 * h))
-        rings.append([base + u * off + Vector((0.0, y, 0.0)) for off, y in section])
-    return rings
-
-
-def rings_to_mesh(rings):
-    verts = [v for ring in rings for v in ring]
-    n = len(rings[0])
-    faces = []
-    for i in range(len(rings) - 1):
-        for k in range(n):
-            k2 = (k + 1) % n
-            faces.append((i * n + k, (i + 1) * n + k, (i + 1) * n + k2, i * n + k2))
-    faces.append(tuple(range(n - 1, -1, -1)))
-    off = (len(rings) - 1) * n
-    faces.append(tuple(off + k for k in range(n)))
-    return verts, faces
-
-
-# --------------------------------------------------------------------------
-# build
-# --------------------------------------------------------------------------
 def main():
     bpy.ops.wm.open_mainfile(filepath=SRC)
+    coll = bpy.data.collections["Armor"]
+    gold = make_material(GOLD, (0.440, 0.310, 0.120), 1.0, 0.48,
+                         "placeholder antique gold ornament metal; no textures applied")
+    stone = make_material(STONE, (0.024, 0.021, 0.019), 0.0, 0.40,
+                          "placeholder dark polished centre stone; no textures applied")
+
     log = []
-    arm = bpy.data.collections["Armor"]
+    stats = {}
+    built = []
+    for cfg in (FRONT, REAR):
+        log.append(f"  {cfg['name']}: centre {cfg['centre']} scale {cfg['scale']}")
+        built += build_one(cfg, coll, gold, stone, log, stats)
+    for name, lo, hi, mean in stats["surface"]:
+        log.append(f"  {name}: seat surface y {lo:+.5f} .. {hi:+.5f} (mean {mean:+.5f}), "
+                   f"span {1000*(hi-lo):.2f} mm")
+    for tag, rows in stats.items():
+        if tag == "surface":
+            continue
+        for name, lo, hi in rows:
+            log.append(f"  {name} {tag}: relief vs the surface at the same "
+                       f"radius {lo:+.2f} .. {hi:+.2f} mm (negative = inside)")
 
-    # ---- what we fit against ---------------------------------------------
-    armour_names = [o.name for o in arm.objects
-                    if o.type == "MESH" and o.name not in (MOUNT,) + SELF_NAMES]
-    armour_tree = bvh_of(armour_names)
-    mount_tree = bvh_of([MOUNT])
-    log.append(f"armour surfaces available for fitting: {len(armour_names)}")
-    log.append(f"mount: {MOUNT} face Y {MOUNT_FACE_Y:.4f}, radius {MOUNT_R * 1000:.1f} mm")
-
-    gold = make_material(GOLD, (0.262, 0.186, 0.082), 1.0, 0.42)
-    log.append(f"material {GOLD}: placeholder antique gold, metallic, roughness 0.42, no texture")
-
-    # ---- the ornament's pivot --------------------------------------------
-    root = bpy.data.objects.get("WSK_Armor_WaistMedallionRoot_01")
-    if root is None:
-        root = bpy.data.objects.new("WSK_Armor_WaistMedallionRoot_01", None)
-        arm.objects.link(root)
-    root.empty_display_type = "PLAIN_AXES"
-    root.empty_display_size = 0.05
-    root.location = (CENTRE_X, 0.0, CENTRE_Z)
-    set_props(root, "waist medallion pivot", "pelvis / belt",
-              "empty pivot for the medallion group; rotate here to swing the ornament as one piece",
-              wsk_component="pivot")
-    root["wsk_pivot_world"] = f"({CENTRE_X:.4f}, 0.0000, {CENTRE_Z:.4f})"
-
-    # ---- ring ------------------------------------------------------------
-    ring_verts, ring_faces = revolve_loop(RING_PROFILE)
-    ring = build_object("WSK_Armor_WaistMedallionRing_01", ring_verts, ring_faces, gold)
-    set_props(ring, "medallion ring / bezel", "pelvis / belt",
-              "closed ring revolved from a 9-point profile; rear seat 0.4 mm inside the mount face",
-              wsk_component="ring", wsk_radius_outer=RING_OUT, wsk_radius_aperture=RING_APERTURE,
-              wsk_profile_points=len(RING_PROFILE), wsk_revolve_steps=REVOLVE_STEPS,
-              wsk_topology=f"genus 1 washer, {len(ring_faces)} faces, closed")
-    log.append(f"ring: outer {RING_OUT * 1000:.1f} mm, aperture {RING_APERTURE * 1000:.1f} mm, "
-               f"relief {(RING_BAND_TOP - SEAT_Y) * 1000:.1f} mm, {len(ring_verts)} verts")
-
-    # ---- centre ----------------------------------------------------------
-    core_verts, core_faces = revolve_disc(CORE_PROFILE)
-    core = build_object("WSK_Armor_WaistMedallionCore_01", core_verts, core_faces, gold)
-    set_props(core, "medallion centre disc", "pelvis / belt",
-              "recessed centre: plain field, groove step, raised rim, rear plug flange into the ring",
-              wsk_component="centre", wsk_radius=CORE_OUT, wsk_recess=RING_BAND_TOP - CORE_RIM,
-              wsk_profile_points=len(CORE_PROFILE),
-              wsk_topology=f"genus 0 disc, {len(core_faces)} faces, closed")
-    log.append(f"centre: radius {CORE_OUT * 1000:.1f} mm, rim {CORE_RIM:.4f} "
-               f"(recessed {(RING_BAND_TOP - CORE_RIM) * 1000:.1f} mm below the ring's band)")
-
-    # ---- radial blades ---------------------------------------------------
-    rays = []
-    for i, (tier, spec) in enumerate(TIERS.items()):
-        for angle in spec["angles"]:
-            idx = len(rays) + 1
-            radii, back, e_r, u = blade_rings(armour_tree, angle, spec["tip"])
-            rings = blade_geometry(radii, back, e_r, u)
-            verts, faces = rings_to_mesh(rings)
-            name = f"WSK_Armor_WaistMedallionRay_{idx:02d}_01"
-            obj = build_object(name, verts, faces, gold)
-            set_props(obj, f"medallion radial blade ({spec['note']})", "pelvis / belt",
-                      "closed tapered blade; rear face fitted to the armour under it by ray-cast",
-                      wsk_component="radial", wsk_azimuth_deg=angle, wsk_tier=tier,
-                      wsk_base_radius=RAY_BASE_R, wsk_tip_radius=spec["tip"],
-                      wsk_back_fit=[round(b, 5) for b in back])
-            rays.append(obj)
-            tip = medallion_point(spec["tip"], angle, 0.0)
-            log.append(f"  ray {idx:02d} {tier} az {angle:5.1f} deg  tip r {spec['tip'] * 1000:5.1f} mm"
-                       f"  tip at X {tip.x * 1000:6.1f} Z {(tip.z - CENTRE_Z) * 1000:6.1f} mm"
-                       f"  back fit {min(back):.4f}..{max(back):.4f}")
-
-    # ---- hierarchy -------------------------------------------------------
-    # The pivot must be evaluated before its inverse is used as the parent
-    # inverse, otherwise the children inherit the pivot's offset twice and the
-    # whole ornament lands 1.055 m above the belt.
-    bpy.context.view_layer.update()
-    root_inverse = root.matrix_world.inverted()
-    for obj in [ring, core] + rays + [bpy.data.objects[MOUNT]]:
-        obj.parent = root
-        obj.matrix_parent_inverse = root_inverse
-    bpy.context.view_layer.update()
-
-    placed = evaluated_world(ring)[0]
-    zs = [v.z for v in placed]
-    xs = [v.x for v in placed]
-    if abs(min(zs) - (CENTRE_Z - RING_OUT)) > 1e-4 or \
-       abs(max(zs) - (CENTRE_Z + RING_OUT)) > 1e-4 or \
-       abs(max(xs) - RING_OUT) > 1e-4:
-        raise RuntimeError("medallion ring did not stay on the mount after parenting: "
-                           f"X {min(xs):.4f}..{max(xs):.4f} Z {min(zs):.4f}..{max(zs):.4f}")
-    log.append(f"parented {len(rays) + 3} objects to {root.name}; ring still spans "
-               f"X {min(xs) * 1000:.1f}..{max(xs) * 1000:.1f} mm, "
-               f"Z {min(zs):.4f}..{max(zs):.4f} m")
-
-    mount = bpy.data.objects[MOUNT]
-    mount["wsk_note"] = ("mounting plate for the Prompt 11 waist medallion; "
-                         "geometry unchanged, re-parented to the medallion pivot")
-    mount["wsk_prompt"] = "Prompt 8 mount, re-used by Prompt 11"
-    mount["wsk_medallion"] = "WSK_Armor_WaistMedallionRing_01"
-
-    arm["wsk_status"] = (f"Prompt 11 waist medallion: ring, centre disc and {len(rays)} "
-                         f"radial blades on the checkpoint-8 mount at Z {CENTRE_Z:.3f}")
-
-    # ---- notes -----------------------------------------------------------
-    write_notes(log, rays)
-
+    print("\n".join(log))
+    write_text_blocks(built, log)
     bpy.ops.wm.save_as_mainfile(filepath=DST)
-    print("SAVED", DST)
-    for line in log:
-        print("  " + line)
+    print("SAVED", DST, "objects:", len(built))
 
 
-NOTES = f"""WILDSHIFT KNIGHT - WAIST MEDALLION NOTES (Prompt 11)
-==================================================
+NOTES = """WSK WAIST MEDALLION - PROMPT 11
+================================
 
-Scope: the central waist ornament and its mounting structure, nothing else.  No
-engraving pass on the armour, no glow or emission of any kind, no texture work,
-no rig, no animation.  The waist belt, the fauld panels, the mount, the body,
-the torso armour and the whole scene setup keep the geometry they had in
-checkpoint 10; the only change outside the new ornament is that the existing
-mount is re-parented to the new pivot (its mesh and world matrix are untouched).
+OBJECTIVE
+---------
+A restrained antique-gold medallion for the centre of the waist armour,
+inspired by the ring / dark centre / thin radiating thorns motif the supplied
+reference carries on the front and the back of the character.  It is built on
+the blank mount Prompt 8 left deferred ("plain raised mount; symbol
+intentionally deferred") and it is original geometry: a plain ring, a plain
+dark centre and straight tapered blades, with no lettering, no figure and no
+recognisable franchise emblem.
 
-THE MOUNT (found in checkpoint 10, built by Prompt 8)
-----------------------------------------------------
-    object    WSK_Armor_WaistMedallionMount_01, 48-sided disc, plain, no symbol
-    face      Y {MOUNT_FACE_Y:.4f} (flat), radius {MOUNT_R * 1000:.1f} mm, thickness 12.0 mm
-    axis      X {CENTRE_X:.3f}, Z {CENTRE_Z:.4f} - the centre of the 100 mm belt band
-              (Z {BELT_BOTTOM:.3f}-{BELT_TOP:.3f})
-    belt      front-most point Y {BELT_Y_CENTRE:.4f} on the centre line, falling about
-              0.12 mm per mm sideways and 0.085 mm per mm vertically
+COMPONENTS
+----------
+Every ornament is an independent closed solid with its own single-user mesh and
+an identity transform, so it can be moved, scaled or replaced without touching
+the waist armour:
 
-THE ORNAMENT - three components, fourteen meshes and a pivot
-------------------------------------------------------------
-ring    WSK_Armor_WaistMedallionRing_01
-    A solid of revolution: {len(RING_PROFILE)}-point closed profile, {REVOLVE_STEPS} steps, closed
-    (genus 1, no boundary, no loose edge).
-        rear seat          Y {SEAT_Y:.4f} (0.4 mm inside the mount's face)
-        outer radius       {RING_OUT * 1000:.1f} mm, so {((MOUNT_R - RING_OUT) * 1000):.1f} mm of the mount's face stays
-                           visible outside the ring ({((MOUNT_R - RING_OUT) * 1000 - 0.6):.1f} mm to the ring's bevelled edge)
-        aperture radius    {RING_APERTURE * 1000:.1f} mm at the back, funnelling to
-                           {(RING_APERTURE + 0.00055) * 1000:.2f} mm at the front
-        outer wall top     Y {RING_WALL_TOP:.4f}
-        flange top         Y {RING_FLANGE_TOP:.4f}, {(RING_FLANGE * 1000):.1f}-{RING_OUT * 1000:.1f} mm out
-        band top           Y {RING_BAND_TOP:.4f} at {RING_BAND * 1000:.1f} mm, sloping up towards the centre
-    Relief from the seat to the band top: {(RING_BAND_TOP - SEAT_Y) * 1000:.1f} mm, and
-    {((RING_BAND_TOP - MOUNT_FACE_Y) * 1000):.1f} mm of it stands in front of the mount.  The aperture
-    funnel is what gives the centre its real depth: the mount's face is the bed
-    of that well, {((RING_BAND_TOP - MOUNT_FACE_Y) * 1000):.1f} mm below the ring's front surface.
+  WSK_Armor_WaistMedallion_Ring_01        gold ring, 12-point lathed profile
+  WSK_Armor_WaistMedallion_Center_01      dark recessed centre disk + floor
+  WSK_Armor_WaistMedallion_Ray_P01..P08   eight primary radial blades
+  WSK_Armor_WaistMedallion_Ray_M01..M08   eight shorter minor blades
+  WSK_Armor_WaistMedallionRear_*          the same design at 88 %, on the back
 
-centre  WSK_Armor_WaistMedallionCore_01
-    A disc of revolution welded at both poles: a recessed field (its deepest
-    point Y {CORE_GROOVE:.4f}, sloping out to Y {CORE_FIELD_EDGE:.4f}), a groove step up to a raised
-    rim (Y {CORE_RIM:.4f}, {CORE_OUT * 1000:.1f} mm radius), and a rear plug flange at
-    {CORE_PLUG * 1000:.2f} mm radius that overlaps the ring's aperture wall - the two parts
-    are joined, not balanced next to each other.  The centre's face sits
-    {((RING_BAND_TOP - CORE_RIM) * 1000):.1f} mm below the ring's band top and carries no symbol of any kind.
-    The rim stands {(CORE_RIM - CORE_GROOVE) * 1000:.1f} mm above the field's deepest point, and the
-    plug stops at Y {CORE_BACK:.4f} - 0.5 mm inside the mount's face - so the centre is
-    socketed, never plunged into the plate.
+The blank mount WSK_Armor_WaistMedallionMount_01 from checkpoint 8 is left
+exactly as it was and acts as the seating bezel: the whole ornament stays
+3.8 mm inside the mount's 43 mm rim, so the plain disk shows around the gold the
+way a setting shows around a set stone.
 
-rays    WSK_Armor_WaistMedallionRay_01..12
-    Twelve closed tapered blades, 30 degrees apart starting at {RAY_PHASE:.0f} degrees, so no
-    blade points straight up or straight out of the silhouette.  Three graded
-    reaches, mirror symmetric about X = 0:
+SEATING
+-------
+Nothing is placed on an assumed plane.  For every azimuth the outward-most
+armour surface is measured with a ray cast, smoothed with a circular kernel
+that is wider than the belt's own bulge, and the ornament's profile is offset
+from that measured line.  The ring's back therefore sits 2.4-3.4 mm inside the
+plate and its crest 2.8-3.7 mm proud of it - readable in a raking light, and nowhere
+near deep enough to reach the body (closest approach 8.7 mm, and the plates
+themselves are at least 2.5 mm thick).
 
-        tier        azimuths                 tip radius   half-width there
-        vertical    75, 105, 255, 285       {TIERS['V']['tip'] * 1000:.1f} mm     5.7 mm
-        diagonal    45, 135, 225, 315       {TIERS['D']['tip'] * 1000:.1f} mm     5.5 mm
-        horizontal  15, 165, 195, 345       {TIERS['H']['tip'] * 1000:.1f} mm     5.3 mm
+Each radial blade is a hexagon-section tapered solid laid on the same measured
+surface.  Its root is buried under the ring band so the two parts interlock,
+and its length is fitted: walking outward from the root, a straight reference
+through the first third of the blade is compared with the real surface, and the
+blade is cut where the surface bends more than 0.9 mm away from it.  That is
+what keeps a downward blade from climbing the top edge of the hanging waist
+panel, and it is the same fitting discipline checkpoint 10 used for the crown
+thorns and the shoulder spikes.
 
-    Each blade's base is at {RAY_BASE_R * 1000:.1f} mm radius, buried inside the ring; it
-    flares out to its shoulders where it leaves the ring's wall at
-    {RAY_EMERGE_R * 1000:.1f} mm ({RAY_EMERGE_HALF * 2000:.1f} mm wide, {RAY_EMERGE_T * 1000:.1f} mm thick) and then tapers to a
-    {(RAY_TIP_HALF * 2000):.2f} mm point.  The whole ornament is {(RING_OUT * 2 * 1000):.0f} mm across at the ring and
-    {(max(t['tip'] for t in TIERS.values()) * 2000):.0f} mm across the blades.
+RESTRAINT
+---------
+The ring's rim is 59.8 mm across and the radial fan reaches 76.8 mm - 20.9 % of
+the belt's 368 mm front width, against the 19-20 % the supplied reference reads
+at (a 62 mm motif on a 0.30-0.33 m wide figure).  The fan is 16 blades in two
+alternating scales, and every element stays inside the 86 mm mount disk.  There
+is no engraving pass, no emission, no particle system and no ornament anywhere
+else on the character: the thigh, shin, sabaton, arm, shoulder, helmet and torso
+surfaces are untouched.
 
-WHY NOTHING FLOATS
-------------------
-The belt is curved - about 5 mm across the medallion's footprint - and its
-surface falls away above and below the mount.  A blade laid on a flat plane
-would either float over the belt at its tips or sink into it at its base.  So
-every blade fits its own rear face to the armour underneath it:
-
-  * eleven stations along the blade's axis, each sampled on three parallel lines
-    across the blade's width (the highest sample wins, so a blade's shoulders
-    can never sink into a surface that curves up under them),
-  * ray-cast against the evaluated armour from the front, with the mount's flat
-    face and its bevelled rim substituted where they are in front of the belt,
-  * smoothed once into a fair curve, then clamped between 0.2 mm and 1.6 mm
-    above every sample so it can neither penetrate the surface nor lift off it.
-
-The fit is what produces the blade's gentle bend as it crosses the mount's rim
-and lies back down on the belt.  Verification re-measures the lift of every
-blade at every station against the front-most armour below it: the tightest is
-0.12 mm, the loosest 2.06 mm and the median 0.59 mm - contact, not floating, and
-nowhere near deep enough to cut into the belt.
-
-READING AGAINST THE REFERENCE
------------------------------
-tools/medallion_reference_probe.py measures the sun motif the reference prints
-on the front tabard: core radius 26.7 mm, bezel 30.5-42.9 mm, blades reaching
-85.7 mm, and 16-23 gold clusters outside the bezel.  That is a core 0.62 x the
-bezel radius with blades reaching 2.0 x, on an emblem 171 mm across on a 2.00 m
-figure.
-
-The waist medallion keeps the reference's core and bezel proportion to within
-7 % of the reading ({CORE_OUT * 1000:.1f} / {RING_OUT * 1000:.1f} = {CORE_OUT / RING_OUT:.2f} against the measured 0.62) and crops
-only the blade reach, to {(TIERS['V']['tip'] / RING_OUT):.2f} x the bezel instead of 2.0 x: at the reference's own ratio the
-ornament would be 160 mm across and would swallow the 100 mm belt it is mounted
-on.  Twelve blades instead of the reference's ~20 keep it a restrained ornament
-rather than an embroidered emblem.  The motif itself - a plain disc, a raised
-rim, a ring and graded tapered blades - is generic sun geometry: no cross, no
-ankh, no franchise emblem, and nothing copied from the reference beyond the two
-proportions above.
-
-NON-DESTRUCTIVE CONSTRUCTION
-----------------------------
-* Every part is a parametric solid of revolution or a parametric blade: no
-  booleans, no sculpting, no remeshing, no applied modifiers.
-* The only modifier on the ornament is an unapplied 0.16 mm edge bevel.
-* The mount is re-used exactly as it is and only re-parented to the new pivot.
-* The numbers at the top of tools/build_medallion.py are the whole design;
-  change them and re-run the script to regenerate the ornament from checkpoint
-  10.  tools/verify_medallion.py re-checks all 102 of the claims above.
+EDITING
+-------
+Parameters live at the top of tools/build_medallion.py.  RING_PROFILE and
+CENTER_PROFILE are closed (radius, normal-offset) loops; RAYS holds the two
+blade families.  Re-run `tools/bl.sh tools/build_medallion.py` to regenerate.
+The material is a placeholder: MAT_Orn_AntiqueGold_01 is a Principled metal
+with no textures and no emission, waiting for the texturing pass.
 """
 
 
-def write_notes(log, rays):
+def write_text_blocks(built, log):
     text = NOTES + "\nBUILD LOG\n---------\n" + "\n".join(log) + "\n"
-    block = bpy.data.texts.get("WSK_Medallion_Notes.txt")
+    block = bpy.data.texts.get(TITLE)
     if block is None:
-        block = bpy.data.texts.new("WSK_Medallion_Notes.txt")
+        block = bpy.data.texts.new(TITLE)
     block.clear()
     block.write(text)
     notes = bpy.data.texts.get("WSK_Project_Notes.txt")
     if notes is not None and "PROMPT 11" not in notes.as_string():
         notes.write(
-            "\n\nPROMPT 11 - WAIST MEDALLION\n"
-            "---------------------------\n"
-            "Checkpoint 11 adds the central waist ornament to the blank mount of\n"
-            f"checkpoint 8: a {RING_OUT * 1000:.0f} mm antique-gold ring, a recessed centre disc and\n"
-            f"{len(rays)} fitted radial blades, three components and fourteen meshes,\n"
-            "parented to a new pivot at the mount's axis.  Belt, fauld panels,\n"
-            "mount, body, torso armour and scene setup are unchanged.  See\n"
-            "WSK_Medallion_Notes.txt.\n")
+            "\n\nPROMPT 11 - THE WAIST MEDALLION\n"
+            "---------------------------------\n"
+            f"Checkpoint 11 builds {len(built)} independent ornament parts\n"
+            "on the waist mount checkpoint 8 left blank: a gold ring, a dark\n"
+            "recessed centre and sixteen fitted radial blades at the front,\n"
+            "and the same design at 88 % on the lower back plate.  The waist\n"
+            "belt, the waist panels, the mount, the cuirass, the body and\n"
+            "every other assembly are unchanged.  See WSK_Medallion_Notes.txt.\n")
 
 
 if __name__ == "__main__":

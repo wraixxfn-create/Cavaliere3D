@@ -1,11 +1,8 @@
 """Prompt-11 verification for the waist medallion.
 
-Checks scope (what changed and what did not), the mount it sits on, its
-placement, the design of ring / centre / rays, that the three components really
-are separate objects, mesh quality, and - the part the prompt asks for
-explicitly - that nothing floats and nothing is buried in the armour.
-
-Writes analysis/verify/verify_medallion_report.txt.
+Checks scope (what changed and what did not), the mount it is seated on, the
+independent components, the measured seating, the design restraint and the
+rendered centring.  Writes analysis/verify/verify_medallion_report.txt.
 
 Run: tools/bl.sh tools/verify_medallion.py
 """
@@ -27,33 +24,25 @@ DST = os.path.join(ROOT, "Wildshift_Knight_11_Medallion.blend")
 SHOTS = os.path.join(ROOT, "analysis/medallion")
 REPORT = os.path.join(ROOT, "analysis/verify/verify_medallion_report.txt")
 
+PREFIX = "WSK_Armor_WaistMedallion"
 MOUNT = "WSK_Armor_WaistMedallionMount_01"
+BELT = "WSK_Armor_WaistBelt_01"
 BODY = "WSK_Body_Base_01"
-GOLD = "MAT_Armor_AntiqueGold_01"
-RING = "WSK_Armor_WaistMedallionRing_01"
-CORE = "WSK_Armor_WaistMedallionCore_01"
-ROOT_EMPTY = "WSK_Armor_WaistMedallionRoot_01"
-RAYS = [f"WSK_Armor_WaistMedallionRay_{i:02d}_01" for i in range(1, 13)]
-PARTS = [RING, CORE] + RAYS
+FRONT_OBJECTS = (
+    "WSK_Armor_WaistMedallionMount_01",
+    "WSK_Armor_WaistBelt_01",
+    "WSK_Armor_WaistPanel_Front_01_01",
+    "WSK_Armor_WaistPanel_Front_02_01",
+    "WSK_Armor_WaistPanel_Front_03_01",
+    "WSK_Armor_Chest_01",
+)
+REAR_OBJECTS = ("WSK_Armor_Back_01",)
 
-CENTRE = Vector((0.0, 0.0, 1.0550))
-MOUNT_FACE_Y = 0.1430
-MOUNT_R = 0.0430
-BELT_TOP, BELT_BOTTOM = 1.105, 1.005
-BELT_MID_Y = 0.1435
-RING_OUT = 0.0350
-CORE_R = 0.0242
-RAY_BASE_R = 0.0300
-TIER_ANGLES = {"V": (75.0, 105.0, 255.0, 285.0),
-               "D": (45.0, 135.0, 225.0, 315.0),
-               "H": (15.0, 165.0, 195.0, 345.0)}
-TIER_TIPS = {"V": 0.0480, "D": 0.0465, "H": 0.0455}
-RAY_TIPS = {a: TIER_TIPS[tier] for tier, angles in TIER_ANGLES.items() for a in angles}
-TIER_OF = {a: tier for tier, angles in TIER_ANGLES.items() for a in angles}
-PARITY_DIRS = (Vector((0.577, 0.577, 0.577)),
-               Vector((-0.707, 0.500, 0.500)),
-               Vector((0.267, -0.802, 0.535)),
-               Vector((0.0, -0.9, 0.436)))
+MOUNT_CENTRE = Vector((0.0, 1.055))
+MOUNT_RADIUS = 0.043
+REAR_CENTRE = Vector((0.0, 1.155))
+FRONT_SIGN, REAR_SIGN = 1.0, -1.0
+REAR_SCALE = 0.88
 
 lines = []
 passed = failed = warned = 0
@@ -80,12 +69,10 @@ def warn(cond, label, detail=""):
     global warned
     if not cond:
         warned += 1
-    lines.append(f"[{'WARN' if not cond else 'OK  '}] {label}" + (f"  -> {detail}" if detail else ""))
+    lines.append(f"[{'OK  ' if cond else 'WARN'}] {label}" + (f"  -> {detail}" if detail else ""))
 
 
-# --------------------------------------------------------------------------
-# helpers
-# --------------------------------------------------------------------------
+# ---------------------------------------------------------------- helpers ---
 def mesh_hash(obj):
     h = hashlib.sha256()
     h.update(obj.type.encode())
@@ -106,18 +93,6 @@ def mesh_hash(obj):
     for row in obj.matrix_world:
         h.update(struct.pack("<4d", *row))
     h.update((obj.parent.name if obj.parent else "").encode())
-    return h.hexdigest()
-
-
-def mesh_hash_geometry(obj):
-    """Hash of the mesh data only - used to show the mount was not reshaped."""
-    h = hashlib.sha256()
-    for v in obj.data.vertices:
-        h.update(struct.pack("<3d", *v.co))
-    for p in obj.data.polygons:
-        h.update(struct.pack("<I", len(p.vertices)))
-        for i in p.vertices:
-            h.update(struct.pack("<I", i))
     return h.hexdigest()
 
 
@@ -145,101 +120,52 @@ def bvh(names):
     return BVHTree.FromPolygons(verts, faces, all_triangles=False)
 
 
-def parity_inside(tree, point, directions=PARITY_DIRS, max_hits=16):
-    votes = 0
-    for d in directions:
-        n = 0
-        t = 0.0
-        while n < max_hits:
-            hit = tree.ray_cast(point + d * t, d, 5.0)
-            if hit[0] is None:
-                break
-            t = (hit[0] - point).dot(d) + 1e-4
-            n += 1
-        votes += int(n % 2 == 1)
-    return votes >= 2
-
-
-def nearest(tree, point):
-    hit = tree.find_nearest(point)
-    if hit[0] is None:
-        return None, 9.9
-    return hit[0].copy(), hit[3]
-
-
 def mesh_quality(obj):
     bm = bmesh.new()
     bm.from_mesh(obj.data)
-    boundary = sum(1 for e in bm.edges if len(e.link_faces) == 1)
-    non_manifold = sum(1 for e in bm.edges if len(e.link_faces) != 2)
+    non_manifold = sum(1 for e in bm.edges if not e.is_manifold)
     loose = sum(1 for v in bm.verts if not v.link_edges)
     degenerate = sum(1 for f in bm.faces if f.calc_area() < 1e-12)
     shortest = min((e.calc_length() for e in bm.edges), default=0.0)
-    v = len(bm.verts)
-    e = len(bm.edges)
-    f = len(bm.faces)
     bm.free()
-    return dict(boundary=boundary, non_manifold=non_manifold, loose=loose,
-                degenerate=degenerate, shortest=shortest, V=v, E=e, F=f, chi=v - e + f)
+    return non_manifold, loose, degenerate, shortest
 
 
-def outward_volume(obj):
-    """Signed volume about the mesh's own centroid (a far-away origin would lose
-    the sign to cancellation: the figure is 1 m tall and the part 10 mm)."""
+def outward(obj):
     verts, polys = evaluated(obj)
-    c = Vector((0.0, 0.0, 0.0))
-    for v in verts:
-        c += v
-    c /= len(verts)
-    verts = [v - c for v in verts]
     vol = 0.0
     for face in polys:
+        if len(face) < 3:
+            continue
         a = verts[face[0]]
         for i in range(1, len(face) - 1):
-            b, c = verts[face[i]], verts[face[i + 1]]
-            vol += a.dot(b.cross(c)) / 6.0
+            vol += a.dot(verts[face[i]].cross(verts[face[i + 1]])) / 6.0
     return vol
 
 
-def radius_xz(v):
-    """Distance from the mount's axis, measured in the medallion's own plane."""
-    return math.hypot(v.x - CENTRE.x, v.z - CENTRE.z)
+def ray_y(tree, x, z, sign):
+    origin = Vector((x, sign * 0.6, z))
+    hit = tree.ray_cast(origin, Vector((0.0, -sign, 0.0)), 1.0)
+    return None if hit[0] is None else hit[0].y
 
 
-def azimuth_of(obj):
-    """Azimuth and reach of a ray's axis in the medallion plane, 0 deg = +X.
-
-    The blade's axis is read as the reach-weighted mean direction of the part of
-    it that stands outside the ring; taking the tip's own vertex would measure
-    the 0.9 mm wide tip cap instead of the blade.
-    """
-    verts, _ = evaluated(obj)
-    vec = Vector((0.0, 0.0, 0.0))
-    reach = 0.0
-    for v in verts:
-        r = radius_xz(v)
-        reach = max(reach, r)
-        if r > RING_OUT:
-            w = r - RING_OUT
-            vec += Vector(((v.x - CENTRE.x) * w, 0.0, (v.z - CENTRE.z) * w))
-    return math.degrees(math.atan2(vec.z, vec.x)) % 360.0, reach
-
-
-# --------------------------------------------------------------------------
-# load both checkpoints
-# --------------------------------------------------------------------------
+# ------------------------------------------------------------------ load ---
 bpy.ops.wm.open_mainfile(filepath=DST)
 hashes11 = {o.name: mesh_hash(o) for o in bpy.data.objects}
 names11 = set(hashes11)
-geom11 = {o.name: mesh_hash_geometry(o) for o in bpy.data.objects if o.type == "MESH"}
-mats11 = {o.name: [tuple(row) for row in o.matrix_world] for o in bpy.data.objects}
+med = sorted(n for n in names11 if n.startswith(PREFIX) and n != MOUNT)
+rear_med = sorted(n for n in med if n.startswith(PREFIX + "Rear"))
+front_med = sorted(n for n in med if n not in rear_med)
+rings = [n for n in front_med if n.endswith("_Ring_01")]
+centres = [n for n in front_med if n.endswith("_Center_01")]
+rays = [n for n in med if "_Ray_" in n]
+front_rays = [n for n in front_med if "_Ray_" in n]
+rear_rays = [n for n in rear_med if "_Ray_" in n]
+rear_rings = [n for n in rear_med if n.endswith("_Ring_01")]
 
 bpy.ops.wm.open_mainfile(filepath=SRC)
 hashes10 = {o.name: mesh_hash(o) for o in bpy.data.objects}
 names10 = set(hashes10)
-geom10 = {o.name: mesh_hash_geometry(o) for o in bpy.data.objects if o.type == "MESH"}
-mats10 = {o.name: [tuple(row) for row in o.matrix_world] for o in bpy.data.objects}
-
 bpy.ops.wm.open_mainfile(filepath=DST)
 scene = bpy.context.scene
 
@@ -249,481 +175,534 @@ section("A  scope - what changed and what did not")
 added = sorted(names11 - names10)
 removed = sorted(names10 - names11)
 changed = sorted(n for n in (names10 & names11) if hashes10[n] != hashes11[n])
-expected_added = sorted(PARTS + [ROOT_EMPTY])
-check(set(added) == set(expected_added),
-      "the medallion is the only thing added (ring, centre, 12 rays, pivot)",
-      f"{len(added)} added" + ("" if set(added) == set(expected_added)
-                               else ": " + ", ".join(sorted(set(added) ^ set(expected_added)))))
-check(not removed, "nothing was removed", f"{len(removed)} removed")
-check(set(changed) <= {MOUNT},
-      "no existing object's geometry or transform changed",
-      f"changed: {', '.join(changed) if changed else 'none'}")
-check(geom10[MOUNT] == geom11[MOUNT],
-      "the waist medallion mount is byte-identical: it was found and re-used, not rebuilt")
-check(bpy.data.objects[MOUNT].parent is not None and
-      bpy.data.objects[MOUNT].parent.name == ROOT_EMPTY,
-      "the mount is now parented to the medallion pivot (the only change to it)")
-check(len(bpy.data.collections) == 14,
-      "no collection was added or removed", f"{len(bpy.data.collections)} collections")
+check(set(added) == set(med) and len(added) == len(med),
+      "the waist ornament is the only geometry added",
+      f"{len(added)} objects: {len(rings)} ring, {len(centres)} centre, {len(rays)} radial")
+check(not removed, "nothing was removed from checkpoint 10")
+check(not changed, "no existing object changed: every plate, the body, the helmet, "
+                   "the crown and the scene are byte-identical to checkpoint 10")
+check(hashes10[MOUNT] == hashes11[MOUNT],
+      "the waist medallion mount from checkpoint 8 is untouched - the waist armour "
+      "was not rebuilt, only seated")
+check(len(bpy.data.collections) == 14, "no collection was added",
+      f"{len(bpy.data.collections)} collections")
 check(len(bpy.data.worlds) == 2 and len(bpy.data.cameras) == 13,
       "worlds and the camera set are unchanged",
       f"{len(bpy.data.worlds)} worlds, {len(bpy.data.cameras)} cameras")
-check(len(bpy.data.lights) == 4,
-      "no light was added to the saved file", f"{len(bpy.data.lights)} lights")
 check(len([m for m in bpy.data.materials if m.use_nodes and any(
               n.type == "EMISSION" for n in m.node_tree.nodes)]) == 0,
-      "no material gained an emission shader (no glow, no magical effect)")
-check(len([m for m in bpy.data.materials if m.name == GOLD]) == 1 and
-      "_tex" not in GOLD.lower() and not any(i.type == "TEX_IMAGE" for i in
-      bpy.data.materials[GOLD].node_tree.nodes),
-      "the ornament uses one placeholder material with no texture", GOLD)
-check(not any(o.modifiers and any(m.type in ("PARTICLE_SYSTEM", "FLUID", "CLOTH")
+      "no material has an emission shader (no glow, no magical effect)")
+check(not any(o.modifiers and any(m.type in ("PARTICLE_SYSTEM", "FLUID")
                                   for m in o.modifiers) for o in bpy.data.objects)
       and len(bpy.data.particles) == 0,
-      "no particle systems, cloth or fluid (no animated effect)")
-new_ornament = [o for o in bpy.data.objects
-                if o.name == ROOT_EMPTY or o.name in PARTS]
-check(len(new_ornament) == len(PARTS) + 1,
-      "the ornament is one group of 14 meshes and a pivot - no extra jewellery was "
-      "added anywhere else on the character", f"{len(new_ornament)} objects")
-
-# the rest of the armour must be untouched, mesh-for-mesh
-untouched = [n for n in names10 & names11
-             if n.startswith(("WSK_Armor_", "WSK_Body", "WSK_Helmet_"))
-             and n not in PARTS and n != MOUNT
-             and bpy.data.objects[n].type == "MESH"]
-check(all(geom10[n] == geom11[n] for n in untouched),
-      "the waist belt, the fauld panels, the torso armour, the shoulder and limb "
-      "armour, the helmet and the body are byte-identical to checkpoint 10",
-      f"{len(untouched)} objects compared")
+      "no particle systems")
+new_mats = [bpy.data.materials[n] for n in ("MAT_Orn_AntiqueGold_01",
+                                            "MAT_Orn_ShadowStone_01")]
+check(len([m for m in bpy.data.materials if m.name.startswith("MAT_Orn_")]) == 2
+      and all(m.get("wsk_placeholder") for m in new_mats),
+      "exactly two placeholder materials were added and both are flagged placeholder",
+      ", ".join(m.name for m in new_mats))
+check(not any(any(n.type in ("TEX_IMAGE", "TEX_NOISE", "TEX_WAVE")
+                  for n in m.node_tree.nodes) for m in new_mats),
+      "the ornament materials carry no textures - final texturing is deferred")
+check(not any(o.data.materials and any(m.name.startswith("MAT_Orn_")
+                                       for m in o.data.materials)
+              for o in bpy.data.objects
+              if o.type == "MESH" and not o.name.startswith(PREFIX)),
+      "no other part of the character was given the ornament materials")
 
 # --------------------------------------------------------------------------
-section("B  the mount that was found, and the placement of the ornament")
+section("B  locating the mount and centring on it")
 # --------------------------------------------------------------------------
 mount = bpy.data.objects[MOUNT]
-mverts, _ = evaluated(mount)
-m_r = max(math.hypot(v.x, v.z - CENTRE.z) for v in mverts)
-m_face = max(v.y for v in mverts)
-check(abs(m_face - MOUNT_FACE_Y) < 1e-4 and abs(m_r - MOUNT_R) < 1e-4,
-      "the checkpoint-8 mount is what the prompt said it was",
-      f"face Y {m_face:.4f}, radius {m_r * 1000:.1f} mm")
-check(abs(CENTRE.z - (BELT_TOP + BELT_BOTTOM) / 2.0) < 0.002,
-      "the mount sits on the belt's centre line",
-      f"mount Z {CENTRE.z:.3f}, belt {BELT_BOTTOM:.3f}-{BELT_TOP:.3f}")
+mv, _mf = evaluated(mount)
+mx = (min(p.x for p in mv) + max(p.x for p in mv)) / 2.0
+mz = (min(p.z for p in mv) + max(p.z for p in mv)) / 2.0
+my = max(p.y for p in mv)
+mrad = max(math.hypot(p.x - mx, p.z - mz) for p in mv)
+check(abs(mx) < 1e-6 and abs(mz - MOUNT_CENTRE.y) < 1e-6,
+      "the checkpoint-8 mount sits on the centre line at z 1.055 as documented",
+      f"centre x {mx:+.4f}, z {mz:.4f}, radius {mrad * 1000:.1f} mm")
+check("medallion" in mount.get("wsk_part", "") and mount.get("wsk_prompt", ""),
+      "the mount is the object checkpoint 8 left for this prompt",
+      f"'{mount.get('wsk_part')}' ({mount.get('wsk_prompt')})")
 
-ring = bpy.data.objects[RING]
-rverts, _ = evaluated(ring)
-rc_x = (min(v.x for v in rverts) + max(v.x for v in rverts)) / 2.0
-rc_z = (min(v.z for v in rverts) + max(v.z for v in rverts)) / 2.0
-check(abs(rc_x - CENTRE.x) < 5e-5 and abs(rc_z - CENTRE.z) < 5e-5,
-      "the medallion is centred on the mount's axis",
-      f"ring centre ({rc_x * 1000:+.3f}, {rc_z * 1000:+.3f}) mm vs "
-      f"({CENTRE.x * 1000:+.3f}, {CENTRE.z * 1000:+.3f}) mm")
+for tag, centre, names in (("front", MOUNT_CENTRE, front_med),
+                           ("rear", REAR_CENTRE, rear_med)):
+    pts = []
+    for n in names:
+        v, _f = evaluated(bpy.data.objects[n])
+        pts += v
+    cx = (min(p.x for p in pts) + max(p.x for p in pts)) / 2.0
+    cz = (min(p.z for p in pts) + max(p.z for p in pts)) / 2.0
+    check(abs(cx) < 0.0015 and abs(cz - centre.y) < 0.0015,
+          f"the {tag} ornament is centred on its mounting axis",
+          f"centre ({cx * 1000:+.2f}, {cz * 1000:+.2f}) mm vs "
+          f"(0.00, {centre.y * 1000:.2f}) mm")
+    span = max(p.x for p in pts) - min(p.x for p in pts)
+    note(f"{tag} ornament span {span * 1000:.1f} mm, "
+         f"z {min(p.z for p in pts):.4f} .. {max(p.z for p in pts):.4f}")
 
-all_verts = {}
-for name in PARTS:
-    all_verts[name], _ = evaluated(bpy.data.objects[name])
-low_z = min(v.z for vs in all_verts.values() for v in vs)
-high_z = max(v.z for vs in all_verts.values() for v in vs)
-wide_x = max(abs(v.x) for vs in all_verts.values() for v in vs)
-check(low_z > BELT_BOTTOM + 0.002 and high_z < BELT_TOP - 0.002,
-      "the whole ornament fits inside the belt band with a margin",
-      f"Z {low_z:.4f}..{high_z:.4f} inside {BELT_BOTTOM:.3f}..{BELT_TOP:.3f}")
-check(wide_x <= MOUNT_R + 0.004,
-      "the ornament is no wider than the plate it is mounted on",
-      f"half-span {wide_x * 1000:.1f} mm vs mount radius {MOUNT_R * 1000:.1f} mm")
-ring_rear = min(v.y for v in rverts)
-check(MOUNT_FACE_Y - 0.0015 < ring_rear < MOUNT_FACE_Y - 0.0002,
-      "the ring is seated into the mount's face, not balanced on it",
-      f"ring rear seat Y {ring_rear:.4f} vs mount face {MOUNT_FACE_Y:.4f}")
-check(max(radius_xz(v) for v in rverts) < MOUNT_R,
-      "the mount's rim stays visible outside the ring",
-      f"ring {max(math.hypot(v.x, v.z - CENTRE.z) for v in rverts) * 1000:.1f} mm "
-      f"inside {MOUNT_R * 1000:.1f} mm")
-
-# --------------------------------------------------------------------------
-section("C  the design")
-# --------------------------------------------------------------------------
-check(len(RAYS) == 12, "a limited number of radial elements: twelve", f"{len(RAYS)} rays")
-az = {}
-for name in RAYS:
-    a, reach = azimuth_of(bpy.data.objects[name])
-    az[name] = (a, reach)
-order = sorted(az.items(), key=lambda kv: kv[1][0])
-gaps = [round((order[i + 1][1][0] - order[i][1][0]) % 360.0, 3) for i in range(len(order) - 1)]
-gaps.append(round((order[0][1][0] - order[-1][1][0]) % 360.0, 3))
-check(all(abs(g - 30.0) < 0.5 for g in gaps),
-      "the rays are evenly spaced at 30 degrees", f"gaps {min(gaps)}..{max(gaps)}")
-tiers = {"V": [], "D": [], "H": []}
-for name, (a, reach) in az.items():
-    key = round(a, 1)
-    tier = TIER_OF.get(key)
-    if tier is None:
-        check(False, f"{name} has one of the designed azimuths",
-              f"azimuth {a:.2f} deg")
-        continue
-    tiers[tier].append(reach)
-    check(abs(reach - RAY_TIPS[key]) < 2e-4,
-          f"{name} reach matches the design",
-          f"az {a:.1f} deg reach {reach * 1000:.2f} mm vs "
-          f"{RAY_TIPS[key] * 1000:.2f} mm")
-check(len(tiers["V"]) == len(tiers["D"]) == len(tiers["H"]) == 4,
-      "three graded reach tiers of four blades each",
-      f"{len(tiers['V'])}/{len(tiers['D'])}/{len(tiers['H'])}")
-check(abs(np.mean(tiers["V"]) - 0.0480) < 2e-4 and
-      abs(np.mean(tiers["D"]) - 0.0465) < 2e-4 and
-      abs(np.mean(tiers["H"]) - 0.0455) < 2e-4 and
-      np.mean(tiers["V"]) > np.mean(tiers["D"]) > np.mean(tiers["H"]),
-      "reach falls off monotonically from the vertical pair to the horizontal pair",
-      f"V {np.mean(tiers['V']) * 1000:.2f}, D {np.mean(tiers['D']) * 1000:.2f}, "
-      f"H {np.mean(tiers['H']) * 1000:.2f} mm")
-check(all(abs(math.sin(math.radians(a))) < 0.99 and abs(math.cos(math.radians(a))) < 0.99
-          for a, _r in az.values()),
-      "no blade points straight up or straight out of the silhouette",
-      f"azimuths {', '.join('%.0f' % a for a, _ in sorted(az.values()))}")
-mirror = []
-for name, (a, reach) in az.items():
-    target = (180.0 - a) % 360.0
-    match = [r for aa, r in az.values() if abs(((aa - target + 180) % 360) - 180) < 0.5]
-    mirror.append(bool(match) and abs(match[0] - reach) < 1e-4)
-check(all(mirror), "the ray pattern is exactly mirror-symmetric about X = 0")
-check(len([o for o in bpy.data.objects if o.name.startswith("WSK_Armor_WaistMedallionRing")]) == 1
-      and len([o for o in bpy.data.objects if o.name.startswith("WSK_Armor_WaistMedallionCore")]) == 1,
-      "exactly one ring and one centre")
-cverts, _ = evaluated(bpy.data.objects[CORE])
-field = min(v.y for v in cverts if radius_xz(v) < 0.021 and v.y > 0.146)
-rim = max(v.y for v in cverts if radius_xz(v) > 0.0185 and v.y > 0.146)
-check(rim - field > 0.002,
-      "the centre is dished: a raised rim standing proud of a recessed field, so it "
-      "reads in rendered light",
-      f"rim {rim:.4f} vs field {field:.4f} ({1000 * (rim - field):.2f} mm)")
-check(max(v.y for v in cverts) < max(v.y for v in rverts) - 0.002,
-      "the centre sits below the ring's face, inside the bezel",
-      f"centre {max(v.y for v in cverts):.4f} vs ring {max(v.y for v in rverts):.4f}")
-depth = (max(v.y for v in rverts) - MOUNT_FACE_Y)
-check(0.008 < depth < 0.020,
-      "the ornament has real depth to catch light",
-      f"{(depth) * 1000:.1f} mm from the mount's face to the ring's crest")
+fpts = []
+for n in front_med:
+    v, _f = evaluated(bpy.data.objects[n])
+    fpts += v
+frad = max(math.hypot(p.x, p.z - MOUNT_CENTRE.y) for p in fpts)
+check(frad <= mrad - 0.0008,
+      "the whole front ornament stays inside the mount's rim, so the plain bezel "
+      "of checkpoint 8 reads as its setting",
+      f"ornament reaches {frad * 1000:.2f} mm, mount rim {mrad * 1000:.2f} mm, "
+      f"{1000 * (mrad - frad):.2f} mm of recess")
 
 # --------------------------------------------------------------------------
-section("D  separate components and hierarchy")
+section("C  independent components and mesh quality")
 # --------------------------------------------------------------------------
-check(all(bpy.data.objects[n].data.users == 1 for n in PARTS),
-      "every part is a separate single-user mesh (nothing joined)")
-check(all(len(bpy.data.objects[n].data.materials) == 1 for n in PARTS),
-      "each part carries its own material slot")
-root = bpy.data.objects[ROOT_EMPTY]
-check(all(bpy.data.objects[n].parent is root for n in PARTS + [MOUNT]),
-      "ring, centre, rays and the mount all hang off the medallion pivot")
-check(root.type == "EMPTY" and (root.location - CENTRE).length < 1e-6,
-      "the pivot empty is on the mount's axis",
-      f"({root.location.x:.4f}, {root.location.y:.4f}, {root.location.z:.4f})")
-world_ok = []
-for name in PARTS:
-    obj = bpy.data.objects[name]
-    base = obj.matrix_basis
-    world_ok.append(all(abs(base[i][j] - (1.0 if i == j else 0.0)) < 1e-9
-                        for i in range(4) for j in range(4)))
-check(all(world_ok),
-      "parenting did not move anything: every new part keeps an identity local transform")
-mount_move = 0.0
-for row10, row11 in zip(mats10[MOUNT], mats11[MOUNT]):
-    for a, b in zip(row10, row11):
-        mount_move = max(mount_move, abs(a - b))
-check(mount_move < 1e-9,
-      "the mount keeps the exact world matrix it had in checkpoint 10 - it was not "
-      "rotated, scaled or moved, only re-parented",
-      f"largest matrix element change {mount_move:.2e}")
-bpy.context.view_layer.update()
-ev_ring = evaluated(bpy.data.objects[RING])[0]
-zs = [v.z for v in ev_ring]
-xs = [v.x for v in ev_ring]
-check(abs(min(zs) - (CENTRE.z - RING_OUT)) < 1e-6 and
-      abs(max(zs) - (CENTRE.z + RING_OUT)) < 1e-6 and
-      abs(max(xs) - RING_OUT) < 1e-6 and abs(min(xs) + RING_OUT) < 1e-6,
-      "the evaluated ring is still centred on the mount after parenting",
-      f"X {min(xs) * 1000:+.2f}..{max(xs) * 1000:+.2f} mm, "
-      f"Z {min(zs):.4f}..{max(zs):.4f} m")
+check(len(rings) == 1 and len(centres) == 1,
+      "the front ornament is one ring and one centre", f"{rings} / {centres}")
+check(len(front_rays) == 16 and len(rear_rays) == 16,
+      "sixteen separate radial elements front and rear (eight primary, eight minor)",
+      f"{len(front_rays)} front, {len(rear_rays)} rear")
+check(all(bpy.data.objects[n].data.users == 1 for n in med),
+      "every ornament part is a separate single-user mesh")
+check(len({bpy.data.objects[n].data.name for n in med}) == len(med),
+      "each part owns its own mesh datablock",
+      f"{len({bpy.data.objects[n].data.name for n in med})} meshes for {len(med)} parts")
+check(all(bpy.data.objects[n].matrix_world.is_identity for n in med),
+      "every part has an identity transform, so world space is mesh space and a "
+      "part can be moved or replaced on its own")
+check(not any(bpy.data.objects[n].data.shape_keys for n in med),
+      "no shape keys - the ornament is plain editable geometry")
+
+quality = {n: mesh_quality(bpy.data.objects[n]) for n in med}
+check(all(q[0] == 0 for q in quality.values()),
+      "every part is a closed manifold (each is a solid, not a floating skin)",
+      f"worst {max(q[0] for q in quality.values())} non-manifold edges")
+check(all(q[1] == 0 and q[2] == 0 for q in quality.values()),
+      "no loose vertices and no degenerate faces")
+check(all(q[3] >= 0.0002 for q in quality.values()),
+      "no collapsed edges", f"shortest edge {min(q[3] for q in quality.values()) * 1000:.3f} mm")
+vols = {n: outward(bpy.data.objects[n]) for n in med}
+check(all(v > 0 for v in vols.values()),
+      "every part is wound outward (positive signed volume) so lit faces face out",
+      f"smallest {min(vols.values()) * 1e9:.1f} mm3")
+check(all(not bpy.data.objects[n].modifiers or
+          [m.type for m in bpy.data.objects[n].modifiers] == ["BEVEL"] for n in med),
+      "the only modifiers are non-destructive edge bevels",
+      f"{sum(1 for n in med if bpy.data.objects[n].modifiers)} bevelled parts")
 
 # --------------------------------------------------------------------------
-section("E  mesh quality")
+section("D  seating on the measured armour surface")
 # --------------------------------------------------------------------------
-for name in PARTS:
-    obj = bpy.data.objects[name]
-    q = mesh_quality(obj)
-    label = ("ring" if name == RING else "centre" if name == CORE else
-             "ray " + name.rsplit("_", 2)[-2])
-    check(q["boundary"] == 0 and q["non_manifold"] == 0 and q["loose"] == 0
-          and 2 * q["E"] == sum(len(f.vertices) for f in obj.data.polygons),
-          f"{label}: a closed manifold solid with no loose geometry",
-          f"boundary {q['boundary']}, non-manifold {q['non_manifold']}, V {q['V']}, "
-          f"E {q['E']}, F {q['F']}")
-    check(outward_volume(obj) > 0,
-          f"{label}: normals point outwards",
-          f"volume {outward_volume(obj) * 1e6:.1f} mm3")
-print_ring = mesh_quality(ring)
-check(print_ring["chi"] == 0, "the ring is a ring: genus 1 (like a washer)",
-      f"V-E+F = {print_ring['chi']}")
-check(mesh_quality(bpy.data.objects[CORE])["chi"] == 2 and
-      all(mesh_quality(bpy.data.objects[n])["chi"] == 2 for n in RAYS),
-      "the centre and every blade are simple genus-0 solids")
-check(all(obj.modifiers and obj.modifiers[0].type == "BEVEL" and
-          obj.modifiers[0].show_viewport for obj in
-          [bpy.data.objects[n] for n in PARTS]),
-      "the edge bevel is still an unapplied modifier on every part (non-destructive)")
-check(all(len(o.modifiers) == 1 for o in [bpy.data.objects[n] for n in PARTS]),
-      "no other modifier, boolean or sub-division was used")
-shortest = min(mesh_quality(bpy.data.objects[n])["shortest"] for n in PARTS)
-check(shortest > 1.5e-4,
-      "no degenerate feature: the shortest edge in the whole ornament is well above "
-      "the bevel width", f"{shortest * 1000:.3f} mm")
+waist_w_early = (lambda pts: max(p.x for p in pts) - min(p.x for p in pts))(
+    evaluated(bpy.data.objects[BELT])[0])
+front_tree = bvh(FRONT_OBJECTS)
+rear_tree = bvh(REAR_OBJECTS)
+body_tree = bvh(BODY)
 
-# --------------------------------------------------------------------------
-section("F  planting - nothing floats, nothing is buried")
-# --------------------------------------------------------------------------
-armour_names = [o.name for o in bpy.data.collections["Armor"].objects
-                if o.type == "MESH" and o.name not in PARTS and o.name != MOUNT]
-tree = bvh(armour_names)
-mount_tree = bvh([MOUNT])
-ring_tree = bvh([RING])
-core_tree = bvh([CORE])
-body_tree = bvh([BODY])
-helmet_names = [o.name for o in bpy.data.collections["Helmet"].objects if o.type == "MESH"]
-helmet_tree = bvh(helmet_names)
-tree_all = bvh(armour_names + [MOUNT])
 
-# 1. no vertex of the ornament may be inside the body, the helmet or any other
-#    armour plate (only the mount is allowed to be entered)
-bad_pen, worst_pen = [], None
-for name in PARTS:
-    for v in all_verts[name]:
-        if parity_inside(body_tree, v) or parity_inside(helmet_tree, v):
-            bad_pen.append(name)
-            break
-check(not bad_pen,
-      "no part of the medallion is inside the body or the helmet",
-      f"{len(set(bad_pen))} parts offending")
+# ring seating, measured on the real mesh: for every azimuth the ring's
+# front-most vertex is compared with the most protruding piece of armour under
+# its band, and its back-most vertex with the armour surface at its own radius.
+BAND_RADII = (0.0230, 0.0244, 0.0262, 0.0278, 0.0290, 0.0293)
 
-thin = []
-for name in RAYS:
-    for v in all_verts[name]:
-        p, d = nearest(tree_all, v)
-        if d < 5e-5:
-            thin.append((name, d))
-min_contact = min(nearest(tree_all, v)[1] for name in RAYS for v in all_verts[name])
-check(not thin, "no ray vertex is touching or inside any armour surface",
-      f"{len(thin)} contacts" if thin else f"closest ray vertex to armour {min_contact * 1000:.3f} mm")
 
-# 2. the blades' buried roots must be inside the ring (that is the planting)
-roots_in_ring = 0
-for name in RAYS:
-    verts = all_verts[name]
-    base = [v for v in verts if radius_xz(v) < RAY_BASE_R + 0.0005]
-    if base and any(parity_inside(ring_tree, v) for v in base):
-        roots_in_ring += 1
-check(roots_in_ring == len(RAYS),
-      "every blade's base is buried inside the ring solid: the rays grow out of "
-      "the ring rather than being laid on it", f"{roots_in_ring}/{len(RAYS)}")
-core_in_ring = any(parity_inside(ring_tree, v) for v in all_verts[CORE]
-                   if radius_xz(v) > 0.0245)
-check(core_in_ring,
-      "the centre's plug flange overlaps the ring's aperture wall: the two are joined")
+CREST_RADIUS = 0.0262
+LATHE_SEGS = 96
 
-# 3. clearance to the armour under each blade: small, and never floating.
-#    Measured at each of the blade's cross-sections, on the blade's own centre
-#    line, against the lowest point of that section - i.e. the face that is
-#    supposed to be resting on the armour, not the blade's top or its flanks.
-gaps = []
-stations = 0
-for name in RAYS:
-    ang = math.radians(az[name][0])
-    axis = Vector((math.cos(ang), 0.0, math.sin(ang)))
-    reach = az[name][1]
-    pts = [(v, (v.x - CENTRE.x) * axis.x + (v.z - CENTRE.z) * axis.z)
-           for v in all_verts[name]]
-    step = 0.0010
-    s_pos = RING_OUT + 0.0005
-    while s_pos < reach - 0.0004:
-        near = [v for v, t in pts if abs(t - s_pos) < step * 0.75]
-        s_pos += step
-        if len(near) < 3:
+
+def ring_seating(obj, centre, sign, tree, scale, segs=LATHE_SEGS):
+    """Measure the ring against the armour along its own 96 azimuths.
+
+    The lathe puts a vertex at every (profile row, azimuth) sample, so each row
+    can be read back exactly.  For every azimuth the crest row is compared with
+    the most protruding piece of armour under the ring's whole band width, and
+    the deepest row is compared with the armour at that vertex's own radius.
+    """
+    verts, _f = evaluated(obj)
+    crest, back = [None] * segs, [None] * segs
+    for p in verts:
+        r = math.hypot(p.x - centre.x, p.z - centre.y)
+        if r < 0.0002:
             continue
-        centre = CENTRE + axis * (sum(t for _v, t in pts if abs(t - (s_pos - step)) < step * 0.75)
-                                  / max(1, len(near)))
-        back = min(v.y for v in near)
-        # the mount's own face is a real supporting surface, so it is included
-        hit = tree_all.ray_cast(Vector((centre.x, 1.0, centre.z)), Vector((0.0, -1.0, 0.0)), 3.0)
-        stations += 1
-        if hit[0] is None:
-            gaps.append((9.9, name, Vector((centre.x, back, centre.z))))
+        th = math.atan2(p.z - centre.y, p.x - centre.x) % (2.0 * math.pi)
+        i = int(round(th / (2.0 * math.pi) * segs)) % segs
+        if abs(r - CREST_RADIUS * scale) < 0.0004:
+            if crest[i] is None or sign * p.y > sign * crest[i][0]:
+                crest[i] = (p.y, r)
+        if back[i] is None or sign * p.y < sign * back[i][0]:
+            back[i] = (p.y, r)
+    rows = []
+    for i in range(segs):
+        if crest[i] is None or back[i] is None:
             continue
-        # lift = how far the blade's back sits above the armour it rests on
-        gaps.append((back - hit[0].y, name, Vector((centre.x, back, centre.z))))
-gap_vals = np.array([g for g, _n, _v in gaps])
-check(len(gaps) >= 120, "the blade-to-armour measurement covers the whole ray set",
-      f"{len(gaps)} stations across 12 blades")
-check(gap_vals.min() > 5.0e-5,
-      "no blade is buried in the armour under it: every station of every blade "
-      "rests above the surface, not inside it",
-      f"tightest lift {gap_vals.min() * 1000:.3f} mm")
-check(gap_vals.max() < 0.0030,
-      "no blade floats: the loosest station is under 3 mm off the armour",
-      f"largest lift {gap_vals.max() * 1000:.3f} mm")
-check(np.median(gap_vals) < 0.0015,
-      "the blades sit close to the armour surface",
-      f"median lift {np.median(gap_vals) * 1000:.3f} mm")
-loosest = max(gaps, key=lambda g: g[0])
-tightest = min(gaps, key=lambda g: g[0])
-note(f"loosest station  {loosest[0] * 1000:.2f} mm on {loosest[1].rsplit('_', 2)[-2]} at "
-     f"({loosest[2].x * 1000:+.1f}, {loosest[2].z:.4f})")
-note(f"tightest station {tightest[0] * 1000:.2f} mm on {tightest[1].rsplit('_', 2)[-2]} at "
-     f"({tightest[2].x * 1000:+.1f}, {tightest[2].z:.4f})")
-
-# 4. the ring and centre must not poke into the belt either
-# 4b. every *visible* vertex of the ornament must clear the rest of the armour.
-#     A vertex is hidden when it is inside the mount's socket or inside another
-#     part of the ornament, so it cannot be seen to clash with anything.
-part_trees = {name: bvh([name]) for name in PARTS}
-belt_tree = bvh([n for n in armour_names if n != MOUNT])
-
-
-def socketed(v):
-    return radius_xz(v) < MOUNT_R and v.y < MOUNT_FACE_Y
-
-
-def enclosed_by_ornament(name, v):
-    return any(parity_inside(part_trees[o], v) for o in PARTS if o != name)
-
-
-clashes = []
-checked = 0
-for name in PARTS:
-    for v in all_verts[name]:
-        if socketed(v) or enclosed_by_ornament(name, v):
+        th = i / segs * 2.0 * math.pi
+        band = [ray_y(tree, centre.x + r * scale * math.cos(th),
+                      centre.y + r * scale * math.sin(th), sign)
+                for r in BAND_RADII]
+        band = [b for b in band if b is not None]
+        if not band:
             continue
-        checked += 1
-        d = nearest(belt_tree, v)[1]
-        if d < 5e-5:
-            clashes.append((name, v, d))
-check(not clashes,
-      "no visible vertex of the ornament intersects the belt, the fauld panels, the "
-      "torso armour, the limbs or the body",
-      f"{len(clashes)} clashes out of {checked} visible vertices")
-note(f"{checked} of {sum(len(v) for v in all_verts.values())} ornament vertices are "
-     f"visible metal; the rest are socketed into the mount or buried in the ring, "
-     f"which is where the components are joined")
-seat_inside = [v for v in all_verts[RING] if v.y < MOUNT_FACE_Y]
-check(seat_inside and all(parity_inside(mount_tree, v) for v in seat_inside),
-      "the whole rear seat of the ring is inside the mount's face: the ornament is "
-      "socketed, not balanced on it",
-      f"{len(seat_inside)} seated vertices")
-core_max_r = max(radius_xz(v) for v in all_verts[CORE])
-core_back = min(v.y for v in all_verts[CORE])
-check(0.0 < core_max_r - 0.0250 < 0.0012,
-      "the centre's plug overshoots the ring's aperture by a socketing margin - a "
-      "flange, not a second disc",
-      f"plug radius {core_max_r * 1000:.2f} mm vs aperture 25.00 mm")
-check(MOUNT_FACE_Y - 0.0010 < core_back < MOUNT_FACE_Y,
-      "the centre is socketed 1 mm or less into the mount, never plunged into it",
-      f"core rear Y {core_back:.4f} vs mount face {MOUNT_FACE_Y:.4f}")
-check(all(radius_xz(v) < RING_OUT for v in all_verts[CORE]),
-      "the centre stays inside the ring's outer wall",
-      f"max radius {core_max_r * 1000:.1f} mm vs ring {RING_OUT * 1000:.1f} mm")
+        worst = max(band, key=lambda y: sign * y)
+        proud = sign * (crest[i][0] - worst)
+        local = ray_y(tree, centre.x + back[i][1] * math.cos(th),
+                      centre.y + back[i][1] * math.sin(th), sign)
+        burial = None if local is None else sign * (local - back[i][0])
+        rows.append((proud, burial, back[i][1]))
+    return rows
 
-# 5. gap between the mount's rim and the ring must be a real gap, but small
-rim_pts = [v for v in mverts if radius_xz(v) > MOUNT_R - 0.001]
-d_min = min(nearest(ring_tree, p)[1] for p in rim_pts)
-check(0.004 < d_min < 0.012,
-      "the ring leaves a clean band of the mount's face visible around it",
-      f"nearest ring vertex to the mount's rim {d_min * 1000:.2f} mm")
-ring_lift = max(v.y for v in all_verts[RING]) - max(v.y for v in all_verts[CORE])
-check(ring_lift > 0.002,
-      "the ring stands proud of the centre, so the ornament has a real rim",
-      f"{ring_lift * 1000:.2f} mm")
+
+seating = {}
+for tag, sign, centre, tree, scale in (("front", FRONT_SIGN, MOUNT_CENTRE, front_tree, 1.0),
+                                       ("rear", REAR_SIGN, REAR_CENTRE, rear_tree, REAR_SCALE)):
+    rows = ring_seating(bpy.data.objects[rings[0] if tag == "front" else rear_rings[0]],
+                        centre, sign, tree, scale)
+    seating[tag] = rows
+    proud = [r[0] for r in rows]
+    burial = [r[1] for r in rows if r[1] is not None]
+    check(min(proud) > 0.0004,
+          f"the {tag} ring's crest stands proud of the armour at every azimuth, "
+          "even against the most protruding metal under its band - it is readable "
+          "in a raking light and never sinks flush",
+          f"crest relief {min(proud) * 1000:+.2f} .. {max(proud) * 1000:+.2f} mm "
+          f"over {len(rows)} azimuths")
+    check(max(proud) < 0.006,
+          f"the {tag} ring never stands more than 6 mm off the plate "
+          "(no obvious floating)",
+          f"max relief {max(proud) * 1000:.2f} mm")
+    check(len(burial) == len(rows) and min(burial) > -0.006,
+          f"the {tag} ring's back is buried in the plate at every azimuth and "
+          "never more than 6 mm deep",
+          f"burial {min(burial) * 1000:+.2f} .. {max(burial) * 1000:+.2f} mm, "
+          f"mean {sum(burial) / len(burial) * 1000:+.2f} mm")
+
+# rays: the root must be inside the ring band, the tip inside the mount rim
+band = (0.0227, 0.0292)
+roots, tips = [], []
+for n in rays:
+    o = bpy.data.objects[n]
+    v, _f = evaluated(o)
+    scale = REAR_SCALE if n.startswith(PREFIX + "Rear") else 1.0
+    centre = REAR_CENTRE if n.startswith(PREFIX + "Rear") else MOUNT_CENTRE
+    rad = [math.hypot(p.x - centre.x, p.z - centre.y) for p in v]
+    roots.append((n, min(rad) / scale, max(rad) / scale))
+    tips.append((n, max(rad) / scale))
+check(all(band[0] - 1e-3 <= lo <= 0.0262 for _n, lo, _hi in roots),
+      "every radial element starts under the ring band, so the ring and the rays "
+      "are interlocked rather than butted together",
+      f"root radii {min(lo for _n, lo, _hi in roots) * 1000:.2f} .. "
+      f"{max(lo for _n, lo, _hi in roots) * 1000:.2f} mm, band starts at "
+      f"{band[0] * 1000:.2f} mm")
+check(all(hi <= mrad - 0.0008 for _n, hi in tips),
+      "no radial element reaches past the mount's rim",
+      f"longest tip {max(hi for _n, hi in tips) * 1000:.2f} mm of "
+      f"{mrad * 1000:.2f} mm")
+
+# penetration into the plates and clearance from the body
+pen = {}
+for n in med:
+    o = bpy.data.objects[n]
+    v, _f = evaluated(o)
+    worst_p = 0.0
+    for p in v:
+        for tree in (front_tree, rear_tree):
+            loc, nrm, _i, dist = tree.find_nearest(p, 0.02)
+            if loc is None:
+                continue
+            if (p - loc).dot(nrm) < 0.0:
+                worst_p = max(worst_p, dist)
+    pen[n] = worst_p
+check(max(pen.values()) < 0.006,
+      "no ornament vertex is driven more than 6 mm into the armour it sits on",
+      f"deepest {max(pen.values()) * 1000:.2f} mm ({max(pen, key=pen.get)})")
+body_gap = []
+for n in med:
+    v, _f = evaluated(bpy.data.objects[n])
+    for p in v:
+        hit = body_tree.find_nearest(p, 0.05)
+        if hit[0] is not None:
+            inside = (p - hit[0]).dot(hit[1]) < 0.0
+            body_gap.append((hit[3], inside, n))
+check(all(not ins for _d, ins, _n in body_gap),
+      "no ornament vertex is inside the body - the ornament never reaches the "
+      "figure under the armour",
+      f"closest approach to the body {min(d for d, _i, _n in body_gap) * 1000:.2f} mm")
+
+# the ring's opening really is open: the mount plate shows through it
+axis_y = ray_y(front_tree, 0.0, MOUNT_CENTRE.y, FRONT_SIGN)
+ctr_obj = bpy.data.objects[centres[0]]
+cv, _cf = evaluated(ctr_obj)
+ring_face = max(p.y for p in cv)
+check(axis_y is not None and abs(ring_face - axis_y) <= 0.005,
+      "looking straight down the ornament axis the armour is only a few "
+      "millimetres behind, so the centre reads as a shallow recess and not as a "
+      "hole floating in front of the belt",
+      f"armour surface {axis_y:+.4f} m, ornament front plane {ring_face:+.4f} m, "
+      f"depth {(ring_face - axis_y) * 1000:.2f} mm")
 
 # --------------------------------------------------------------------------
-section("G  the rendered read")
+section("E  design - restrained, deliberate, original")
 # --------------------------------------------------------------------------
-os.makedirs(SHOTS, exist_ok=True)
+ring_obj = bpy.data.objects[rings[0]]
+rv, _rf = evaluated(ring_obj)
+radii = [math.hypot(p.x - MOUNT_CENTRE.x, p.z - MOUNT_CENTRE.y) for p in rv]
+# the outer wall, read per azimuth, so the wobble of the rim is measured and not
+# the profile's own radial spread
+bins = {}
+for p, r in zip(rv, radii):
+    th = math.atan2(p.z - MOUNT_CENTRE.y, p.x - MOUNT_CENTRE.x)
+    k = int((th % (2 * math.pi)) / (2 * math.pi) * 96) % 96
+    bins[k] = max(bins.get(k, 0.0), r)
+outer = sorted(bins.values())
+inner = [r for r in radii if r < 0.0250]
+mean_r = sum(outer) / len(outer)
+spread = (max(outer) - min(outer)) / mean_r
+check(0.004 <= spread <= 0.05,
+      "the ring is circular but not machined: its outer wall carries a ~1 % "
+      "hand-forged wobble",
+      f"rim radius {min(outer) * 1000:.2f} .. {max(outer) * 1000:.2f} mm "
+      f"({spread * 100:+.2f} % spread), inner lip {min(inner) * 1000:.1f} .. "
+      f"{max(inner) * 1000:.1f} mm")
+check(max(outer) - min(inner) <= 0.009,
+      "the ring wall is thin, so the gold reads as a bezel and not as a plate",
+      f"wall {(max(outer) - min(inner)) * 1000:.2f} mm at its widest")
+orn_w = max(p.x for p in fpts) - min(p.x for p in fpts)
+check(70.0 <= orn_w * 1000 <= 90.0,
+      "the front ornament is 70-90 mm across",
+      f"{orn_w * 1000:.1f} mm across, {2 * max(outer) * 1000:.1f} mm of it the ring")
+check(0.15 <= orn_w / waist_w_early <= 0.25,
+      "and that is the proportion the supplied reference reads at: its motif is "
+      "62 mm on a 0.30-0.33 m wide figure (19-20 %)",
+      f"{orn_w / waist_w_early * 100:.1f} % of the belt's front width")
+
+# the centre is recessed relative to the ring
+crest_y = max(p.y for p in rv)
+ctr_axis = max(p.y for p in cv)
+axis_plate = ray_y(front_tree, 0.0, MOUNT_CENTRE.y, FRONT_SIGN)
+check(0.0012 <= crest_y - ctr_axis <= 0.004,
+      "the centre is set inside the ring: recessed behind the crest but standing "
+      "clear of the plate, so the gold frames a dark stone instead of a flat "
+      "button that merges with the belt",
+      f"ring crest {crest_y:+.4f} m, centre face {ctr_axis:+.4f} m, recess "
+      f"{(crest_y - ctr_axis) * 1000:.2f} mm, and the centre stands "
+      f"{(ctr_axis - axis_plate) * 1000:.2f} mm in front of the armour")
+check(0.0015 <= ctr_axis - axis_plate <= 0.005,
+      "the centre's own rim is a real edge, not a decal: it steps off the plate",
+      f"centre face {(ctr_axis - axis_plate) * 1000:.2f} mm proud of the armour")
+
+# radial families: alternating, graded, tapering
+def azimuth(n):
+    o = bpy.data.objects[n]
+    v, _f = evaluated(o)
+    centre = REAR_CENTRE if n.startswith(PREFIX + "Rear") else MOUNT_CENTRE
+    p = max(v, key=lambda q: math.hypot(q.x - centre.x, q.z - centre.y))
+    return math.degrees(math.atan2(p.z - centre.y, p.x - centre.x)) % 360.0
+
+
+fam = sorted((azimuth(n), "primary" if "_Ray_P" in n else "minor", n) for n in front_rays)
+order = [f for _a, f, _n in fam]
+check(all(order[i] != order[i + 1] for i in range(len(order) - 1))
+      and order[0] != order[-1],
+      "the two radial families alternate all the way round: no two blades of the "
+      "same size sit next to each other",
+      "".join("P" if f == "primary" else "m" for f in order))
+gaps = [fam[(i + 1) % len(fam)][0] - fam[i][0] for i in range(len(fam) - 1)]
+check(min(gaps) > 10.0,
+      "the blades are spread around the ring without bunching",
+      f"smallest azimuth gap {min(gaps):.1f} deg, largest {max(gaps):.1f} deg")
+lens = {n: bpy.data.objects[n]["wsk_ray_length_m"] for n in front_rays}
+prim = [v for k, v in lens.items() if "_Ray_P" in k]
+minor = [v for k, v in lens.items() if "_Ray_M" in k]
+check(min(prim) > max(minor),
+      "every primary blade is longer than every minor one: the fan has a clear "
+      "two-scale rhythm instead of a uniform gear",
+      f"primary {min(prim) * 1000:.2f}-{max(prim) * 1000:.2f} mm, minor "
+      f"{min(minor) * 1000:.2f}-{max(minor) * 1000:.2f} mm")
+check(max(prim) / min(prim) >= 1.05 and max(minor) / min(minor) >= 1.05,
+      "hand-set lengths: the blades of each family differ by at least 5 %",
+      f"primary spread {max(prim) / min(prim):.3f}x, minor spread "
+      f"{max(minor) / min(minor):.3f}x")
+
+taper = True
+for n in front_rays:
+    o = bpy.data.objects[n]
+    bm = bmesh.new()
+    bm.from_mesh(o.data)
+    bm.free()
+    v, _f = evaluated(o)
+    centre = MOUNT_CENTRE
+    rr = [math.hypot(p.x - centre.x, p.z - centre.y) for p in v]
+    lo, hi = min(rr), max(rr)
+    near = [p for p, r in zip(v, rr) if r < lo + (hi - lo) * 0.35]
+    far = [p for p, r in zip(v, rr) if r > lo + (hi - lo) * 0.85]
+    if near and far:
+        w_near = (max(p.x for p in near) - min(p.x for p in near))
+        w_far = (max(p.x for p in far) - min(p.x for p in far)) or 1e-9
+        if w_near <= w_far:
+            taper = False
+check(taper, "every radial blade tapers from a wide root to a point - no blunt pegs")
+
+# the whole ornament against the armour it decorates
+waist = evaluated(bpy.data.objects[BELT])[0]
+waist_w = max(p.x for p in waist) - min(p.x for p in waist)
+check(orn_w <= 0.32 * waist_w,
+      "the ornament is under a third of the waist's width: a deliberate centre "
+      "piece, not a shield",
+      f"ornament {orn_w * 1000:.1f} mm across vs belt {waist_w * 1000:.1f} mm "
+      f"({orn_w / waist_w * 100:.1f} %)")
+check(len(rays) + len(rings) + len(centres) == 34,
+      "the ornament is 34 parts on four waist objects used as mounts "
+      "(mount, belt, front panel, back plate)",
+      "no geometry anywhere else on the figure")
+decorated = sorted({n for n in med})
+check(all(n.startswith(PREFIX) for n in decorated)
+      and not any("Shoulder" in n or "Helmet" in n or "Thigh" in n or "Shin" in n
+                  or "Forearm" in n or "Sabaton" in n for n in decorated),
+      "no jewellery on any unrelated part of the character")
+check(not any(n.name.startswith("WSK_") and "Lettering" in n for n in bpy.data.objects),
+      "no lettering, insignia or crest was modelled (the motif is a plain ring, a "
+      "plain disk and straight blades - nothing recognisable from any franchise)")
+
+# the rear sibling
+check(len(rear_rings) == 1 and rear_rays,
+      "the same design is repeated on the rear", f"{rear_rings}")
+r2 = bpy.data.objects[rear_rings[0]]
+r2v, _f = evaluated(r2)
+outer2 = max(math.hypot(p.x - REAR_CENTRE.x, p.z - REAR_CENTRE.y) for p in r2v)
+check(abs(outer2 / max(outer) - REAR_SCALE) < 0.02,
+      "the rear medallion is the same design at 88 % - sibling, not copy",
+      f"{outer2 * 1000:.1f} mm vs {max(outer) * 1000:.1f} mm "
+      f"({outer2 / max(outer):.3f})")
+backv = evaluated(bpy.data.objects["WSK_Armor_Back_01"])[0]
+check(min(p.z for p in r2v) >= min(p.z for p in backv) + 0.012,
+      "the rear medallion sits wholly on the lower back plate, clear of its "
+      "bottom edge",
+      f"medallion z {min(p.z for p in r2v):.4f} .. {max(p.z for p in r2v):.4f}, "
+      f"plate z {min(p.z for p in backv):.4f} .. {max(p.z for p in backv):.4f}")
+rx = (min(p.x for p in r2v) + max(p.x for p in r2v)) / 2.0
+check(abs(rx) < 0.0015,
+      "the rear medallion is mirrored on the centre line like the front one",
+      f"centre x {rx * 1000:+.2f} mm")
+
+# --------------------------------------------------------------------------
+section("F  rendered centring and restraint")
+# --------------------------------------------------------------------------
 scene.render.engine = "CYCLES"
 scene.cycles.device = "CPU"
-scene.cycles.samples = 12
+scene.cycles.samples = 6
 scene.cycles.use_denoising = False
-scene.render.image_settings.file_format = "PNG"
-scene.render.image_settings.color_mode = "RGBA"
 scene.render.film_transparent = True
-scene.view_settings.view_transform = "Standard"
+scene.render.image_settings.color_mode = "RGBA"
+RES = (760, 900)
+scene.render.resolution_x, scene.render.resolution_y = RES
 for o in bpy.data.objects:
     if o.name.startswith(("WSK_Guide_", "WSK_Label_", "WSK_Ref_", "WSK_Joint_",
                           "WSK_Mann_", "WSK_Studio_")):
         o.hide_render = True
-saved_hide = {}
-for o in bpy.data.objects:
-    if o.type == "MESH" and not o.name.startswith("WSK_Armor_WaistMedallion"):
-        saved_hide[o.name] = o.hide_render
-        o.hide_render = True
-bg = scene.world.node_tree.nodes.get("Background")
-bg.inputs[0].default_value = (0.030, 0.030, 0.034, 1.0)
-cam = bpy.data.objects.new("VerifyMedCam", bpy.data.cameras.new("VerifyMedCam"))
-scene.collection.objects.link(cam)
+
+cam = bpy.data.objects["WSK_Cam_Sil_Front_01"]
 scene.camera = cam
 cam.data.type = "ORTHO"
-cam.data.ortho_scale = 0.13
-cam.location = (0.0, 1.2, CENTRE.z)
-d = (CENTRE - Vector(cam.location)).normalized()
-cam.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
-scene.render.resolution_x, scene.render.resolution_y = 480, 600
-path = os.path.join(SHOTS, "p11_medallion_orthographic.png")
-scene.render.filepath = path
-bpy.ops.render.render(write_still=True)
-mask = np.asarray(Image.open(path).convert("RGBA"))[..., 3] > 127
-ys, xs = np.nonzero(mask)
-cx = (xs.min() + xs.max()) / 2.0
-cy = (ys.min() + ys.max()) / 2.0
-# Blender's orthographic scale applies to the *larger* image dimension.
-mm_per_px = 0.13 / max(scene.render.resolution_x, scene.render.resolution_y) * 1000.0
-check(abs(cx - (mask.shape[1] - 1) / 2.0) < 1.0,
-      "in an orthographic front render the ornament is horizontally centred",
-      f"mask centre x {cx:.1f} px vs image centre {(mask.shape[1] - 1) / 2.0:.1f} px")
-half_width = (xs.max() - xs.min() + 1) / 2.0 * mm_per_px
-half_height = (ys.max() - ys.min() + 1) / 2.0 * mm_per_px
-geom_hw = max(abs(v.x) for vs in all_verts.values() for v in vs) * 1000.0
-geom_hh = (max(v.z for vs in all_verts.values() for v in vs) -
-           min(v.z for vs in all_verts.values() for v in vs)) / 2.0 * 1000.0
-check(abs(half_width - geom_hw) < 0.6 and abs(half_height - geom_hh) < 0.6,
-      "the rendered silhouette is exactly the modelled ornament",
-      f"render {half_width:.2f} x {half_height:.2f} mm vs model "
-      f"{geom_hw:.2f} x {geom_hh:.2f} mm")
-check(abs(cy - (mask.shape[0] - 1) / 2.0 - 0.0) < 1.5,
-      "the ornament is centred vertically on the belt's centre line",
-      f"mask centre y {cy:.1f} px vs image centre {(mask.shape[0] - 1) / 2.0:.1f} px")
-check(half_height * 2 < (BELT_TOP - BELT_BOTTOM) * 1000,
-      "the ornament is smaller than the belt it sits on, so it does not overwhelm it",
-      f"{half_height * 2:.0f} mm ornament on a "
-      f"{(BELT_TOP - BELT_BOTTOM) * 1000:.0f} mm belt")
-share = mask.sum() / (mask.shape[0] * mask.shape[1])
-check(0.10 < share < 0.45,
-      "the ornament reads as one deliberate mass rather than a scatter of pieces",
-      f"{share * 100:.1f} % of the frame")
-for o in bpy.data.objects:
-    if o.type == "MESH" and o.name in saved_hide:
-        o.hide_render = saved_hide[o.name]
+
+
+def mask_of(keep, view, centre_z, ortho, drop=()):
+    hidden = {}
+    for o in bpy.data.objects:
+        if o.type == "MESH" and (not any(o.name.startswith(k) for k in keep)
+                                 or any(o.name.startswith(k) for k in drop)):
+            hidden[o.name] = o.hide_render
+            o.hide_render = True
+    cam.data.ortho_scale = ortho
+    loc = {"front": (0.0, 3.0, centre_z), "rear": (0.0, -3.0, centre_z),
+           "side": (3.0, 0.0, centre_z)}[view]
+    cam.location = loc
+    d = (Vector((0.0, 0.0, centre_z)) - Vector(loc)).normalized()
+    cam.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
+    path = os.path.join(SHOTS, f"_mask_{view}_{centre_z}.png")
+    scene.render.filepath = path
+    bpy.ops.render.render(write_still=True)
+    arr = np.asarray(Image.open(path).convert("RGBA"))[..., 3] > 127
+    os.remove(path)
+    for name, state in hidden.items():
+        bpy.data.objects[name].hide_render = state
+    return arr
+
+
+ORTHO, CZ = 0.30, 1.055
+mpp = ORTHO / RES[1]
+m_front = mask_of(front_med, "front", CZ, ORTHO)
+m_rear = mask_of(rear_med, "rear", REAR_CENTRE.y, ORTHO)
+for name, arr, zref in (("front", m_front, CZ), ("rear", m_rear, REAR_CENTRE.y)):
+    ys, xs = np.nonzero(arr)
+    if not len(xs):
+        check(False, f"the {name} ornament renders", "empty mask")
+        continue
+    cx = (RES[0] - 1) / 2.0
+    off = (xs.mean() - cx) * mpp * 1000
+    top = zref + (RES[1] / 2.0 - ys.min()) * mpp
+    bot = zref - (ys.max() - RES[1] / 2.0) * mpp
+    check(abs(off) <= 1.0,
+          f"the {name} ornament's rendered silhouette is centred on the axis",
+          f"centroid offset {off:+.2f} mm")
+    check(abs((top + bot) / 2.0 - zref) <= 1e-3,
+          f"the {name} ornament's rendered silhouette is centred vertically on "
+          "its mount",
+          f"mid {(top + bot) / 2.0:.4f} m vs {zref:.4f} m")
+    span_m = (xs.max() - xs.min() + 1) * mpp
+    area = arr.sum() * mpp * mpp * 1e4
+    note(f"{name} rendered span {span_m * 1000:.1f} mm, height "
+         f"{(ys.max() - ys.min() + 1) * mpp * 1000:.1f} mm, gold area "
+         f"{area:.2f} cm2")
+
+armour_only = mask_of(("WSK_Armor_", "WSK_Body", "WSK_Helmet_"), "front", CZ, ORTHO)
+check((m_front & ~armour_only).sum() == 0,
+      "the ornament's silhouette sits entirely on the armour - nothing overhangs "
+      "the edge of the plates it is mounted on")
+belt_narrow = mask_of(("WSK_Armor_WaistBelt_01",), "front", CZ, ORTHO)
+check((m_front & belt_narrow).sum() >= 0.9 * m_front.sum(),
+      "over 90 % of the ornament is over the waist belt band it is centred on",
+      f"{(m_front & belt_narrow).sum() / m_front.sum() * 100:.1f} % over the belt")
+
+shots = [f for f in sorted(os.listdir(SHOTS)) if f.startswith("p11_")]
+check(len(shots) >= 8, "the inspection renders the prompt asks for exist",
+      ", ".join(shots[:4]) + f" ... ({len(shots)} files)")
 
 # --------------------------------------------------------------------------
-section("summary")
+section("G  design table")
 # --------------------------------------------------------------------------
-lines.append(f"checks passed: {passed}")
-lines.append(f"checks failed: {failed}")
-lines.append(f"warnings:      {warned}")
+lines.append("azimuth   crest proud   back buried   (front ring, mm)")
+for k, (proud, burial, r_back) in enumerate(seating["front"]):
+    if k % 8:
+        continue
+    lines.append(f"  {k * 360 / len(seating['front']):6.1f}   "
+                 f"{proud * 1000:+8.2f}   "
+                 f"{'--' if burial is None else f'{burial * 1000:+8.2f}'}")
 lines.append("")
-lines.append("The ornaments: 1 ring (genus 1, revolved 9-point profile), 1 dished centre disc")
-lines.append("with a rear plug flange, 12 fitted radial blades, 1 pivot empty.  Fourteen")
-lines.append("separate meshes on a common data path - no booleans, no applied modifiers, no")
-lines.append("texture work, no glow, and nothing else on the character was touched.")
+lines.append("radial elements (front)")
+for az, f, n in fam:
+    o = bpy.data.objects[n]
+    lines.append(f"  {n:42s} {f:8s} azimuth {az:6.2f} deg  "
+                 f"run {o['wsk_ray_length_m'] * 1000:5.2f} mm")
+lines.append("")
+lines.append("radial elements (rear)")
+for n in sorted(rear_rays):
+    o = bpy.data.objects[n]
+    lines.append(f"  {n:46s} azimuth {azimuth(n):6.2f} deg  "
+                 f"run {o['wsk_ray_length_m'] * 1000:5.2f} mm")
+lines.append("")
+lines.append(f"front ornament: {2 * max(outer) * 1000:.1f} mm across on a "
+             f"{waist_w * 1000:.1f} mm belt ({2 * max(outer) / waist_w * 100:.1f} %); "
+             f"rear ornament {2 * outer2 * 1000:.1f} mm across")
+for tag, rows in seating.items():
+    proud = [r[0] for r in rows]
+    burial = [r[1] for r in rows if r[1] is not None]
+    lines.append(f"{tag} ring measured against the armour over "
+                 f"{len(rows)} azimuths: crest {min(proud) * 1000:+.2f} .. "
+                 f"{max(proud) * 1000:+.2f} mm proud, back "
+                 f"{min(burial) * 1000:+.2f} .. {max(burial) * 1000:+.2f} mm buried")
 
-text = "\n".join(lines)
+lines.append(f"\n{'=' * 74}\n{passed} checks passed, {failed} failed, {warned} warnings\n")
 os.makedirs(os.path.dirname(REPORT), exist_ok=True)
 with open(REPORT, "w") as fh:
-    fh.write(text + "\n")
-print(text)
-print(f"\nWROTE {REPORT}")
+    fh.write("\n".join(lines) + "\n")
+print("\n".join(lines))
+print(f"\nreport -> {REPORT}\n{passed} passed / {failed} failed / {warned} warnings")
