@@ -18,6 +18,7 @@ disturbed.
 | 7 | `Wildshift_Knight_07_Shoulders.blend` | layered gothic shoulders: four closed plates and six separate graded spikes per side, manual shoulder pivots and articulation checks |
 | 8 | `Wildshift_Knight_08_TorsoArmor.blend` | refined chest/back cuirass, separate side plates, waist belt, hanging waist panels and blank medallion mount |
 | 9 | `Wildshift_Knight_09_LimbArmor.blend` | 54 separate refined limb-armour meshes: layered upper arms, forearms, gauntlets, thighs, greaves and sabatons; visibly segmented joints, stable soles, manual pose pivots and attachment metadata; no rig |
+| 10 | `Wildshift_Knight_10_Crown.blend` | thorn crown: the nine flat radial spikes replaced by 21 planted thorns in two graded rows around the existing halo ring, and the twelve shoulder spikes re-cut in the same profile at 65 % length; every base ray-planted on the evaluated helmet and length-fitted against all other parts |
 
 ## Prompt 2 — proportions
 
@@ -658,6 +659,141 @@ no rigging, weights, animation, chains or filigree.
 * `WSK_Limb_Armor_Notes.txt` inside the `.blend` — construction and attachment
   notes.
 
+## Prompt 10 — the thorn crown and the armour spikes
+
+Deliverable: **`Wildshift_Knight_10_Crown.blend`**, built from checkpoint 9.
+Nothing outside the crown and the twelve shoulder spikes changed: the helmet
+shell, crest, face plate, gorget, band, halo, spine, mount, the body, every
+other armour plate and the whole scene setup are byte-identical.
+
+![front, left, right, rear](analysis/crown/p10_crown_four_views.png)
+
+### What was wrong with the checkpoint-4 crown
+
+Checkpoint 4's crown was nine flat radial spikes on the halo ring, all at 0,
+±30, ±60, ±90 and ±120 degrees, all 8-sided, all with the same rhombic
+cross-section and no base: they read as a gear or a sunburst, not as a
+deliberate thorn crown. The crown *ring* is right and stays; the spikes on it
+are gone, replaced by 21 thorns planted in the helmet itself.
+
+### The crown: 21 planted thorns in two rows
+
+| object | count | what it is |
+|---|---|---|
+| `WSK_Helmet_CrownThorn_{C,R1..R5,L1..L5}_01` | 11 | the circlet fan: one dominant centre blade plus five graded pairs, planted immediately above the top edge of the brow band |
+| `WSK_Helmet_CrownBarb_{R1..R5,L1..L5}_01` | 10 | the under-row: shorter barbs planted below the band; the front pairs hang past the cheek line, the rear pairs sweep back under the halo |
+
+| | centre blade | pair 1 | pair 2 | pair 3 | pair 4 | pair 5 | barbs |
+|---|---|---|---|---|---|---|---|
+| length (m) | 0.195 | 0.165 | 0.142 | 0.125 | 0.115 | 0.101 | 0.098-0.113 |
+| tilt from vertical (deg) | 4 | 30 | 44 | 52 | 62 | 70 | 115-124 |
+| lean azimuth (deg from front) | 180 (blind) | ±105 | ±112 | ±125 | ±145 | ±157 | ±72 to ±162 |
+
+The centre blade is the peak (1.18x the next tallest element) and continues the
+crest line over the dome; reach then falls off steadily outwards while each
+pair leans further back, so the side view is a swept comb rather than a disc.
+Uneven spacing (24, 32, 36, 28, 29 degrees), twelve distinct tilts, six
+distinct base radii and five hand-written asymmetries keep it from reading as a
+mechanical repeat: the left second and fourth thorns are 4-5 % longer, the left
+third barb 4 % shorter and 2 degrees round, the right fifth thorn 4 % shorter
+and its lean 3 degrees forward.
+
+### Why nothing floats
+
+1. **Every base is a ray cast.** `plant()` fires a horizontal ray from 0.45 m
+   out at the thorn's azimuth and height and takes the first hit on the
+   *evaluated* helmet - shell, crest or band - so the base coordinate is a real
+   point on a surface that is actually rendered. 20 thorns land on the shell,
+   the centre blade on the crest's leading edge.
+2. **The root depth is solved, not guessed.** A thorn leaving the surface at 60
+   degrees needs a deeper root than one leaving it square on, or its base disc
+   hangs in the air. The depth comes from the angle between the thorn and the
+   surface normal, then is capped by the room actually available behind the
+   surface so no root can reach the head (closest approach 5.3 mm).
+3. **The base flares.** The profile widens to 1.25x the shaft radius at the
+   surface and narrows again over the next few millimetres, so each thorn shows
+   a forged foot rather than a cylinder pushed into the shell.
+4. **The length is fitted.** Before a thorn is built, its axis is walked outward
+   in 1.5 mm steps and stopped 2 mm before the band, the crest, the face plate,
+   the gorget, the halo, the spine, the mount, the shoulder armour, the chest,
+   the back or the body. The plant height of row A is then raised by the base
+   flare's own reach, so the flare of the widest, most-tilted thorns still
+   clears the circlet (worst case 1.6 mm of air).
+
+### Reading against the reference
+
+`tools/crown_reference_probe.py` and `tools/crown_silhouette_read.py` put a
+metric grid on the supplied front, back and side views using Prompt 4's
+calibration (chin 1.736 m, 1.8323 mm/px, centre x = 429 px). Read with that
+grid the reference crown is a dark circlet band at Z 1.92-1.95 with thorns
+reaching ±0.19 m sideways and up to 2.18-2.23 m - much larger and much denser
+than the Prompt 6 schedule, which is why Prompt 6 recorded a "head is narrow"
+deviation and asked for the hood, not a crown rescale, to fix it.
+
+Checkpoint 10 keeps the approved silhouette budget and spends it differently:
+
+| feature | checkpoint 6/9 | checkpoint 10 | reference read |
+|---|---|---|---|
+| crown spike tips (top) | 2.115 m | 2.134 m | 2.18-2.23 |
+| crown fan span | 0.361 m | 0.352 m | 0.42 (±0.19) |
+| lowest crown element | 1.833 m | 1.819 m | 1.80-1.82 |
+| thorn count | 9 flat rays | 21 planted thorns | ~30 (two dense rows) |
+
+The reach still lands inside the reference's band, and §E of the report checks
+the rest of that budget numerically: front/rear silhouette area within 20 % of
+each other, left/right centroid within 0.22 mm, no thorn below the gorget.
+
+### The shoulder spikes
+
+The six spikes of each pauldron keep the seats, directions and left/right
+differences Prompt 7 approved, and are re-cut in the crown's thorn profile at
+65 % of their prompt-6 length with a 13.5 % base radius: the longest is now
+0.123 m against the crown's 0.195 m blade, so the two scales cannot be
+confused, and every spike keeps at least 12.7 mm of air to anything else. The
+upper arm, forearm, thigh, shin and sabaton plates deliberately stay plain - the
+thorn language belongs to the crown and the shoulder crown line only.
+
+### Verification
+
+`tools/verify_crown.py` runs **53 checks, all passing**, on evaluated meshes:
+
+* **scope** - the nine old spikes removed, the 21 thorns added and the 12
+  shoulder spikes re-cut are the *only* changes: every other mesh hash matches
+  checkpoint 9, no collection, world or camera was added, no material gained an
+  emission node and there are no particle systems.
+* **design** - one peak 1.18x the next element, a monotone reach fall-off, row B
+  clearly smaller than row A, the shoulder fan a smaller scale than the crown's
+  own pairs, twelve distinct tilts, uneven azimuths, five real asymmetries all
+  under 8 %.
+* **planting** - every base within 0.01 mm of a mounting surface, every root
+  crossing the metal it grows from, no root within 5 mm of the head, no thorn
+  vertex penetrating anything, all 21 closed manifolds with outward normals,
+  67 vertices each and no subdivision.
+* **shoulders** - six per pauldron, identity matrices, each base on its plate,
+  12.7 mm minimum foreign clearance, closed manifolds, Prompt 7's asymmetries
+  intact.
+* **silhouette** - rendered masks: front and rear balance, span, top and lowest
+  point, and the geometric test that the tips sweep back (mean tip Y -42 mm,
+  rearmost -181 mm).
+
+Outputs:
+
+* `analysis/crown/p10_crown_four_views.png` — front, both sides and rear.
+* `analysis/crown/p10_crown_threequarter.png` — both three-quarter views.
+* `analysis/crown/p10_crown_only_sheet.png` — the crown alone (helmet and body
+  hidden) and the shoulder fan alone.
+* `analysis/crown/p10_crown_in_context.png` — whole figure, front/rear/left.
+* `analysis/crown/before_*` — the same harness run on checkpoint 9, for
+  comparison (the four-view sheet, the crown-only sheet and the shoulder fan).
+* `analysis/crown/crown_vs_reference.png` — the crown and the supplied
+  reference at the same metric scale, front, rear and side.
+* `analysis/crown/ref_{front,back,side}_grid.png` — the metric grid over the
+  reference views used to read the target.
+* `analysis/verify/verify_crown_report.txt` — the full report, with the design
+  table (base, tilt, lean, length, base radius, root depth per thorn).
+* `WSK_Crown_Thorn_Notes.txt` inside the `.blend` — the same notes plus the
+  build log.
+
 ## Reproducing
 
 ```bash
@@ -681,7 +817,16 @@ tools/bl.sh tools/build_torso_armor.py        # writes checkpoint 8
 tools/bl.sh tools/build_limb_armor.py         # writes checkpoint 9
 tools/bl.sh tools/verify_limb_armor.py        # 71 structural, fit and pose checks
 tools/bl.sh tools/render_limb_armor.py        # neutral, four-way and pose sheets
+tools/bl.sh tools/build_crown_thorns.py       # writes checkpoint 10
+tools/bl.sh tools/verify_crown.py             # 53 crop, planting and clearance checks
+tools/bl.sh tools/render_crown.py             # crown, crown-only and in-context sheets
+tools/crown_reference_probe.py                # metric grid over the reference views
+tools/crown_silhouette_read.py                # reference crown silhouette in metres
+tools/crown_vs_reference.py                   # reference vs render, matched scale
+tools/inspect_crown.py                        # crown inspector
+tools/probe_crown_mounts.py                   # helmet surface probe
 #   WSK_SKIP_RENDERS=1 for numeric checks only; WSK_SAMPLES=<n> sets render quality
+#   WSK_SRC=<blend> WSK_TAG=<prefix> re-run the crown render harness on any checkpoint
 ```
 
 This sandbox has no Blender install and no X11/OpenGL/EGL runtime, so Blender is
