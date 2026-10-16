@@ -1,0 +1,79 @@
+
+== scope - checkpoint 11 is untouched ==
+[PASS] exactly the eleven ornaments were added  -> 11 new: BeltTrimTop_L_01, BeltTrimTop_R_01, BrowTrim_L_01, BrowTrim_R_01, ChestChevron_L_01, ChestChevron_R_01, ChestKeelTrim_01, KneeRidge_L_01, KneeRidge_R_01, ShinRidge_L_01, ShinRidge_R_01
+[PASS] nothing was deleted  -> 224 checkpoint-11 objects all still present
+[PASS] all 224 checkpoint-11 objects byte-identical (mesh, modifiers, matrix, parent)  -> no host plate, medallion part, limb, body or guide moved
+[PASS] no material added or removed  -> 13 materials, identical set
+[PASS] no collection added or removed  -> 14 collections, identical set
+[PASS] no camera or light added or removed  -> 17 entries
+[PASS] MAT_Armor_AntiqueGold_01 carries no emission
+      MAT_Armor_AntiqueGold_01: metallic 1.0, roughness 0.42, base (0.262, 0.186, 0.082)
+
+== components and material ==
+[PASS] every ornament wears only the antique-gold placeholder  -> MAT_Armor_AntiqueGold_01
+[PASS] every ornament is parented to the plate it decorates  -> WSK_Armor_Chest_01, WSK_Armor_KneeCop_L_01, WSK_Armor_KneeCop_R_01, WSK_Armor_Shin_L_01, WSK_Armor_Shin_R_01, WSK_Armor_WaistBelt_01, WSK_Helmet_CrownBand_01
+[PASS] identity local transforms after parenting (world placement kept)
+[PASS] one unapplied edge bevel per ornament, nothing destructive
+
+== mesh quality ==
+[PASS] every ornament is a closed sweep solid (no boundary, no loose edge)  -> 954 verts total
+[PASS] outward normals (positive enclosed volume)  -> all 11
+[PASS] genus 0 topology (V-E+F=2) on every piece  -> all 11
+[PASS] surface density stays low  -> 954 ornament vertices in total
+
+== placement - details follow the host shape, nothing floats ==
+[PASS] WSK_Decor_ChestKeelTrim_01: swept back seated in Chest_01  -> rear signed -0.40..-0.40 mm
+[PASS] WSK_Decor_ChestKeelTrim_01: crown relief readable and shallow  -> mid-path crown 1.79..2.12 mm above the plate
+[PASS] WSK_Decor_ChestKeelTrim_01: chamfer ring never sinks below the plate  -> chamfer +0.33 mm
+[PASS] WSK_Decor_ChestChevron_L_01: swept back seated in Chest_01  -> rear signed -0.40..-0.40 mm
+[PASS] WSK_Decor_ChestChevron_L_01: crown relief readable and shallow  -> mid-path crown 1.74..1.85 mm above the plate
+[PASS] WSK_Decor_ChestChevron_L_01: chamfer ring never sinks below the plate  -> chamfer +0.25 mm
+[PASS] WSK_Decor_ChestChevron_R_01: swept back seated in Chest_01  -> rear signed -0.40..-0.40 mm
+[PASS] WSK_Decor_ChestChevron_R_01: crown relief readable and shallow  -> mid-path crown 1.73..1.84 mm above the plate
+[PASS] WSK_Decor_ChestChevron_R_01: chamfer ring never sinks below the plate  -> chamfer +0.25 mm
+[PASS] WSK_Decor_BeltTrimTop_L_01: swept back seated in WaistBelt_01  -> rear signed -0.40..-0.40 mm
+[PASS] WSK_Decor_BeltTrimTop_L_01: crown relief readable and shallow  -> mid-path crown 1.50..1.50 mm above the plate
+[PASS] WSK_Decor_BeltTrimTop_L_01: chamfer ring never sinks below the plate  -> chamfer +0.19 mm
+[PASS] WSK_Decor_BeltTrimTop_R_01: swept back seated in WaistBelt_01  -> rear signed -0.40..-0.40 mm
+[PASS] WSK_Decor_BeltTrimTop_R_01: crown relief readable and shallow  -> mid-path crown 1.50..1.50 mm above the plate
+[PASS] WSK_Decor_BeltTrimTop_R_01: chamfer ring never sinks below the plate  -> chamfer +0.19 mm
+[PASS] WSK_Decor_BrowTrim_L_01: swept back seated in CrownBand_01  -> rear signed -0.35..-0.35 mm
+[PASS] WSK_Decor_BrowTrim_L_01: crown relief readable and shallow  -> mid-path crown 1.55..1.56 mm above the plate
+[PASS] WSK_Decor_BrowTrim_L_01: chamfer ring never sinks below the plate  -> chamfer +0.21 mm
+[PASS] WSK_Decor_BrowTrim_R_01: swept back seated in CrownBand_01  -> rear signed -0.35..-0.35 mm
+[PASS] WSK_Decor_BrowTrim_R_01: crown relief readable and shallow  -> mid-path crown 1.55..1.55 mm above the plate
+[PASS] WSK_Decor_BrowTrim_R_01: chamfer ring never sinks below the plate  -> chamfer +0.22 mm
+[PASS] WSK_Decor_KneeRidge_L_01: swept back seated in KneeCop_L_01  -> rear signed -0.45..-0.45 mm
+[PASS] WSK_Decor_KneeRidge_L_01: crown relief readable and shallow  -> mid-path crown 1.69..1.95 mm above the plate
+[PASS] WSK_Decor_KneeRidge_L_01: chamfer ring never sinks below the plate  -> chamfer +0.07 mm
+[PASS] WSK_Decor_KneeRidge_R_01: swept back seated in KneeCop_R_01  -> rear signed -0.45..-0.45 mm
+[PASS] WSK_Decor_KneeRidge_R_01: crown relief readable and shallow  -> mid-path crown 1.69..1.95 mm above the plate
+[PASS] WSK_Decor_KneeRidge_R_01: chamfer ring never sinks below the plate  -> chamfer +0.07 mm
+[PASS] WSK_Decor_ShinRidge_L_01: swept back seated in Shin_L_01  -> rear signed -0.45..-0.45 mm
+[PASS] WSK_Decor_ShinRidge_L_01: crown relief readable and shallow  -> mid-path crown 1.80..1.95 mm above the plate
+[PASS] WSK_Decor_ShinRidge_L_01: chamfer ring never sinks below the plate  -> chamfer +0.07 mm
+[PASS] WSK_Decor_ShinRidge_R_01: swept back seated in Shin_R_01  -> rear signed -0.45..-0.45 mm
+[PASS] WSK_Decor_ShinRidge_R_01: crown relief readable and shallow  -> mid-path crown 1.80..1.95 mm above the plate
+[PASS] WSK_Decor_ShinRidge_R_01: chamfer ring never sinks below the plate  -> chamfer +0.07 mm
+[PASS] no ornament floats and none plunges deep (all rear faces)  -> tightest rear +0.000 mm, deepest bite -0.45 mm at 
+[PASS] every ornament vertex lies in the shallow band above its host  -> signed -0.45..+2.12 mm
+
+== clearance to everything else ==
+[PASS] no ornament touches armour it does not decorate (medallion, crest, other plates)  -> tightest gap 2.7 mm at WSK_Decor_BeltTrimTop_L_01
+
+== design - sparse, narrow, aligned, mirrored ==
+[PASS] every trim is narrow (5.0-11.5 mm wide)  -> 5.4..11.0 mm
+[PASS] every trim is shallow (1.5-2.7 mm of relief)  -> 1.9..2.6 mm
+[PASS] belt trim stops clear of the medallion (>= 18 mm from centre)  -> nearest belt-trim vertex at X 24.5 mm
+[PASS] brow trim stops clear of the centre crest (>= 5 mm from centre)  -> nearest brow-trim vertex at |X| 6.0 mm
+[PASS] the chest line runs the keel (>= 400 mm)  -> 445 mm
+[PASS] left/right pairs mirror each other about X = 0 (two-sided Hausdorff)  -> worst vertex deviation 0.15 mm
+[PASS] motifs are pure geometry - no text, no emblem, no lettering  -> chevron, edge trim, lanceolate, line
+
+== gameplay-distance read (rendered) ==
+[PASS] the trim does not grow the silhouette  -> front mask 46193 -> 46193 px (0.000 %)
+[PASS] the decoration reads at gameplay distance  -> 675 gold pixels added at ortho scale 2.5
+[PASS] the decoration does not dominate the figure  -> 1.46 % of the figure's pixels
+      renders: verify_gameplay_before/after.png (front), verify_gameplay_threequarter.png
+
+61 passed, 0 failed, 0 warnings
