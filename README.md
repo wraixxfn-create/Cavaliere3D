@@ -21,6 +21,7 @@ disturbed.
 | 10 | `Wildshift_Knight_10_Crown.blend` | thorn crown: the nine flat radial spikes replaced by 21 planted thorns in two graded rows around the existing halo ring, and the twelve shoulder spikes re-cut in the same profile at 65 % length; every base ray-planted on the evaluated helmet and length-fitted against all other parts |
 | 11 | `Wildshift_Knight_11_Medallion.blend` | the central waist ornament on the checkpoint-8 mount: a 35 mm antique-gold ring (genus-1 solid of revolution), a recessed centre disc with a rear plug flange, and 12 fitted radial blades in three graded reaches, each blade's rear face ray-fitted to the belt and the mount under it; three separate components, fourteen meshes, a new pivot empty, no applied modifiers |
 | 12 | `Wildshift_Knight_12_ArmorDetails.blend` | selective engravings and gothic trim: eleven separate antique-gold ornament meshes at five chosen locations only - a keel line and one chevron on the chest, top-edge trim flanking the waist medallion, brow-band trim flanking the helmet crest, and one lanceolate motif each on the knee cops and shin plates; every piece swept from a reusable trim profile with its back face ray-fitted and seated into the host plate, one unapplied edge bevel each, all existing meshes byte-identical |
+| 13 | `Wildshift_Knight_13_CapeBlockout.blend` | the cape base shape: one separate burgundy cloth-like shell (`WSK_Cape_Blockout_01`, 1650 vertices, closed) hung from the upper back behind the rear shoulder spikes, flaring to 1.12 m at the hem with four broad tears; pivot empty `WSK_Cape_Pivot_01` at the yoke; one placeholder material; no cloth simulation, no modifiers, every checkpoint-12 object unchanged |
 
 ## Prompt 2 — proportions
 
@@ -1024,8 +1025,8 @@ Outputs:
 
 ### Remaining high-priority visual issues
 
-1. **No cloth** — the cape, the tabard and the hanging chains are still only
-   envelope guides; the reference's silhouette and gold-bordered cloth carry
+1. **No cloth** — the cape now exists as a static blockout (Prompt 13), but the tabard
+   and the hanging chains are still only envelope guides; the reference's silhouette and gold-bordered cloth carry
    much of its ornament, and the figure reads bare without them.
 2. **Head reads narrow** — Prompt 6 recorded this against the reference; the
    reference's hood (not a rescaled crown) is still the agreed fix and is not
@@ -1041,6 +1042,75 @@ Outputs:
    distance the gold reads mostly as value, not colour.
 6. **No rig** — articulation is still manual pose pivots; the Prompt 12 trims
    follow their plates through those pivots but there is no skeleton.
+
+## Prompt 13 — cape base shape
+
+Deliverable: **`Wildshift_Knight_13_CapeBlockout.blend`**, built from checkpoint 12.
+Every checkpoint-12 object is unchanged (235 objects compared on transform,
+parent, collection, material, modifiers and mesh coordinates); the only additions
+are one cape mesh, one pivot empty and one material.
+
+### Shape
+
+* **Attachment.** A narrow yoke across the upper back, top edge at Z 1.60 (1.55 at
+  the outer edges). It sits behind the rear shoulder spikes, so the cape reads as a
+  separate garment hung from the shoulders: the front face is at Y −0.23 against the
+  spike tips at −0.176 and the back plate at −0.164. Its front never passes Y −0.20,
+  so the helmet and front torso stay bare in the neutral pose.
+* **Width.** Half-width 0.19 at the yoke, widening to 0.56 by Z ~0.75 (reference
+  solid cloth 1.10 m across). The front guide envelope in the Reference collection
+  is ±0.556, so the shape stays inside it.
+* **Depth.** The cape falls behind the legs and billows back to Y −0.67 at
+  mid-height (deepest −0.68; reference −0.72 at Z ~1.07, −0.63 at the hem). The hem
+  is at Y −0.59.
+* **Hem.** Four long lobes ending 0.06–0.09 m above the floor, separated by four broad
+  V-shaped tears whose apexes sit at Z 0.30–0.48. The tears are part of the outline,
+  not holes. They also open gaps through which the lower legs show from behind.
+* **Volume.** An 18 mm shell with a mid-height billow and light vertical folds on the
+  outer face (depth span 0.46 m), so it is not a paper sheet.
+
+### Topology and pivot
+
+* One closed quad-grid solid: 24 × 32 cells per face, two faces and a boundary wall,
+  1650 vertices and 1648 faces. Manifold, one shell, outward normals, Euler
+  characteristic 2. No modifiers, no booleans, nothing applied.
+* Vertex groups `Cape_Yoke`, `Cape_Body`, `Cape_Hem`, and `Cape_Panel_1..5`. The five
+  panel boundaries sit on the four tear apexes, so the cape can be split into panels
+  later without re-modelling.
+* Origin at the yoke centre (0, −0.23, 1.60). `WSK_Cape_Pivot_01`, a plain-axes
+  empty at the same point, is the parent with an identity local transform, ready for
+  a rig or simulation driver.
+* One placeholder material, `MAT_Cape_Burgundy_01`: base colour (0.23, 0.02, 0.035),
+  roughness 0.78, metallic 0, no emission, no textures.
+
+### Clearance
+
+Measured on the saved file against every armour, body, helmet and crown mesh (evaluated):
+the nearest solid part is the left pauldron at 45 mm, the body and helmet are at least
+77 mm away, and no cape vertex lies inside any part (winding-number test).
+
+### Verification
+
+`tools/verify_cape_blockout.py` runs **38 checks, all passing**: scope against
+checkpoint 12, topology, placement, shape, clearance and material. The report is at
+`analysis/verify/verify_cape_blockout_report.txt`.
+
+Renders (`tools/render_cape_blockout.py`, Cycles on CPU, orthographic scale 2.5 plus
+two perspective three-quarter views):
+
+* `analysis/cape/p13_context_{front,rear,side_left,side_right,threeq_rear,threeq_front}.png`
+  — the whole knight with the cape.
+* `analysis/cape/p13_cape_only_*.png` — the cape alone, for the silhouette.
+* `analysis/cape/p13_contact_sheet.png` — both rows on one sheet.
+
+The renders use a Standard view transform and −1.5 EV. Those are render-only settings:
+the saved file is unchanged. The default AgX transform and the placeholder lights
+turned the dark burgundy salmon pink.
+
+### Not done (by design)
+
+No cloth simulation, wind, physics, torn threads, chains or embroidery. The cape is a
+static blockout. The Reference-collection cape envelope guides are unchanged.
 
 ## Reproducing
 
@@ -1074,6 +1144,9 @@ tools/bl.sh tools/render_medallion.py         # waist, ornament-only and in-cont
 tools/bl.sh tools/build_armor_details.py      # writes checkpoint 12
 tools/bl.sh tools/verify_armor_details.py     # 61 scope, seating, design and render checks
 tools/bl.sh tools/render_armor_details.py     # gameplay and close-up trim sheets
+tools/bl.sh tools/build_cape_blockout.py     # writes checkpoint 13
+tools/bl.sh tools/verify_cape_blockout.py    # 38 scope, topology, placement, clearance checks
+tools/bl.sh tools/render_cape_blockout.py    # cape in-context and cape-only views
 tools/medallion_reference_probe.py            # the reference's sun motif in millimetres
 tools/crown_reference_probe.py                # metric grid over the reference views
 tools/crown_silhouette_read.py                # reference crown silhouette in metres
@@ -1105,6 +1178,7 @@ analysis/shoulders/        Prompt 7 shoulder close-ups, sheets and articulation
 analysis/limb_armor/       Prompt 9 neutral, four-way and manual-pose views
 analysis/medallion/        Prompt 11 waist, ornament-only and in-context views
 analysis/armor_details/    Prompt 12 trim close-ups, before/after and gameplay reads
+analysis/cape/             Prompt 13 cape renders (in context and cape only)
 analysis/verify/           the verification reports
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender

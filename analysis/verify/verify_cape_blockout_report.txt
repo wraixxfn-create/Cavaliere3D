@@ -1,0 +1,63 @@
+Prompt 13 - cape base shape verification
+38/38 checks passed
+
+PASS  scope: no checkpoint-12 object removed  -  missing=[]
+PASS  scope: all checkpoint-12 objects unchanged  -  235 objects compared; changed=[]
+PASS  scope: only the cape mesh and pivot added  -  added=['WSK_Cape_Blockout_01', 'WSK_Cape_Pivot_01']
+PASS  scope: exactly one new material  -  new=['MAT_Cape_Burgundy_01']
+PASS  scope: no collection added  -  new=[]
+PASS  scope: cape and pivot in the Cape collection  -  cape cols=['Cape']
+PASS  topology: closed (no boundary edges)  -  boundary edges=0
+PASS  topology: manifold vertices  -  non-manifold=0
+PASS  topology: no loose vertices  -  loose=0
+PASS  topology: sphere topology (V-E+F = 2)  -  V=1650 E=3296 F=1648 chi=2
+PASS  topology: one connected shell  -  components=1
+PASS  topology: outward-facing normals (positive enclosed volume)  -  volume=24.952 litres (pivot-relative, closed shell)
+PASS  topology: vertex count within blockout budget  -  1650 vertices, 1648 faces
+PASS  placement: pivot at the yoke centre  -  pivot=(0.0, -0.23, 1.6)
+PASS  placement: cape origin equals pivot  -  origin=(0.0, -0.23, 1.6)
+PASS  placement: cape parented to pivot with identity local transform  -  parent=WSK_Cape_Pivot_01, local error 0.00e+00
+PASS  placement: yoke edge mirror-symmetric about X = 0  -  worst mirror mismatch 0.0000 mm along the yoke edge
+PASS  shape: yoke half-width 0.17-0.21 m  -  yoke half-width 0.196 m
+PASS  placement: entire cape behind the torso front (Y max < -0.20)  -  Y max -0.221 m (torso centre Y 0, back plate front face -0.164)
+PASS  placement: no part above the shoulder line (Z max < 1.61)  -  Z max 1.602 m
+PASS  placement: clears the floor (Z min > 0.04)  -  Z min 0.059 m (reference hem 0.06 m)
+PASS  placement: lobes reach to the hem band (0.05-0.09 m)  -  hem Z 0.059..0.091
+PASS  shape: full half-width 0.50-0.60 m near Z 0.75 (reference 0.55)  -  half-width 0.560 m at Z 0.70-0.80
+PASS  shape: rear extent between -0.55 and -0.70 m (reference -0.72 / -0.63)  -  Y min -0.682 m
+PASS  shape: mid-height rear billow reaches the reference -0.63..-0.72 m  -  Y at Z 0.85-1.05: -0.670 m (reference -0.72 at Z ~1.07)
+PASS  shape: four broad tears in the hem  -  raised hem runs=4, peak tear Z=0.479 m
+PASS  shape: five hanging lobes between and beside the tears  -  low hem runs=5
+PASS  shape: tears are broad, not pinholes (apex Z 0.30-0.55)  -  apex Z 0.479
+PASS  shape: shell thickness 18 mm everywhere  -  min 18.00 mm, max 18.00 mm
+PASS  shape: real depth, not a paper-thin sheet (depth span > 0.3 m)  -  Y span 0.461 m
+PASS  design: vertex groups for yoke, body, hem and five panels  -  groups=['Cape_Body', 'Cape_Hem', 'Cape_Panel_1', 'Cape_Panel_2', 'Cape_Panel_3', 'Cape_Panel_4', 'Cape_Panel_5', 'Cape_Yoke']
+PASS  clearance: no cape vertex inside any solid part (winding number)  -  0 parts contain cape vertices: []
+PASS  clearance: nearest solid part at least 25 mm from the cape  -  closest: WSK_Armor_Pauldron_L_01 at 45.5 mm
+PASS  clearance: body and helmet at least 40 mm from the cape  -  closest body/helmet part 77.4 mm
+PASS  material: single placeholder burgundy material  -  slots=['MAT_Cape_Burgundy_01']
+PASS  material: burgundy hue (red dominant, dark)  -  base (0.23, 0.02, 0.035)
+PASS  material: no emission and no textures  -  emission strength 0, no image textures
+PASS  material: no modifiers on the cape (blockout is applied geometry)  -  modifiers=[]
+
+closest solid parts to the cape (distance mm, part, inside hits):
+      45.5  WSK_Armor_Pauldron_L_01  (0)
+      54.0  WSK_Armor_Pauldron_R_01  (0)
+      59.4  WSK_Armor_Back_01  (0)
+      64.5  WSK_Armor_PauldronLame1_L_01  (0)
+      73.0  WSK_Armor_PauldronLame2_L_01  (0)
+      76.2  WSK_Armor_PauldronLame1_R_01  (0)
+      77.4  WSK_Mann_Chest_01  (0)
+      81.3  WSK_Armor_PauldronLame3_L_01  (0)
+      82.1  WSK_Body_Base_01  (0)
+      84.8  WSK_Armor_PauldronLame2_R_01  (0)
+      88.5  WSK_Armor_ShoulderSpikeRearLow_L_01  (0)
+      93.3  WSK_Armor_PauldronLame3_R_01  (0)
+      93.9  WSK_Armor_ShoulderSpikeRearLow_R_01  (0)
+     113.8  WSK_Armor_SidePlate_L_01  (0)
+     113.8  WSK_Armor_SidePlate_R_01  (0)
+     139.1  WSK_Mann_UpperArm_L_01  (0)
+     139.4  WSK_Mann_UpperArm_R_01  (0)
+     143.5  WSK_Mann_Abdomen_01  (0)
+     146.1  WSK_Helmet_NeckGuard_01  (0)
+     171.9  WSK_Armor_ShoulderSpikeRear_L_01  (0)
