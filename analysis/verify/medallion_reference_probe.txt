@@ -1,0 +1,43 @@
+WILDSHIFT KNIGHT - REFERENCE READ OF THE SUN MOTIF (Prompt 11)
+====================================================================
+gold test: R-B > 18, R > 55, R > G;  dark test: luminance < 19
+
+--- front tabard motif  (ref_front.png, 849x1293 px, 1.9049 mm/px)
+    bezel fit       score 0.236 at centre (428.7, 722.8) = x 50.5 %, y 55.9 % of the image
+                    gold on the ring 0.86, dark inside 0.65
+    core radius      14.0 px =  26.7 mm   (dark fraction drops below 0.55)
+    bezel            16.0-22.5 px =  30.5-42.9 mm  (peak 0.90 gold at 19.0 px)
+    ray tips         45.0 px =  85.7 mm   (gold spokes still present)
+    ray reach by sector (mm): 61, 77, 87, 86, 55, 87, 79, 87
+                    vertical 87 mm vs horizontal 87 mm  = 1.00 x : the reach is even all round, with the
+                    longest blades running up and down the panel
+    spokes outside the bezel: 21  (band counts [23, 16, 21])
+    ratios          core/bezel 0.62, tips/bezel 2.00 (vertical)
+    annotated crop -> analysis/medallion/ref_front_motif.png
+
+--- back cape motif (shadowed copy)  (ref_back.png, 846x1290 px, 1.9212 mm/px)
+    bezel fit       score -0.244 at centre (440.9, 462.8) = x 52.1 %, y 35.9 % of the image
+                    gold on the ring 0.16, dark inside 0.45
+    core radius      46.0 px =  88.4 mm   (dark fraction drops below 0.55)
+    bezel            12.5-15.5 px =  24.0-29.8 mm  (peak 0.18 gold at 14.5 px)
+    ray tips         22.0 px =  42.3 mm   (gold spokes still present)
+    ray reach by sector (mm): 0, 0, 0, 0, 33, 76, 87, 79
+                    vertical 87 mm vs horizontal 79 mm  = 1.11 x : the reach is even all round, with the
+                    longest blades running up and down the panel
+    spokes outside the bezel: 3  (band counts [5, 3, 3])
+    ratios          core/bezel 2.97, tips/bezel 1.42 (vertical)
+    annotated crop -> analysis/medallion/ref_back_motif.png
+
+--- what that means at the waist (the numbers checkpoint 11 is built to)
+    checkpoint-10 mount: radius 43 mm, face at Y 0.1430, belt band Z 1.005-1.105 (belt height 100 mm)
+    reference motif:     core 27 mm, bezel 30-43 mm, rays to 86 mm (171 mm across), ~21 spokes
+    ratios to copy:      core = 0.62 x the bezel radius
+    ratio NOT to copy:   blades = 2.00 x the bezel radius, which at this size is a
+                         140 mm emblem on a 100 mm belt
+    checkpoint 11:       bezel 35 mm (0.81 of the mount radius, so the mount's rim stays visible),
+                         core 24.2 mm (0.69 x against the reference's 0.62 x, kept to within
+                         7% of it), blades out to 45.5-48.0 mm
+                         (1.37 x the bezel instead of 2.00 x, cropped), and 12
+                         blades instead of ~20, so the ornament stays inside
+                         the belt it is mounted on and reads as a deliberate
+                         waist ornament rather than the tabard emblem.
