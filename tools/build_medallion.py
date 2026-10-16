@@ -237,6 +237,18 @@ def lathe(name, profile, segs, cfg, y_base, coll, mat, bevel,
     return finish(name, verts, faces, coll, mat, bevel)
 
 
+def evaluated_world(obj):
+    """(world-space vertices, faces) of an object with its modifiers applied."""
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = obj.evaluated_get(dg)
+    me = ev.to_mesh()
+    mw = ev.matrix_world.copy()
+    verts = [mw @ v.co for v in me.vertices]
+    ev.to_mesh_clear()
+    return verts, None
+
+
 def ray_blade(name, cfg, azim, spec, surf, coll, mat, bevel, log):
     """One tapered radial blade, laid on the measured surface and fitted."""
     cx, cz = cfg["centre"]
@@ -385,28 +397,32 @@ def build_one(cfg, coll, gold, stone, log, stats):
                 made.append(obj)
 
     # -- measured seating report -------------------------------------------
-    # For every azimuth and every profile point, compare where the ornament is
-    # placed against the armour surface actually measured there.  Positive
-    # relief is metal standing proud; negative is metal buried in the plate.
-    for tag, profile, segs in (("ring", RING_PROFILE, R_SEGMENTS),
-                               ("centre", CENTER_PROFILE, C_SEGMENTS),
-                               ("rays", [(s["r_root"], s["rise0"]) for s in RAYS.values()], 1)):
+    # Read the produced mesh back and compare every vertex with the armour
+    # surface measured at that vertex's own radius.  This is the conservative
+    # reading of the relief: the crest figure quoted in the verification report
+    # is taken against the most protruding metal under the ring's whole band.
+    for tag, obj in (("ring", ring), ("centre", centre)):
+        verts, _f = evaluated_world(obj)
         relief = []
-        for r, off in profile:
-            rr = r * scale
-            if rr < 1e-6:
+        for p in verts:
+            r = math.hypot(p.x - cx, p.z - cz)
+            y = surf.y_at(p.x, p.z, sign)
+            if y is None or r < 1e-5:
                 continue
-            for i in range(segs):
-                th = 2.0 * math.pi * i / segs
-                y = surf.y_at(cx + rr * math.cos(th), cz + rr * math.sin(th), sign)
-                if y is None:
-                    continue
-                placed = y_base[i % R_SEGMENTS if segs == R_SEGMENTS else 0] \
-                    + sign * off * scale
-                relief.append(sign * (placed - y))
+            relief.append(sign * (p.y - y))
         if relief:
-            stats.setdefault(tag, []).append(
-                (cfg["name"], min(relief) * 1000.0, max(relief) * 1000.0))
+            stats.setdefault(tag, []).append((cfg["name"], min(relief) * 1000.0,
+                                              max(relief) * 1000.0))
+    ray_relief = []
+    for obj in made:
+        verts, _f = evaluated_world(obj)
+        for p in verts:
+            y = surf.y_at(p.x, p.z, sign)
+            if y is not None:
+                ray_relief.append(sign * (p.y - y))
+    if ray_relief:
+        stats.setdefault("rays", []).append((cfg["name"], min(ray_relief) * 1000.0,
+                                             max(ray_relief) * 1000.0))
     stats.setdefault("surface", []).append(
         (cfg["name"], min(known), max(known), mean))
     return [ring, centre] + made
@@ -433,8 +449,8 @@ def main():
         if tag == "surface":
             continue
         for name, lo, hi in rows:
-            log.append(f"  {name} {tag}: relief {lo:+.2f} .. {hi:+.2f} mm "
-                       "(negative = inside the plate)")
+            log.append(f"  {name} {tag}: relief vs the surface at the same "
+                       f"radius {lo:+.2f} .. {hi:+.2f} mm (negative = inside)")
 
     print("\n".join(log))
     write_text_blocks(built, log)
