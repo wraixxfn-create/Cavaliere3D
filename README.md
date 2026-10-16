@@ -813,11 +813,23 @@ carry the same circular motif front and back:
 | `ref_front.png` | gold band ~30 mm across | dark, ~18 mm | thin points, two sizes | ~40 mm across at Z ≈ 1.02 m, 62 mm with the outer points |
 | `ref_back.png` | gold band, heavier | near-black, ~35 mm | ~24 thin blades in two ranks | ~95 mm across at Z ≈ 1.28 m |
 
+A second, programmatic read of the same views is in
+`analysis/verify/medallion_reference_probe.txt` (its own 1.9049 mm/px fit,
+`tools/medallion_reference_probe.py`): the front motif's gold ring peaks at a
+36 mm radius over a 30-43 mm band, its dark core at 27 mm, with about 21 gold
+spokes crowding the outside. That places the ring 4 % larger than the reading
+above — the two calibrations are both quoted rather than averaged away, and the
+delivered ring sits at the low end of the band so the whole ornament stays
+inside the mount.
+
 The motif is a ring with a dark open centre and thin radiating blades, read as a
 deliberate ornament rather than a coat of arms. The model keeps the composition
 and scale of the front motif and the two-rank rhythm of the back one, and
 invents the rest: a plain ring, a plain disk and straight tapered blades, with
-no lettering, no figure and nothing recognisable from any franchise.
+no lettering, no figure and nothing recognisable from any franchise. The one
+number that does *not* transfer is the reference's ray reach: taken literally
+its 86 mm tips are a 171 mm emblem on a 100 mm belt band, and the gold test is
+reading the tabard's embroidery and chainwork as much as the motif's own points.
 
 ### The ornament
 
@@ -922,6 +934,18 @@ Outputs:
   blank mount can be compared with the finished ornament.
 * `WSK_Medallion_Notes.txt` inside the `.blend` — the same notes plus the build
   log with every blade's azimuth, run and cap.
+* `analysis/verify/medallion_reference_probe.txt` and
+  `analysis/medallion/ref_{front,back}_motif.png` — the independent programmatic
+  read of the reference motif and the annotated crops it produced.
+
+### A note on this checkpoint
+
+Checkpoint 11 was modelled twice: an earlier pass put twelve evenly graded
+blades on a gold-ringed raised centre at 93 mm across, this one puts sixteen
+blades in two alternating scales around a dark open centre at 76.8 mm. The
+earlier pass is superseded — this checkpoint keeps its one genuinely additive
+piece, the reference probe above, and its `before_*` renders of checkpoint 10.
+The delivered ornament is the one the verification report describes.
 
 ## Reproducing
 
@@ -949,12 +973,17 @@ tools/bl.sh tools/render_limb_armor.py        # neutral, four-way and pose sheet
 tools/bl.sh tools/build_crown_thorns.py       # writes checkpoint 10
 tools/bl.sh tools/verify_crown.py             # 53 crop, planting and clearance checks
 tools/bl.sh tools/render_crown.py             # crown, crown-only and in-context sheets
+tools/bl.sh tools/build_medallion.py          # writes checkpoint 11
+tools/bl.sh tools/verify_medallion.py         # 102 placement, design, planting and render checks
+tools/bl.sh tools/render_medallion.py         # waist, ornament-only and in-context sheets
+tools/medallion_reference_probe.py            # the reference's sun motif in millimetres
 tools/crown_reference_probe.py                # metric grid over the reference views
 tools/crown_silhouette_read.py                # reference crown silhouette in metres
 tools/crown_vs_reference.py                   # reference vs render, matched scale
 tools/build_medallion.py                      # writes checkpoint 11
 tools/verify_medallion.py                     # 63 scope, seating and design checks
 tools/render_medallion.py                     # close-up, in-context and alone sheets
+tools/medallion_reference_probe.py            # programmatic read of the reference motif
 tools/probe_medallion_mounts.py               # waist mount and fit probe
 tools/probe_waist_surface.py                  # waist armour surface map
 tools/probe_rear_waist.py                     # rear waist surface map
@@ -1001,6 +1030,9 @@ tools/build_limb_armor.py        checkpoint 9: segmented layered limb armour
 tools/build_crown_thorns.py      checkpoint 10: thorn crown and armour spikes
 tools/build_medallion.py         checkpoint 11: the waist medallion
 tools/render_limb_armor.py       checkpoint 9 neutral and pose render pass
+tools/build_medallion.py         checkpoint 11: the central waist medallion
+tools/render_medallion.py        checkpoint 11 waist and ornament render pass
+tools/medallion_reference_probe.py  reads the reference's sun motif in metres
 tools/verify_*.py          the check suites (proportions, body, helmet, armour)
 Wildshift_Knight_0*.blend  checkpoints
 setup_blend.py             checkpoint 1 script
