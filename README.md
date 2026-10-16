@@ -1205,6 +1205,59 @@ No cloth simulation, wind, physics, rigging or modifiers. Nothing is applied. Th
 armour and the body are unchanged. The Reference-collection envelope guides are
 unchanged.
 
+## Prompt 15 — ceremonial polearm
+
+Deliverable: **`Wildshift_Knight_15_Polearm.blend`**, built from checkpoint 14. The
+separate upright polearm sits beside the knight in the `Weapon` collection. Its
+parts are a dark-steel shaft, narrow spear head, small gold crosspiece, restrained
+pommel spike and a separate burgundy cloth strip. `WSK_Weapon_Pivot_01` is at the
+grip; the weapon is not attached to the character's hand. The Prompt 14 character
+is unchanged. Build and render scripts are `tools/build_polearm.py` and
+`tools/render_polearm.py`.
+
+## Prompt 16 — chains and selected metal accessories
+
+Deliverable: **`Wildshift_Knight_16_Chains.blend`**, built from checkpoint 15.
+All 248 Prompt 15 objects are unchanged (transform, parent, collection, material,
+modifiers and mesh coordinates). The only scene additions are six objects in two
+new nested collections under `Accessories`; the existing gold material is reused.
+
+### Chain groups
+
+* **`Chain 01 - Left Waist`** — 17 oval links, fitted curve length 0.264 m, with
+  79 mm of authored downward sag.
+* **`Chain 02 - Right Waist`** — 11 oval links, fitted curve length 0.166 m, with
+  47 mm of authored downward sag.
+* Each group contains one joined mesh for all its links, one joined mesh for two
+  belt eyelets and their low-profile studs, and one plain-axes pivot parented to
+  `WSK_Armor_WaistBelt_01`. The two pivots can be moved independently; there are no
+  individual link scene objects.
+* The links are 26 mm long by 12 mm wide, with a 3.5 mm wire. Their planes
+  alternate by 90 degrees. Each chain is fitted to the visible belt/fauld/body
+  front surface with the centreline held 12.5 mm off the surface. Gravity sag is modelled
+  directly into the neutral-pose curve; there is no physics or swinging.
+* The two swags flank, rather than cross, the central medallion. Exact triangle
+  tests find no link intersections with the nearby belt, front waist plates or
+  body. The nearest X-space gap to the medallion silhouette is 23 mm. The cape,
+  armour silhouette and other Prompt 15 geometry are untouched.
+
+### Verification and views
+
+`tools/verify_chains.py` runs **38 checks, all passing**: checkpoint scope,
+collection and pivot structure, link/fitting topology, controlled object and link
+counts, different chain lengths and sag, seating of eyelets on the belt,
+non-intersection with nearby major forms, and medallion clearance. Report:
+`analysis/verify/verify_chains_report.txt`.
+
+`tools/render_chains.py` uses Cycles on CPU and render-only Standard / −1.5 EV
+settings. It produces front, rear, both side, two three-quarter and waist close-up
+views in `analysis/chains/`. `analysis/chains/p16_inspection_sheet.png` collects
+the six full-figure directions and the front/three-quarter waist close-ups; the
+individual `p16_waist_side.png` gives a close side check. The saved blend's render
+settings are not changed by this harness.
+
+No simulation, animated swinging, collision system or extra jewelry is present.
+
 ## Reproducing
 
 ```bash
@@ -1243,6 +1296,11 @@ tools/bl.sh tools/render_cape_blockout.py    # cape in-context and cape-only vie
 tools/bl.sh tools/build_cape_panels.py       # writes checkpoint 14
 tools/bl.sh tools/verify_cape_panels.py     # 47 scope, topology, tear, silhouette, clearance checks
 tools/bl.sh tools/render_cape_panels.py     # cape panels in-context, cape-only and hem close-ups
+tools/bl.sh tools/build_polearm.py          # writes checkpoint 15
+tools/bl.sh tools/render_polearm.py          # polearm front and side views
+tools/bl.sh tools/build_chains.py            # writes checkpoint 16
+tools/bl.sh tools/verify_chains.py           # 38 scope, topology, attachment and clearance checks
+tools/bl.sh tools/render_chains.py            # front/rear/sides and waist close-ups
 tools/medallion_reference_probe.py            # the reference's sun motif in millimetres
 tools/crown_reference_probe.py                # metric grid over the reference views
 tools/crown_silhouette_read.py                # reference crown silhouette in metres
@@ -1275,6 +1333,7 @@ analysis/limb_armor/       Prompt 9 neutral, four-way and manual-pose views
 analysis/medallion/        Prompt 11 waist, ornament-only and in-context views
 analysis/armor_details/    Prompt 12 trim close-ups, before/after and gameplay reads
 analysis/cape/             Prompt 13 and 14 cape renders (in context, cape only, hem close-ups)
+analysis/chains/           Prompt 16 chain inspection (front, rear, side and waist close-ups)
 analysis/verify/           the verification reports
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender
@@ -1293,6 +1352,11 @@ tools/build_medallion.py         checkpoint 11: the central waist medallion
 tools/render_medallion.py        checkpoint 11 waist and ornament render pass
 tools/build_armor_details.py     checkpoint 12: selective engravings and gothic trim
 tools/render_armor_details.py    checkpoint 12 gameplay and close-up render pass
+tools/build_polearm.py       checkpoint 15: separate ceremonial polearm
+tools/render_polearm.py      checkpoint 15 polearm render pass
+tools/build_chains.py       checkpoint 16: two static waist chain groups and eyelets
+tools/verify_chains.py      checkpoint 16: scope, topology, attachment and clearance checks
+tools/render_chains.py      checkpoint 16 front/rear/side and waist render pass
 tools/medallion_reference_probe.py  reads the reference's sun motif in metres
 tools/verify_*.py          the check suites (proportions, body, helmet, armour)
 Wildshift_Knight_0*.blend  checkpoints

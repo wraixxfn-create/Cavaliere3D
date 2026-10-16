@@ -1,0 +1,44 @@
+Prompt 16 - chains and selected metal accessories: verification report
+source: Wildshift_Knight_15_Polearm.blend
+target: Wildshift_Knight_16_Chains.blend
+
+[PASS] scope: no Prompt 15 objects removed - removed=[]
+[PASS] scope: every Prompt 15 object is unchanged - 248 source objects compared; changed=[]
+[PASS] scope: exactly two chain pivots, two chain meshes and two fitting meshes added - added=['WSK_Chain_Fittings_Left_01', 'WSK_Chain_Fittings_Right_01', 'WSK_Chain_Pivot_Left_01', 'WSK_Chain_Pivot_Right_01', 'WSK_Chain_Waist_Left_01', 'WSK_Chain_Waist_Right_01']
+[PASS] scope: existing antique-gold material reused; no new materials - new materials=[]
+[PASS] scope: only two nested chain collections added - new collections=['Chain 01 - Left Waist', 'Chain 02 - Right Waist']
+[PASS] structure: chain groups are nested under Accessories - Accessories children=['Chain 01 - Left Waist', 'Chain 02 - Right Waist']
+[PASS] material: chain and fittings reuse the waist medallion antique gold
+[PASS] structure: Chain 01 - Left Waist contains only its pivot, chain and fittings - objects=['WSK_Chain_Fittings_Left_01', 'WSK_Chain_Pivot_Left_01', 'WSK_Chain_Waist_Left_01']
+[PASS] structure: WSK_Chain_Pivot_Left_01 is parented to the waist belt - parent=WSK_Armor_WaistBelt_01
+[PASS] structure: chain and fittings follow the group pivot with identity local transforms
+[PASS] structure: WSK_Chain_Pivot_Left_01 is an unanimated plain-axes adjustment pivot
+[PASS] geometry: WSK_Chain_Waist_Left_01 is one unmodified static mesh - vertices=1632, modifiers=0
+[PASS] geometry: WSK_Chain_Fittings_Left_01 is one low-poly static mesh - vertices=244
+[PASS] material: WSK_Chain_Waist_Left_01 and its fittings use only antique gold
+[PASS] topology: every oval link of Left chain is a closed manifold torus - links=17, V=1632 E=3264 F=1632 components=17 chi=0 boundary=0
+[PASS] topology: Left anchor mesh contains two closed studs and two eyelets - components=4 boundary=0
+[PASS] complexity: Left chain link count stays modest - links=17, curve=0.264 m, pitch=15.5 mm
+[PASS] shape: Left chain drops below its belt anchors with authored gravity sag - world Z 0.979..1.081 m, sag=0.079 m
+[PASS] structure: Chain 02 - Right Waist contains only its pivot, chain and fittings - objects=['WSK_Chain_Fittings_Right_01', 'WSK_Chain_Pivot_Right_01', 'WSK_Chain_Waist_Right_01']
+[PASS] structure: WSK_Chain_Pivot_Right_01 is parented to the waist belt - parent=WSK_Armor_WaistBelt_01
+[PASS] structure: chain and fittings follow the group pivot with identity local transforms
+[PASS] structure: WSK_Chain_Pivot_Right_01 is an unanimated plain-axes adjustment pivot
+[PASS] geometry: WSK_Chain_Waist_Right_01 is one unmodified static mesh - vertices=1056, modifiers=0
+[PASS] geometry: WSK_Chain_Fittings_Right_01 is one low-poly static mesh - vertices=244
+[PASS] material: WSK_Chain_Waist_Right_01 and its fittings use only antique gold
+[PASS] topology: every oval link of Right chain is a closed manifold torus - links=11, V=1056 E=2112 F=1056 components=11 chi=0 boundary=0
+[PASS] topology: Right anchor mesh contains two closed studs and two eyelets - components=4 boundary=0
+[PASS] complexity: Right chain link count stays modest - links=11, curve=0.166 m, pitch=15.1 mm
+[PASS] shape: Right chain drops below its belt anchors with authored gravity sag - world Z 1.015..1.084 m, sag=0.047 m
+[PASS] complexity: both chains use one mesh each and fewer than 32 total links - total links=28, new objects=6
+[PASS] complexity: new chain and fitting geometry stays under 4000 vertices - total new accessory vertices=3176
+[PASS] shape: chain lengths and placements are intentionally unequal - left 0.264 m / bottom Z 0.979; right 0.166 m / bottom Z 1.015
+[PASS] attachment: Left eyelet/stud mesh is seated on the waist belt - nearest fitting-to-belt distance=0.07 mm
+[PASS] clearance: Left chain links do not pass through armor, body or cape - nearby meshes=['WSK_Armor_WaistBelt_01', 'WSK_Armor_WaistPanel_Front_01_01', 'WSK_Body_Base_01']; intersections=[]
+[PASS] attachment: Right eyelet/stud mesh is seated on the waist belt - nearest fitting-to-belt distance=0.05 mm
+[PASS] clearance: Right chain links do not pass through armor, body or cape - nearby meshes=['WSK_Armor_WaistBelt_01', 'WSK_Armor_WaistPanel_Front_03_01', 'WSK_Body_Base_01']; intersections=[]
+[PASS] clearance: both chain groups remain at least 10 mm outside the medallion silhouette - medallion X -0.044..0.044 m; nearest chain gap=23.0 mm
+[PASS] verification views: front, rear, both sides and waist close-ups rendered - missing=[]
+
+38 / 38 checks passing
