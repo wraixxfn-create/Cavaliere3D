@@ -1,0 +1,94 @@
+
+== A  scope - what changed and what did not ==
+[PASS] the nine checkpoint-4 radial crown spikes are the only objects removed  -> 9 removed
+[PASS] the twelve shoulder spikes are the only objects whose geometry changed  -> 12 changed: WSK_Armor_ShoulderSpikeCrown_L_01, WSK_Armor_ShoulderSpikeCrown_R_01, WSK_Armor_ShoulderSpikeFrontLow_L_01 ...
+[PASS] the thorn crown is the only geometry added  -> 21 added
+[PASS] helmet shell, crest, face plate, gorget, band, halo, spine, mount, body and every other armour plate are byte-identical to checkpoint 9
+[PASS] no collection was added or removed  -> 14 collections
+[PASS] worlds and the camera set are unchanged  -> 2 worlds, 13 cameras
+[PASS] no spike empties were left behind
+[PASS] no material gained an emission shader (no glow)
+[PASS] no particle systems (no particle effects)
+
+== B  the crown design ==
+[PASS] the crown is one centre blade + five graded pairs (row A) and ten lower barbs (row B)  -> 11 + 10
+[PASS] every thorn is a separate single-user mesh
+[PASS] each thorn owns its own mesh datablock  -> 21 distinct meshes for 21 thorns
+[PASS] the centre blade is the tallest element of the crown  -> 0.195 m
+[PASS] the centre blade is at least 15 % taller than the next tallest thorn  -> 0.195 vs 0.165 m (1.18x)
+[PASS] row A reach falls off steadily from the centre blade outwards  -> 0.165 > 0.142 > 0.125 > 0.115 > 0.101
+[PASS] the lower row is clearly the smaller row  -> row B mean 0.106 m vs row A mean 0.137 m
+[PASS] the largest shoulder spike stays well below the crown's centre blade  -> 0.123 m = 0.63x the centre blade (0.195 m)
+[PASS] the shoulder fan is a smaller scale than the crown's own pairs  -> longest shoulder spike 0.123 m vs the shortest crown pair thorn 0.098 m and the tallest pair thorn 0.165 m
+[PASS] the thorn tilts are genuinely graded, not one repeated angle  -> 12 distinct tilts -34-86 deg, gaps 2.0-45.0 deg
+[PASS] the thorn azimuths are unevenly spaced (no regular radial repetition)  -> azimuth gaps 3-72 deg
+[PASS] at least four pairs carry a deliberate left/right difference  -> 2t:3.9%, 2b:4.8%, 3b:4.0%, 4t:4.8%, 5t:4.0%, 5b:6.0%
+[PASS] no left/right difference is large enough to break the design  -> largest 6.0%
+
+== C  mounting, root depth and clearance ==
+[PASS] every thorn's base sits ON a mounting surface (<= 1 mm from shell, crest or band)  -> worst 0.01 mm
+[PASS] thorns mount only on the shell, the crest and the band  -> WSK_Helmet_Crest_01 x1, WSK_Helmet_Shell_01 x20
+[PASS] exactly one thorn - the centre blade - is planted on the crest
+[PASS] every thorn's root crosses the metal it grows from, so no base can float  -> all 21 shafts pass through their wall
+[PASS] no root reaches the head, the face plate or the gorget  -> closest 5.27 mm
+[PASS] every solved root depth is at least 3 mm  -> min 3.5 mm, max 27.5 mm
+[PASS] no thorn vertex penetrates another object, and every foreign surface keeps 1.5 mm of air  -> closest 1.73 mm (WSK_Helmet_CrownThorn_R1_01 vs WSK_Helmet_CrownBand_01)
+[PASS] no thorn is floating above its own mounting surface  -> all bases contact their metal
+[PASS] every thorn is a closed manifold with no loose geometry or degenerate faces
+[PASS] every thorn's normals point outwards
+[PASS] no thorn has a collapsed edge  -> shortest edge 0.85 mm
+[PASS] every thorn uses the same 67-vertex profile (manageable, no subdivision)  -> 1407 vertices for the whole crown
+[PASS] no thorn carries a subdivision modifier
+
+== D  the shoulder spikes ==
+[PASS] six spikes per pauldron, on two pauldrons  -> WSK_Armor_Pauldron_L_01: 6; WSK_Armor_Pauldron_R_01: 6
+[PASS] each spike is still parented to its own shoulder root
+[PASS] each spike keeps an identity world matrix (mesh space = world space)
+[PASS] every shoulder spike's base sits on its pauldron  -> worst 1.24 mm
+[PASS] no shoulder spike touches the body, torso armour, helmet or another spike  -> closest foreign surface 21.68 mm
+[PASS] shoulder spike lengths stay in a tight, smaller band  -> 0.070-0.123 m
+[PASS] the prompt-7 left/right differences survive the re-cut  -> 0.0%, 4.7%, 0.0%, 2.1%, 3.0%, 5.6%
+[PASS] every shoulder spike is still a closed manifold with no loose or degenerate geometry  -> shortest edge 0.74 mm
+[PASS] no shoulder spike has a collapsed edge
+
+== E  silhouette balance (rendered) ==
+[PASS] the crown silhouette is balanced left/right from the front  -> centroid offset -0.24 mm
+[PASS] the crown silhouette area is balanced left/right  -> L/R 0.9993
+[PASS] the crown's frontal span stays close to the helmet  -> 0.352 m (reference read 0.42, previously 0.361)
+[PASS] the tallest thorn stays inside the documented envelope  -> top 2.134 m (reference reads 2.18-2.23; guide says 2.11, 'guide only / not measured')
+[PASS] no thorn hangs low enough to reach the gorget or the shoulders  -> lowest silhouette point 1.819 m (gorget top 1.775 m)
+[PASS] the rear view is balanced as well  -> centroid offset +0.18 mm
+[PASS] the fan sweeps back: the thorn tips are behind the head axis, so the side view is a comb and not a disc  -> mean tip Y -0.042 m, rearmost -0.181 m, frontmost +0.134 m
+[PASS] the crown reads from the front and from behind alike (the ring frames one, the thorns the other)  -> front 145 cm2, rear 145 cm2
+[PASS] the inspection renders the prompt asks for exist  -> p10_crown_four_views.png, p10_crown_front.png, p10_crown_in_context.png, p10_crown_only_sheet.png, p10_crown_rear.png, p10_crown_side_left.png, p10_crown_side_right.png, p10_crown_threequarter.png, p10_crown_threequarter_rear.png, p10_crown_top.png, p10_crownonly_front.png, p10_crownonly_threequarter.png, p10_figure__Front_01.png, p10_figure_l_Left_01.png, p10_figure_l_Rear_01.png, p10_shoulderplane_front.png, p10_shoulderplane_rear.png, p10_shoulderplane_side.png, p10_shoulderplane_threequarter.png
+
+== F  design table ==
+row  name                              base (x,y,z)            tilt  lean  length  base_r  root
+A    rownThorn_C_01                   (+0.000,+0.120,+1.945)    4.0   0.0  0.195    5.9  27.5 mm
+A    rownThorn_L1_01                  (-0.041,+0.091,+1.919)   30.0 -105.0  0.165   12.4  17.0 mm
+A    rownThorn_L2_01                  (-0.070,+0.046,+1.924)   46.0 -112.0  0.148   11.1  16.3 mm
+A    rownThorn_L3_01                  (-0.075,-0.004,+1.929)   52.0 -128.0  0.125   10.6  14.1 mm
+A    rownThorn_L4_01                  (-0.067,-0.039,+1.932)   62.0 -145.0  0.121   10.3  13.4 mm
+A    rownThorn_L5_01                  (-0.044,-0.074,+1.934)   70.0 -157.0  0.105    9.4   9.0 mm
+A    rownThorn_R1_01                  (+0.041,+0.091,+1.919)   30.0 105.0  0.165   12.4  17.0 mm
+A    rownThorn_R2_01                  (+0.070,+0.046,+1.924)   44.0 112.0  0.142   10.7  16.0 mm
+A    rownThorn_R3_01                  (+0.075,-0.004,+1.929)   52.0 125.0  0.125   10.6  13.1 mm
+A    rownThorn_R4_01                  (+0.067,-0.040,+1.932)   62.0 145.0  0.115    9.8  12.9 mm
+A    rownThorn_R5_01                  (+0.044,-0.074,+1.933)   70.0 154.0  0.101    9.1   8.1 mm
+B    rownBarb_L1_01                   (-0.077,+0.085,+1.875)  122.0 -72.0  0.112    8.3  17.0 mm
+B    rownBarb_L2_01                   (-0.092,+0.034,+1.879)  124.0 -100.0  0.113    8.6   5.0 mm
+B    rownBarb_L3_01                   (-0.092,-0.016,+1.883)  120.0 -122.0  0.098    7.8   3.5 mm
+B    rownBarb_L4_01                   (-0.078,-0.057,+1.885)  118.0 -142.0  0.104    8.1  14.0 mm
+B    rownBarb_L5_01                   (-0.047,-0.088,+1.887)  115.0 -162.0  0.108    8.1  11.8 mm
+B    rownBarb_R1_01                   (+0.077,+0.085,+1.875)  122.0  72.0  0.112    8.3  17.0 mm
+B    rownBarb_R2_01                   (+0.092,+0.034,+1.879)  124.0 100.0  0.108    8.2   5.0 mm
+B    rownBarb_R3_01                   (+0.092,-0.013,+1.883)  120.0 122.0  0.102    8.2   3.5 mm
+B    rownBarb_R4_01                   (+0.078,-0.057,+1.885)  118.0 142.0  0.104    8.1  14.0 mm
+B    rownBarb_R5_01                   (+0.047,-0.088,+1.887)  115.0 159.0  0.102    7.6  11.0 mm
+
+mount counts: WSK_Helmet_Crest_01 x1, WSK_Helmet_Shell_01 x20
+shoulder spikes: ShoulderSpikeCrown 0.070 m, ShoulderSpikeFrontLow 0.070 m, ShoulderSpikeFront 0.099 m, ShoulderSpikeRearLow 0.078 m, ShoulderSpikeRear 0.092 m, ShoulderSpike 0.116 m
+
+========================================================================
+RESULT: 53 checks passed, 0 failed, 0 warnings
+========================================================================
