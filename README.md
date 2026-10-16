@@ -19,6 +19,7 @@ disturbed.
 | 8 | `Wildshift_Knight_08_TorsoArmor.blend` | refined chest/back cuirass, separate side plates, waist belt, hanging waist panels and blank medallion mount |
 | 9 | `Wildshift_Knight_09_LimbArmor.blend` | 54 separate refined limb-armour meshes: layered upper arms, forearms, gauntlets, thighs, greaves and sabatons; visibly segmented joints, stable soles, manual pose pivots and attachment metadata; no rig |
 | 10 | `Wildshift_Knight_10_Crown.blend` | thorn crown: the nine flat radial spikes replaced by 21 planted thorns in two graded rows around the existing halo ring, and the twelve shoulder spikes re-cut in the same profile at 65 % length; every base ray-planted on the evaluated helmet and length-fitted against all other parts |
+| 11 | `Wildshift_Knight_11_Medallion.blend` | the central waist ornament on the checkpoint-8 mount: a 35 mm antique-gold ring (genus-1 solid of revolution), a recessed centre disc with a rear plug flange, and 12 fitted radial blades in three graded reaches, each blade's rear face ray-fitted to the belt and the mount under it; three separate components, fourteen meshes, a new pivot empty, no applied modifiers |
 
 ## Prompt 2 — proportions
 
@@ -794,6 +795,140 @@ Outputs:
 * `WSK_Crown_Thorn_Notes.txt` inside the `.blend` — the same notes plus the
   build log.
 
+## Prompt 11 — the waist medallion
+
+Deliverable: **`Wildshift_Knight_11_Medallion.blend`**, built from checkpoint 10.
+The waist belt, the fauld panels, the torso armour, the shoulders, the limbs,
+the helmet, the body and the whole scene setup are byte-identical to checkpoint
+10. The only change outside the new ornament is that the blank medallion mount
+Prompt 8 left on the belt is re-parented to the ornament's pivot — its mesh and
+its world matrix are untouched.
+
+![waist front, rear, left, right](analysis/medallion/p11_waist_four_views.png)
+
+### The mount the ornament is built on
+
+`WSK_Armor_WaistMedallionMount_01` is the plain 48-sided disc Prompt 8 left on
+the belt: face at Y 0.1430, radius 43.0 mm, axis at X 0.000 / Z 1.0550, i.e. the
+centre of the 100 mm belt band (Z 1.005–1.105). It is re-used exactly as it is,
+and the mount is what every ray of the ornament is fitted against.
+
+### Three components, fourteen meshes
+
+| component | objects | what it is |
+|---|---|---|
+| ring | `WSK_Armor_WaistMedallionRing_01` | a closed solid of revolution: 9-point profile, 128 steps, genus 1. Rear seat at Y 0.1426 (0.4 mm *inside* the mount's face), outer radius 35.0 mm, aperture 25.0 mm, flange at 31.0–35.0 mm and a band at 26.0 mm rising to Y 0.1542 |
+| centre | `WSK_Armor_WaistMedallionCore_01` | a disc of revolution: a recessed field whose deepest point is Y 0.1472, a groove step, a raised rim at Y 0.1497 (24.2 mm radius) and a rear plug flange at 25.35 mm that overlaps the ring's aperture wall, so the two parts are joined, not stacked |
+| rays | `WSK_Armor_WaistMedallionRay_01` … `_12` | twelve closed tapered blades, 30° apart, in three graded reaches (48.0 mm vertical, 46.5 mm diagonal, 45.5 mm horizontal), each fitted to the armour under it |
+
+`WSK_Armor_WaistMedallionRoot_01` (an empty on the mount's axis) carries all
+fourteen meshes and the mount, so the whole ornament can be rotated or moved as
+one piece. The ornament is 70 mm across at the ring and 96 mm across the blades,
+inside the 100 mm belt, and stands 11.1 mm proud of the mount's face.
+
+![the ornament alone](analysis/medallion/p11_medallion_only_sheet.png)
+
+### Why nothing floats
+
+The belt is curved, and its surface falls away above and below the mount, so a
+blade laid on a flat plane would either float over the belt at its tips or sink
+into it at its base. Every blade therefore fits its own rear face to the armour
+underneath it: eleven stations along the blade's axis, each sampled on three
+parallel lines across the blade's width (the highest sample wins, so a blade's
+shoulders cannot sink into a surface curving up under them), ray-cast against
+the evaluated armour, with the mount's flat face and its bevelled rim
+substituted where they are in front of the belt. The samples are smoothed into a
+fair curve and clamped between 0.2 mm and 1.6 mm above the surface, which is
+what produces the blade's gentle bend as it crosses the rim and lies back down
+on the belt.
+
+Verification re-measures the lift of every blade at 132 stations: tightest
+0.12 mm, loosest 2.06 mm, median 0.59 mm. Nothing floats, nothing is buried,
+and no visible vertex of the ornament intersects the belt, the fauld panels, the
+torso, the limbs or the body.
+
+### Reading against the reference
+
+`tools/medallion_reference_probe.py` fits the reference's sun motif on the front
+tabard (gold test R−B > 18, R > 55; dark test luminance < 19) and reports it in
+millimetres with Prompt 2's calibration: core radius 26.7 mm, bezel 30.5–42.9 mm
+peak 0.90 gold, blades reaching 85.7 mm in every direction, and 16–23 gold
+clusters outside the bezel — a 171 mm emblem on a 2.00 m figure, with a core
+0.62 × the bezel radius and blades 2.0 ×.
+
+Scaled to the 43 mm mount that ratio would put a 140–160 mm emblem on a 100 mm
+belt. Checkpoint 11 therefore keeps the reference's **core and bezel**
+proportion (0.69 against the measured 0.62, within 7 %) and crops only the
+**blade reach** to 1.37 ×, and uses twelve blades instead of ~20: the ornament
+stays inside the belt it is mounted on. The motif itself — a plain dished disc,
+a raised rim, a ring and graded tapered blades — is generic sun geometry: no
+cross, no ankh, no franchise emblem.
+
+The back copy of the motif sits in shadow behind the cape chains and cannot be
+read reliably (its bead fit fails), so it is reported but not used; the front
+copy is the legible one.
+
+![the ornament in context](analysis/medallion/p11_waist_in_context.png)
+
+### Non-destructive construction
+
+* Every part is a parametric solid of revolution or a parametric blade. No
+  booleans, no sculpting, no remeshing, no applied modifiers.
+* The only modifier on the ornament is an unapplied 0.16 mm edge bevel.
+* The whole design lives in the constants at the top of
+  `tools/build_medallion.py`; change them and re-run to regenerate the ornament
+  from checkpoint 10.
+* No emission, no glow, no particles, no animation, one placeholder gold
+  material (`MAT_Armor_AntiqueGold_01`, metallic 1.0, roughness 0.42) with no
+  texture work.
+
+### Verification
+
+`tools/verify_medallion.py` runs **102 checks, all passing**, on evaluated
+meshes:
+
+* **scope** — the ornament is the only thing added and the mount is the only
+  object that changed (by parenting alone); 115 existing armour, helmet and body
+  meshes are byte-identical to checkpoint 10; no collection, world, camera or
+  light was added; no material gained an emission node; no particle system.
+* **placement** — the ring is centred on the mount's axis to 0.001 mm; the whole
+  ornament fits inside the belt band with margin; the ring's seat is socketed
+  0.4 mm into the mount; the mount's face stays visible for 7.4 mm outside the
+  ring; the centre is socketed 0.5 mm and never plunged into the plate.
+* **design** — twelve rays at exactly 30°, three graded tiers of four, reach
+  falling monotonically, exact mirror symmetry about X = 0, no blade pointing
+  straight up or out, a dished centre 2.5 mm deep inside its rim.
+* **components** — fourteen separate single-user meshes, one material slot each,
+  all parented to the pivot with identity local transforms; the mount's world
+  matrix is bit-for-bit checkpoint 10's.
+* **mesh quality** — every part is a closed manifold solid with no boundary edge
+  and no loose edge, 2·E = Σ face degrees, outward normals, the ring genus 1 and
+  everything else genus 0, and the bevel still unapplied.
+* **planting** — every blade's base is buried in the ring solid, the centre's
+  plug overlaps the aperture wall, 132 measured lifts are all positive and under
+  3 mm, and none of the 4725 visible ornament vertices touches any other armour.
+* **render** — an orthographic front render of the ornament alone is centred to
+  0.5 px horizontally and vertically, and its silhouette matches the model's own
+  extents to 0.05 mm.
+
+Outputs:
+
+* `analysis/medallion/p11_waist_four_views.png` — front, rear, left and right at
+  waist framing.
+* `analysis/medallion/p11_waist_threequarter.png` — both three-quarters.
+* `analysis/medallion/p11_medallion_only_sheet.png` — the ornament alone, from
+  the front, the rear and three-quarters, with the belt and body hidden.
+* `analysis/medallion/p11_waist_in_context.png` — whole figure front, rear and
+  left.
+* `analysis/medallion/before_*` — the same harness on checkpoint 10 (the blank
+  mount) for comparison.
+* `analysis/medallion/ref_{front,back}_motif.png` — the annotated reference
+  motif read.
+* `analysis/verify/verify_medallion_report.txt` — the full report.
+* `analysis/verify/medallion_reference_probe.txt` — the reference read.
+* `WSK_Medallion_Notes.txt` inside the `.blend` — the same notes plus the build
+  log.
+
 ## Reproducing
 
 ```bash
@@ -820,6 +955,10 @@ tools/bl.sh tools/render_limb_armor.py        # neutral, four-way and pose sheet
 tools/bl.sh tools/build_crown_thorns.py       # writes checkpoint 10
 tools/bl.sh tools/verify_crown.py             # 53 crop, planting and clearance checks
 tools/bl.sh tools/render_crown.py             # crown, crown-only and in-context sheets
+tools/bl.sh tools/build_medallion.py          # writes checkpoint 11
+tools/bl.sh tools/verify_medallion.py         # 102 placement, design, planting and render checks
+tools/bl.sh tools/render_medallion.py         # waist, ornament-only and in-context sheets
+tools/medallion_reference_probe.py            # the reference's sun motif in millimetres
 tools/crown_reference_probe.py                # metric grid over the reference views
 tools/crown_silhouette_read.py                # reference crown silhouette in metres
 tools/crown_vs_reference.py                   # reference vs render, matched scale
@@ -848,6 +987,7 @@ analysis/armor/            Prompt 5 front, side and rear armor orthographic chec
 analysis/silhouette/       Prompt 6 front, rear, left and right silhouette inspection
 analysis/shoulders/        Prompt 7 shoulder close-ups, sheets and articulation
 analysis/limb_armor/       Prompt 9 neutral, four-way and manual-pose views
+analysis/medallion/        Prompt 11 waist, ornament-only and in-context views
 analysis/verify/           the verification reports
 tools/                     build, verification and measurement scripts
 tools/bl.sh                run a script with the headless Blender
@@ -862,6 +1002,9 @@ tools/inspect_shoulders.py       shoulder inspector
 tools/build_torso_armor.py       checkpoint 8: torso and waist armour
 tools/build_limb_armor.py        checkpoint 9: segmented layered limb armour
 tools/render_limb_armor.py       checkpoint 9 neutral and pose render pass
+tools/build_medallion.py         checkpoint 11: the central waist medallion
+tools/render_medallion.py        checkpoint 11 waist and ornament render pass
+tools/medallion_reference_probe.py  reads the reference's sun motif in metres
 tools/verify_*.py          the check suites (proportions, body, helmet, armour)
 Wildshift_Knight_0*.blend  checkpoints
 setup_blend.py             checkpoint 1 script

@@ -1,0 +1,129 @@
+
+== A  scope - what changed and what did not ==
+[PASS] the medallion is the only thing added (ring, centre, 12 rays, pivot)  -> 15 added
+[PASS] nothing was removed  -> 0 removed
+[PASS] no existing object's geometry or transform changed  -> changed: WSK_Armor_WaistMedallionMount_01
+[PASS] the waist medallion mount is byte-identical: it was found and re-used, not rebuilt
+[PASS] the mount is now parented to the medallion pivot (the only change to it)
+[PASS] no collection was added or removed  -> 14 collections
+[PASS] worlds and the camera set are unchanged  -> 2 worlds, 13 cameras
+[PASS] no light was added to the saved file  -> 4 lights
+[PASS] no material gained an emission shader (no glow, no magical effect)
+[PASS] the ornament uses one placeholder material with no texture  -> MAT_Armor_AntiqueGold_01
+[PASS] no particle systems, cloth or fluid (no animated effect)
+[PASS] the ornament is one group of 14 meshes and a pivot - no extra jewellery was added anywhere else on the character  -> 15 objects
+[PASS] the waist belt, the fauld panels, the torso armour, the shoulder and limb armour, the helmet and the body are byte-identical to checkpoint 10  -> 115 objects compared
+
+== B  the mount that was found, and the placement of the ornament ==
+[PASS] the checkpoint-8 mount is what the prompt said it was  -> face Y 0.1430, radius 43.0 mm
+[PASS] the mount sits on the belt's centre line  -> mount Z 1.055, belt 1.005-1.105
+[PASS] the medallion is centred on the mount's axis  -> ring centre (+0.000, +1055.000) mm vs (+0.000, +1055.000) mm
+[PASS] the whole ornament fits inside the belt band with a margin  -> Z 1.0086..1.1014 inside 1.005..1.105
+[PASS] the ornament is no wider than the plate it is mounted on  -> half-span 44.0 mm vs mount radius 43.0 mm
+[PASS] the ring is seated into the mount's face, not balanced on it  -> ring rear seat Y 0.1426 vs mount face 0.1430
+[PASS] the mount's rim stays visible outside the ring  -> ring 35.0 mm inside 43.0 mm
+
+== C  the design ==
+[PASS] a limited number of radial elements: twelve  -> 12 rays
+[PASS] the rays are evenly spaced at 30 degrees  -> gaps 30.0..30.0
+[PASS] WSK_Armor_WaistMedallionRay_01_01 reach matches the design  -> az 75.0 deg reach 48.00 mm vs 48.00 mm
+[PASS] WSK_Armor_WaistMedallionRay_02_01 reach matches the design  -> az 105.0 deg reach 48.00 mm vs 48.00 mm
+[PASS] WSK_Armor_WaistMedallionRay_03_01 reach matches the design  -> az 255.0 deg reach 48.00 mm vs 48.00 mm
+[PASS] WSK_Armor_WaistMedallionRay_04_01 reach matches the design  -> az 285.0 deg reach 48.00 mm vs 48.00 mm
+[PASS] WSK_Armor_WaistMedallionRay_05_01 reach matches the design  -> az 45.0 deg reach 46.50 mm vs 46.50 mm
+[PASS] WSK_Armor_WaistMedallionRay_06_01 reach matches the design  -> az 135.0 deg reach 46.50 mm vs 46.50 mm
+[PASS] WSK_Armor_WaistMedallionRay_07_01 reach matches the design  -> az 225.0 deg reach 46.50 mm vs 46.50 mm
+[PASS] WSK_Armor_WaistMedallionRay_08_01 reach matches the design  -> az 315.0 deg reach 46.50 mm vs 46.50 mm
+[PASS] WSK_Armor_WaistMedallionRay_09_01 reach matches the design  -> az 15.0 deg reach 45.50 mm vs 45.50 mm
+[PASS] WSK_Armor_WaistMedallionRay_10_01 reach matches the design  -> az 165.0 deg reach 45.50 mm vs 45.50 mm
+[PASS] WSK_Armor_WaistMedallionRay_11_01 reach matches the design  -> az 195.0 deg reach 45.50 mm vs 45.50 mm
+[PASS] WSK_Armor_WaistMedallionRay_12_01 reach matches the design  -> az 345.0 deg reach 45.50 mm vs 45.50 mm
+[PASS] three graded reach tiers of four blades each  -> 4/4/4
+[PASS] reach falls off monotonically from the vertical pair to the horizontal pair  -> V 48.00, D 46.50, H 45.50 mm
+[PASS] no blade points straight up or straight out of the silhouette  -> azimuths 15, 45, 75, 105, 135, 165, 195, 225, 255, 285, 315, 345
+[PASS] the ray pattern is exactly mirror-symmetric about X = 0
+[PASS] exactly one ring and one centre
+[PASS] the centre is dished: a raised rim standing proud of a recessed field, so it reads in rendered light  -> rim 0.1497 vs field 0.1472 (2.47 mm)
+[PASS] the centre sits below the ring's face, inside the bezel  -> centre 0.1497 vs ring 0.1541
+[PASS] the ornament has real depth to catch light  -> 11.1 mm from the mount's face to the ring's crest
+
+== D  separate components and hierarchy ==
+[PASS] every part is a separate single-user mesh (nothing joined)
+[PASS] each part carries its own material slot
+[PASS] ring, centre, rays and the mount all hang off the medallion pivot
+[PASS] the pivot empty is on the mount's axis  -> (0.0000, 0.0000, 1.0550)
+[PASS] parenting did not move anything: every new part keeps an identity local transform
+[PASS] the mount keeps the exact world matrix it had in checkpoint 10 - it was not rotated, scaled or moved, only re-parented  -> largest matrix element change 0.00e+00
+[PASS] the evaluated ring is still centred on the mount after parenting  -> X -35.00..+35.00 mm, Z 1.0200..1.0900 m
+
+== E  mesh quality ==
+[PASS] ring: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 1152, E 2304, F 1152
+[PASS] ring: normals point outwards  -> volume 16.5 mm3
+[PASS] centre: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 1154, E 2432, F 1280
+[PASS] centre: normals point outwards  -> volume 12.2 mm3
+[PASS] ray 01: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 01: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 02: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 02: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 03: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 03: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 04: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 04: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 05: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 05: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 06: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 06: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 07: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 07: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 08: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 08: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 09: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 09: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 10: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 10: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 11: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 11: normals point outwards  -> volume 0.4 mm3
+[PASS] ray 12: a closed manifold solid with no loose geometry  -> boundary 0, non-manifold 0, V 66, E 126, F 62
+[PASS] ray 12: normals point outwards  -> volume 0.4 mm3
+[PASS] the ring is a ring: genus 1 (like a washer)  -> V-E+F = 0
+[PASS] the centre and every blade are simple genus-0 solids
+[PASS] the edge bevel is still an unapplied modifier on every part (non-destructive)
+[PASS] no other modifier, boolean or sub-division was used
+[PASS] no degenerate feature: the shortest edge in the whole ornament is well above the bevel width  -> 0.288 mm
+
+== F  planting - nothing floats, nothing is buried ==
+[PASS] no part of the medallion is inside the body or the helmet  -> 0 parts offending
+[PASS] no ray vertex is touching or inside any armour surface  -> closest ray vertex to armour 0.119 mm
+[PASS] every blade's base is buried inside the ring solid: the rays grow out of the ring rather than being laid on it  -> 12/12
+[PASS] the centre's plug flange overlaps the ring's aperture wall: the two are joined
+[PASS] the blade-to-armour measurement covers the whole ray set  -> 132 stations across 12 blades
+[PASS] no blade is buried in the armour under it: every station of every blade rests above the surface, not inside it  -> tightest lift 0.119 mm
+[PASS] no blade floats: the loosest station is under 3 mm off the armour  -> largest lift 2.060 mm
+[PASS] the blades sit close to the armour surface  -> median lift 0.587 mm
+      loosest station  2.06 mm on 06 at (-30.5, 1.0855)
+      tightest station 0.12 mm on 01 at (+10.6, 1.0944)
+[PASS] no visible vertex of the ornament intersects the belt, the fauld panels, the torso armour, the limbs or the body  -> 0 clashes out of 4725 visible vertices
+      4725 of 7242 ornament vertices are visible metal; the rest are socketed into the mount or buried in the ring, which is where the components are joined
+[PASS] the whole rear seat of the ring is inside the mount's face: the ornament is socketed, not balanced on it  -> 768 seated vertices
+[PASS] the centre's plug overshoots the ring's aperture by a socketing margin - a flange, not a second disc  -> plug radius 25.35 mm vs aperture 25.00 mm
+[PASS] the centre is socketed 1 mm or less into the mount, never plunged into it  -> core rear Y 0.1425 vs mount face 0.1430
+[PASS] the centre stays inside the ring's outer wall  -> max radius 25.4 mm vs ring 35.0 mm
+[PASS] the ring leaves a clean band of the mount's face visible around it  -> nearest ring vertex to the mount's rim 7.42 mm
+[PASS] the ring stands proud of the centre, so the ornament has a real rim  -> 4.44 mm
+
+== G  the rendered read ==
+[PASS] in an orthographic front render the ornament is horizontally centred  -> mask centre x 239.5 px vs image centre 239.5 px
+[PASS] the rendered silhouette is exactly the modelled ornament  -> render 43.98 x 46.37 mm vs model 44.02 x 46.44 mm
+[PASS] the ornament is centred vertically on the belt's centre line  -> mask centre y 299.5 px vs image centre 299.5 px
+[PASS] the ornament is smaller than the belt it sits on, so it does not overwhelm it  -> 93 mm ornament on a 100 mm belt
+[PASS] the ornament reads as one deliberate mass rather than a scatter of pieces  -> 43.5 % of the frame
+
+== summary ==
+checks passed: 102
+checks failed: 0
+warnings:      0
+
+The ornaments: 1 ring (genus 1, revolved 9-point profile), 1 dished centre disc
+with a rear plug flange, 12 fitted radial blades, 1 pivot empty.  Fourteen
+separate meshes on a common data path - no booleans, no applied modifiers, no
+texture work, no glow, and nothing else on the character was touched.
